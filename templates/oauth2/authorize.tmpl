@@ -1,0 +1,39 @@
+{{ define "authorize.tmpl" }}
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    {{ template "import.head" }}
+    <title>授权</title>
+</head>
+
+<body>
+    <h1>
+        {{ .title }}
+        {{ if .error }}
+        <p>{{ .error }}</p>
+        {{ end }}
+        <p>是否愿意代表您执行操作</p>
+        <form method="POST">
+            <p>Check some colors</p>
+            <label for="red">Red</label>
+            <input type="checkbox" name="colors[]" value="red" id="red">
+            <label for="green">Green</label>
+            <input type="checkbox" name="colors[]" value="green" id="green">
+            <label for="blue">Blue</label>
+            <input type="checkbox" name="colors[]" value="blue" id="blue">
+            <button type="submit">授权</button>
+            <button onclick="close_window()" type="button">取消</button>
+        </form>
+    </h1>
+    {{ template "import.js" }}
+    <script>
+        function close_window() {
+            window.close();
+        }
+    </script>
+</body>
+
+
+</html>
+{{ end }}

@@ -1,0 +1,27 @@
+{{ define "login.tmpl" }}
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    {{ template "import.head" }}
+    <title>登录</title>
+</head>
+
+<body>
+    <h1>
+        {{ .title }}
+        {{ if .error }}
+        <p>{{ .error }}</p>
+        {{ end }}
+        <form method="POST">
+            <input name="username" placeholder="用户名" />
+            <br />
+            <input name="password" placeholder="密码" />
+            <button type="submit">登录</button>
+        </form>
+    </h1>
+    {{ template "import.js" }}
+</body>
+
+</html>
+{{ end }}
