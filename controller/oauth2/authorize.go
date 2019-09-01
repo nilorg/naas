@@ -3,7 +3,7 @@ package oauth2
 import (
 	"fmt"
 	"net/http"
-
+	"github.com/nilorg/pkg/logger"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/dao"
@@ -17,7 +17,6 @@ func AuthorizePage(ctx *gin.Context) {
 	errMsg := GetErrorMessage(ctx)
 	if errMsg != "" {
 		ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
-			"title": "授权页面",
 			"error": GetErrorMessage(ctx),
 		})
 		return
@@ -28,8 +27,10 @@ func AuthorizePage(ctx *gin.Context) {
 	var client *model.OAuth2Client
 	client, err = dao.OAuth2Client.SelectByID(clientID)
 	if err != nil {
-		fmt.Println("查询客户端错误.....")
-		_ = SetErrorMessage(ctx, err.Error())
+		err = SetErrorMessage(ctx, err.Error())
+		if err != nil {
+			logger.Errorln(err)
+		}
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
@@ -44,19 +45,28 @@ func AuthorizePage(ctx *gin.Context) {
 		var qrLevelDomain string
 		qrLevelDomain, err = publicsuffix.EffectiveTLDPlusOne(queryRedirectURI)
 		if err != nil {
-			_ = SetErrorMessage(ctx, err.Error())
+			err = SetErrorMessage(ctx, err.Error())
+			if err != nil {
+				logger.Errorln(err)
+			}
 			ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 			return
 		}
 		var dbLevelDomain string
 		dbLevelDomain, err = publicsuffix.EffectiveTLDPlusOne(client.RedirectURI)
 		if err != nil {
-			_ = SetErrorMessage(ctx, err.Error())
+			err = SetErrorMessage(ctx, err.Error())
+			if err != nil {
+				logger.Errorln(err)
+			}
 			ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 			return
 		}
 		if qrLevelDomain != dbLevelDomain {
-			_ = SetErrorMessage(ctx, "重定向域名不符合后台配置规范")
+			err = SetErrorMessage(ctx, "重定向域名不符合后台配置规范")
+			if err != nil {
+				logger.Errorln(err)
+			}
 			ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 			return
 		}

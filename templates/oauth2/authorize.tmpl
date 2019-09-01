@@ -8,30 +8,36 @@
 </head>
 
 <body>
-    <h1>
-        {{ .title }}
+
+
+    <div class="container">
+
         {{ if .error }}
-        <p>{{ .error }}</p>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>错误：</strong> {{ .error }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         {{ end }}
-        <p>是否愿意代表您执行操作</p>
         <form method="POST">
-            <p>Check some colors</p>
-            <label for="red">Red</label>
-            <input type="checkbox" name="colors[]" value="red" id="red">
-            <label for="green">Green</label>
-            <input type="checkbox" name="colors[]" value="green" id="green">
-            <label for="blue">Blue</label>
-            <input type="checkbox" name="colors[]" value="blue" id="blue">
-            <button type="submit">授权</button>
-            <button onclick="close_window()" type="button">取消</button>
+            <div class="jumbotron mt-3">
+                <h1>是否愿意代表您执行操作</h1>
+                <p class="lead">Check some scopes.</p>
+                <label for="red">Red</label>
+                <input type="checkbox" name="scopes[]" value="red" id="red">
+                <label for="green">Green</label>
+                <input type="checkbox" name="scopes[]" value="green" id="green">
+                <label for="blue">Blue</label>
+                <input type="checkbox" name="scopes[]" value="blue" id="blue">
+                <br />
+                <br />
+                <button type="submit" class="btn btn-primary">授权</button>
+            </div>
         </form>
-    </h1>
+    </div>
+
     {{ template "import.js" }}
-    <script>
-        function close_window() {
-            window.close();
-        }
-    </script>
 </body>
 
 

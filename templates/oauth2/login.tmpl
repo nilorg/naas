@@ -4,22 +4,42 @@
 
 <head>
     {{ template "import.head" }}
+    <link rel="stylesheet" href="/assets/css/floating-labels.css" />
     <title>登录</title>
 </head>
 
 <body>
-    <h1>
-        {{ .title }}
-        {{ if .error }}
-        <p>{{ .error }}</p>
-        {{ end }}
-        <form method="POST">
-            <input name="username" placeholder="用户名" />
-            <br />
-            <input name="password" placeholder="密码" />
-            <button type="submit">登录</button>
-        </form>
-    </h1>
+    <form method="POST" class="form-signin">
+        <div class="text-center mb-4">
+            <img class="mb-4" src="https://avatars0.githubusercontent.com/u/45484932" alt="" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal">NilOrg认证授权服务平台</h1>
+            {{ if .error }}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>错误：</strong> {{ .error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {{ end }}
+        </div>
+        <div class="form-label-group">
+            <input type="text" id="inputUsername" name="username" class="form-control" placeholder="用户名" required autofocus />
+            <label for="inputUsername">用户名</label>
+        </div>
+
+        <div class="form-label-group">
+            <input type="password" id="inputPassword" name="password" class="form-control" placeholder="密码" required />
+            <label for="inputPassword">密码</label>
+        </div>
+
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" value="remember-me"> 记住我
+            </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+        <p class="mt-5 mb-3 text-muted text-center">&copy; 2019</p>
+    </form>
     {{ template "import.js" }}
 </body>
 

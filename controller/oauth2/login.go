@@ -6,12 +6,12 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/dao"
+	"github.com/nilorg/pkg/logger"
 )
 
 // LoginPage 登录页面
 func LoginPage(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"title": "登录",
 		"error": GetErrorMessage(ctx),
 	})
 }
@@ -23,12 +23,18 @@ func Login(ctx *gin.Context) {
 
 	user, err := dao.User.SelectByUsername(username)
 	if err != nil {
-		_ = SetErrorMessage(ctx, err.Error())
+		err = SetErrorMessage(ctx, err.Error())
+		if err != nil {
+			logger.Errorln(err)
+		}
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
 	if user.Username != username || user.Password != password {
-		_ = SetErrorMessage(ctx, "账号密码不正确")
+		err = SetErrorMessage(ctx, "账号密码不正确")
+		if err != nil {
+			logger.Errorln(err)
+		}
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
