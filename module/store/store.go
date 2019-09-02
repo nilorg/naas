@@ -47,6 +47,21 @@ func initMySQL() {
 	DB.LogMode(viper.GetBool("mysql.log"))
 	DB.DB().SetMaxOpenConns(viper.GetInt("mysql.max_open"))
 	DB.DB().SetMaxIdleConns(viper.GetInt("mysql.max_idle"))
+	// 关闭复数表名，如果设置为true，`User`表的表名就会是`user`，而不是`users`
+	DB.SingularTable(true)
 	// Migrate the schema
-	DB.AutoMigrate(&model.OAuth2Client{}, &model.OAuth2Scope{}, &model.User{})
+	DB.AutoMigrate(
+		&model.OAuth2Client{},
+		&model.OAuth2ClientInfo{},
+		&model.OAuth2Scope{},
+		&model.Organization{},
+		&model.OrganizationRole{},
+		&model.Role{},
+		&model.RoleWebFunction{},
+		&model.User{},
+		&model.UserRole{},
+		&model.WebComponent{},
+		&model.WebFunction{},
+		&model.WebFunctionComponent{},
+	)
 }

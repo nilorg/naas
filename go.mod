@@ -17,6 +17,7 @@ require (
 	github.com/nilorg/oauth2 v0.0.0
 	github.com/nilorg/oauth2-server v0.0.0-20190901050403-8e67490e0faa // indirect
 	github.com/nilorg/pkg v0.0.0-20190817101027-a262b18bff7a
+	github.com/nilorg/sdk v0.0.0-20190818083213-d52976243caf
 	github.com/onsi/ginkgo v1.10.1 // indirect
 	github.com/onsi/gomega v1.7.0 // indirect
 	github.com/pelletier/go-toml v1.4.0 // indirect

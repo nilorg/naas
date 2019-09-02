@@ -33,7 +33,7 @@ func init() {
 			return
 		}
 		basic = &oauth2.ClientBasic{
-			ID:     client.ClientID,
+			ID:     client.GetClientID(),
 			Secret: client.ClientSecret,
 		}
 		return
