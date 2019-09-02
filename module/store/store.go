@@ -1,7 +1,10 @@
 package store
 
 import (
+	"context"
+
 	"github.com/go-redis/redis"
+	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/pkg/logger"
 
 	// use db mysql
@@ -51,6 +54,7 @@ func initMySQL() {
 	DB.SingularTable(true)
 	// Migrate the schema
 	DB.AutoMigrate(
+		&model.Admin{},
 		&model.OAuth2Client{},
 		&model.OAuth2ClientInfo{},
 		&model.OAuth2Scope{},
@@ -64,4 +68,9 @@ func initMySQL() {
 		&model.WebFunction{},
 		&model.WebFunctionComponent{},
 	)
+}
+
+// NewDBContext ...
+func NewDBContext() context.Context {
+	return db.NewContext(context.Background(), DB)
 }

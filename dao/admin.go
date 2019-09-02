@@ -8,25 +8,25 @@ import (
 	"github.com/nilorg/pkg/db"
 )
 
-// Userer ...
-type Userer interface {
-	SelectByUsername(ctx context.Context, username string) (mu *model.User, err error)
+// Adminer ...
+type Adminer interface {
+	SelectByUsername(ctx context.Context, username string) (ma *model.Admin, err error)
 }
 
-type user struct {
+type admin struct {
 }
 
-func (*user) SelectByUsername(ctx context.Context, username string) (mu *model.User, err error) {
+func (*admin) SelectByUsername(ctx context.Context, username string) (ma *model.Admin, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
 		return
 	}
-	var dbResult model.User
+	var dbResult model.Admin
 	err = gdb.Where("username = ?", username).First(&dbResult).Error
 	if err != nil {
 		return
 	}
-	mu = &dbResult
+	ma = &dbResult
 	return
 }

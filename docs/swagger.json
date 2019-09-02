@@ -1,0 +1,78 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "NilOrg认证授权服务Api详情.",
+        "title": "NilOrg认证授权服务",
+        "termsOfService": "https://github.com/nilorg",
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/nilorg/naas",
+            "email": "862860000@qq.com"
+        },
+        "license": {
+            "name": "GNU General Public License v3.0",
+            "url": "https://github.com/nilorg/naas/blob/master/LICENSE"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/v1",
+    "paths": {
+        "/admin/login": {
+            "post": {
+                "description": "后台管理员登录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "管理员登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "密码",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/api.ResultError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.ResultError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

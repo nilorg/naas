@@ -3,12 +3,14 @@ package oauth2
 import (
 	"fmt"
 	"net/http"
-	"github.com/nilorg/pkg/logger"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/nilorg/naas/dao"
+	"github.com/nilorg/naas/core/util/key"
 	"github.com/nilorg/naas/model"
+	"github.com/nilorg/naas/service"
 	"github.com/nilorg/oauth2"
+	"github.com/nilorg/pkg/logger"
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -25,7 +27,7 @@ func AuthorizePage(ctx *gin.Context) {
 	clientID := ctx.Query("client_id")
 	var err error
 	var client *model.OAuth2Client
-	client, err = dao.OAuth2Client.SelectByID(clientID)
+	client, err = service.OAuth2.GetClient(clientID)
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {
@@ -71,15 +73,14 @@ func AuthorizePage(ctx *gin.Context) {
 			return
 		}
 	}
-
 }
 
 // Authorize authorize post
 func Authorize(ctx *gin.Context) {
 	session := sessions.Default(ctx)
-	currentAccount := session.Get("current_user")
-	cu := currentAccount.(*model.User)
-	rctx := oauth2.NewOpenIDContext(ctx.Request.Context(), fmt.Sprint(cu.ID))
+	currentAccount := session.Get(key.SessionAccount)
+	cu := currentAccount.(*model.SessionAccount)
+	rctx := oauth2.NewOpenIDContext(ctx.Request.Context(), fmt.Sprint(cu.UserID))
 	req := ctx.Request.WithContext(rctx)
 	// 模拟请求客户端
 	oauth2Server.HandleAuthorize(ctx.Writer, req)

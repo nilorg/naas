@@ -4,6 +4,7 @@ import (
 	"net/url"
 
 	"github.com/gin-contrib/sessions"
+	"github.com/nilorg/naas/core/util/key"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,7 +12,7 @@ import (
 // Header 头处理
 func Header() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Server", "Nilorg OAuth2")
+		c.Writer.Header().Set("Server", "naas(https://github.com/nilorg/naas)")
 		c.Next()
 	}
 }
@@ -20,7 +21,7 @@ func Header() gin.HandlerFunc {
 func AuthRequired(ctx *gin.Context) {
 	clientID := ctx.Query("client_id")
 	session := sessions.Default(ctx)
-	currentAccount := session.Get("current_user")
+	currentAccount := session.Get(key.SessionAccount)
 	if currentAccount == nil {
 		uri := *ctx.Request.URL
 		redirectURI, _ := url.Parse("/oauth2/login")

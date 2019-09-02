@@ -1,6 +1,7 @@
 package dao
 
 var (
-	OAuth2Client = &oauth2Client{}
-	User         = &user{}
+	OAuth2Client OAuth2Clienter = &oauth2Client{}
+	Admin        Adminer        = &admin{}
+	User         Userer         = &user{}
 )

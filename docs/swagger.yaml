@@ -1,0 +1,53 @@
+basePath: /v1
+definitions:
+  api.ResultError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: 862860000@qq.com
+    name: API Support
+    url: https://github.com/nilorg/naas
+  description: NilOrg认证授权服务Api详情.
+  license:
+    name: GNU General Public License v3.0
+    url: https://github.com/nilorg/naas/blob/master/LICENSE
+  termsOfService: https://github.com/nilorg
+  title: NilOrg认证授权服务
+  version: "1.0"
+paths:
+  /admin/login:
+    post:
+      consumes:
+      - application/json
+      description: 后台管理员登录
+      parameters:
+      - description: 用户名
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: 密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/api.ResultError'
+            type: object
+      summary: 管理员登录
+swagger: "2.0"

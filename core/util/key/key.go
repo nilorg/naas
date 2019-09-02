@@ -6,3 +6,8 @@ import "fmt"
 func WrapOAuth2Code(code string) string {
 	return fmt.Sprintf("oauth2_code_%s", code)
 }
+
+const (
+	// SessionAccount 当前账户
+	SessionAccount = "session_account"
+)

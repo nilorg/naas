@@ -5,7 +5,8 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/nilorg/naas/dao"
+	"github.com/nilorg/naas/core/util/key"
+	"github.com/nilorg/naas/service"
 	"github.com/nilorg/pkg/logger"
 )
 
@@ -21,7 +22,7 @@ func Login(ctx *gin.Context) {
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
 
-	user, err := dao.User.SelectByUsername(username)
+	suser, err := service.User.Login(username, password)
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {
@@ -30,16 +31,9 @@ func Login(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
-	if user.Username != username || user.Password != password {
-		err = SetErrorMessage(ctx, "账号密码不正确")
-		if err != nil {
-			logger.Errorln(err)
-		}
-		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
-		return
-	}
+
 	session := sessions.Default(ctx)
-	session.Set("current_user", user)
+	session.Set(key.SessionAccount, suser)
 	err = session.Save()
 	if err != nil {
 		_ = SetErrorMessage(ctx, err.Error())

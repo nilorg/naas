@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/nilorg/naas/dao"
+	"github.com/nilorg/naas/core/util"
+	"github.com/nilorg/naas/core/util/key"
 	"github.com/nilorg/naas/model"
 	"github.com/nilorg/naas/module/store"
-	"github.com/nilorg/naas/util"
-	"github.com/nilorg/naas/util/key"
+	"github.com/nilorg/naas/service"
 	"github.com/nilorg/oauth2"
 )
 
@@ -27,7 +27,7 @@ func init() {
 	oauth2Server = oauth2.NewServer()
 	oauth2Server.VerifyClient = func(clientID string) (basic *oauth2.ClientBasic, err error) {
 		var client *model.OAuth2Client
-		client, err = dao.OAuth2Client.SelectByID(clientID)
+		client, err = service.OAuth2.GetClient(clientID)
 		if err != nil {
 			err = oauth2.ErrUnauthorizedClient
 			return
@@ -40,7 +40,7 @@ func init() {
 	}
 	oauth2Server.VerifyPassword = func(username, password string) (openID string, err error) {
 		var user *model.User
-		user, err = dao.User.SelectByUsername(username)
+		user, err = service.User.GetUserByUsername(username)
 		if err != nil {
 			err = oauth2.ErrAccessDenied
 			return
@@ -52,7 +52,7 @@ func init() {
 	}
 	oauth2Server.VerifyRedirectURI = func(clientID, redirectURI string) (err error) {
 		var client *model.OAuth2Client
-		client, err = dao.OAuth2Client.SelectByID(clientID)
+		client, err = service.OAuth2.GetClient(clientID)
 		if err != nil {
 			err = oauth2.ErrAccessDenied
 			return

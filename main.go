@@ -1,14 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"github.com/nilorg/pkg/logger"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/redis"
-	"github.com/gin-gonic/gin"
-	"github.com/nilorg/naas/controller/oauth2"
-	"github.com/nilorg/naas/middleware"
+	_ "github.com/nilorg/naas/docs"
 	"github.com/nilorg/naas/module"
+	"github.com/nilorg/naas/server"
+	"github.com/nilorg/pkg/logger"
 	"github.com/spf13/viper"
 )
 
@@ -18,24 +14,25 @@ func init() {
 	viper.SetConfigFile("config.toml")
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s ", err))
+		logger.Fatalf("Fatal error config file: %s ", err)
 	}
 	module.Init()
 }
 
+// @title NilOrg认证授权服务
+// @version 1.0
+// @description NilOrg认证授权服务Api详情.
+// @termsOfService https://github.com/nilorg
+
+// @contact.name API Support
+// @contact.url https://github.com/nilorg/naas
+// @contact.email 862860000@qq.com
+
+// @license.name GNU General Public License v3.0
+// @license.url https://github.com/nilorg/naas/blob/master/LICENSE
+
+// @host localhost:8080
+// @BasePath /v1
 func main() {
-	store, _ := redis.NewStore(viper.GetInt("session.redis.db"), "tcp", viper.GetString("session.redis.address"), "", []byte(viper.GetString("session.secret")))
-	r := gin.Default()
-	r.Use(sessions.Sessions(viper.GetString("session.name"), store))
-	r.Static("/assets", "./assets")
-	r.Static("/www", "./templates/www")
-	r.LoadHTMLGlob("./templates/oauth2/*")
-	oauth2Group := r.Group("/oauth2")
-	{
-		oauth2Group.GET("/login", oauth2.LoginPage)
-		oauth2Group.POST("/login", oauth2.Login)
-		oauth2Group.GET("/authorize", middleware.AuthRequired, oauth2.AuthorizePage)
-		oauth2Group.POST("/authorize", middleware.AuthRequired, oauth2.Authorize)
-	}
-	r.Run() // listen and serve on 0.0.0.0:8080
+	server.RunHTTP()
 }
