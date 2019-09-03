@@ -7,8 +7,8 @@ replace github.com/nilorg/oauth2 => ../oauth2
 require (
 	cloud.google.com/go v0.44.3 // indirect
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
+	github.com/appleboy/gin-jwt/v2 v2.6.2
 	github.com/deckarep/golang-set v1.7.1
-	github.com/dkeng/pkg v0.0.0-20180809101112-28c4e55027c4
 	github.com/gin-contrib/sessions v0.0.1
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-openapi/spec v0.19.2 // indirect
@@ -27,6 +27,7 @@ require (
 	github.com/onsi/ginkgo v1.10.1 // indirect
 	github.com/onsi/gomega v1.7.0 // indirect
 	github.com/pelletier/go-toml v1.4.0 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.4.0

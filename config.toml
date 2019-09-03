@@ -1,6 +1,10 @@
 [log]
 level = "debug" # panic/fatal/error/warn/info/debug
 
+[jwt]
+secret = "github.com/nilorg/naas"
+timeout = 20 # 生产30 分钟单位
+max_refresh = 10
 [session]
 name = "naas-session"
 secret = "github.com/nilorg/naas"

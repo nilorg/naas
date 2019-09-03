@@ -27,7 +27,7 @@ func (a *admin) Login(username, password string) (su *model.SessionAccount, err 
 	if ma.Username == username && ma.Password == password {
 		su = &model.SessionAccount{
 			UserID:   ma.ID,
-			Username: ma.Username,
+			UserName: ma.Username,
 		}
 	} else {
 		err = errors.ErrUsernameOrPassword

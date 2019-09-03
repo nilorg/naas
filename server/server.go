@@ -4,8 +4,8 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
-	"github.com/nilorg/naas/controller/api"
 	"github.com/nilorg/naas/controller/oauth2"
+	"github.com/nilorg/pkg/logger"
 
 	// swagger doc ...
 	_ "github.com/nilorg/naas/docs"
@@ -39,9 +39,20 @@ func RunHTTP() {
 		oauth2Group.GET("/authorize", middleware.AuthRequired, oauth2.AuthorizePage)
 		oauth2Group.POST("/authorize", middleware.AuthRequired, oauth2.Authorize)
 	}
+	// the jwt middleware
+	jwtMiddleware, err := middleware.NewJwtMiddleware()
+	if err != nil {
+		logger.Fatalf("JWT Error:%s", err)
+	}
 	apiGroup := r.Group("/v1")
 	{
-		apiGroup.POST("/admin/login", api.Admin.Login)
+		apiGroup.POST("/auth/login", jwtMiddleware.LoginHandler)
+		authorized := apiGroup.Group("/")
+		authorized.Use(jwtMiddleware.MiddlewareFunc())
+		{
+			// Refresh time can be longer than token timeout
+			authorized.GET("/auth/refresh_token", jwtMiddleware.RefreshHandler)
+		}
 	}
 	r.Run() // listen and serve on 0.0.0.0:8080
 }

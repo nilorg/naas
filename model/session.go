@@ -9,5 +9,5 @@ func init() {
 // SessionAccount ...
 type SessionAccount struct {
 	UserID   uint64
-	Username string
+	UserName string
 }
