@@ -27,6 +27,11 @@ func RunHTTP() {
 	r.Static("/static", "./web/static")
 	r.Static("/www", "./web/templates/www")
 	r.LoadHTMLGlob("./web/templates/oauth2/*")
+
+	r.GET("/", func(ctx *gin.Context) {
+		ctx.Redirect(302, "/www/index.html")
+	})
+
 	oauth2Group := r.Group("/oauth2")
 	{
 		oauth2Group.GET("/login", oauth2.LoginPage)
