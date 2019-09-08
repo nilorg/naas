@@ -38,6 +38,7 @@ func RunHTTP() {
 		oauth2Group.POST("/login", oauth2.Login)
 		oauth2Group.GET("/authorize", middleware.AuthRequired, oauth2.AuthorizePage)
 		oauth2Group.POST("/authorize", middleware.AuthRequired, oauth2.Authorize)
+		oauth2Group.POST("/token", oauth2.Token)
 	}
 	// the jwt middleware
 	jwtMiddleware, err := middleware.NewJwtMiddleware()

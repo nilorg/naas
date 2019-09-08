@@ -116,3 +116,8 @@ func GetErrorMessage(ctx *gin.Context) string {
 	}
 	return ""
 }
+
+// Token ...
+func Token(ctx *gin.Context) {
+	oauth2Server.HandleToken(ctx.Writer, ctx.Request)
+}
