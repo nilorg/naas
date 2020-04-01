@@ -11,7 +11,9 @@
 <body>
     <form method="POST" class="form-signin">
         <div class="text-center mb-4">
+            <!--
             <img class="mb-4" src="https://avatars0.githubusercontent.com/u/45484932" alt="" width="72" height="72">
+            -->
             <h1 class="h3 mb-3 font-weight-normal">NilOrg认证授权服务平台</h1>
             {{ if .error }}
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -31,14 +33,15 @@
             <input type="password" id="inputPassword" name="password" class="form-control" placeholder="密码" required />
             <label for="inputPassword">密码</label>
         </div>
-
+        <!--
         <div class="checkbox mb-3">
             <label>
                 <input type="checkbox" value="remember-me"> 记住我
             </label>
         </div>
+        -->
         <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
-        <p class="mt-5 mb-3 text-muted text-center">&copy; 2019</p>
+        <p class="mt-5 mb-3 text-muted text-center">&copy; Nats 2020</p>
     </form>
     {{ template "import.js" }}
 </body>
