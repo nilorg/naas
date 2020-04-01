@@ -40,5 +40,5 @@ func Login(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
-	ctx.Redirect(302, ctx.Query("login_redirect_uri"))
+	ctx.Redirect(http.StatusFound, ctx.Query("login_redirect_uri"))
 }

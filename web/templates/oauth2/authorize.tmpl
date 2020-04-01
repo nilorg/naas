@@ -22,15 +22,21 @@
         {{ end }}
         <form method="POST">
             <div class="jumbotron mt-3">
+                {{ if .client_info }}
+                    <div style="text-align: center;">
+                        <img style="width: 100px; height: 100px;" src="{{.client_info.Profile}}" />
+                        <br/>
+                        <h3>{{.client_info.Name}}</h3>
+                        <p>{{.client_info.Description}}</p>
+                    </div>
+                {{ end }}
                 <h1>是否愿意代表您执行操作</h1>
-                <p class="lead">Check some scopes.</p>
-                <label for="red">Red</label>
-                <input type="checkbox" name="scopes[]" value="red" id="red">
-                <label for="green">Green</label>
-                <input type="checkbox" name="scopes[]" value="green" id="green">
-                <label for="blue">Blue</label>
-                <input type="checkbox" name="scopes[]" value="blue" id="blue">
-                <br />
+                <p class="lead">授权范围</p>
+                {{range $scope := .scopes}}
+                    <input type="checkbox" {{if $scope.checked}}checked{{end}} name="scopes" value="{{$scope.text}}" id="scope_{{$scope.text}}">
+                    <label for="scope_{{$scope.text}}">{{$scope.text}}</label>
+                    <br />
+                {{end}}
                 <br />
                 <button type="submit" class="btn btn-primary">授权</button>
             </div>

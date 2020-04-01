@@ -19,7 +19,7 @@ func AuthorizePage(ctx *gin.Context) {
 	errMsg := GetErrorMessage(ctx)
 	if errMsg != "" {
 		ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
-			"error": GetErrorMessage(ctx),
+			"error": errMsg,
 		})
 		return
 	}
@@ -74,8 +74,21 @@ func AuthorizePage(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
+	var clientInfo *model.OAuth2ClientInfo
+	clientInfo, err = service.OAuth2.GetClientInfo(clientID)
+	// query scope checked scopes list.
+	scope := ctx.Query("scope")
+	scopes := make([]map[string]interface{}, 0)
+	for _, value := range sourceScope {
+		scopes = append(scopes, map[string]interface{}{
+			"text":    value,
+			"checked": value == scope,
+		})
+	}
 	ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
-		"error": nil,
+		"error":       err,
+		"client_info": clientInfo,
+		"scopes":      scopes,
 	})
 	return
 }
