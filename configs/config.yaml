@@ -1,0 +1,25 @@
+log:
+  level: "debug" # panic/fatal/error/warn/info/debug
+
+jwt:
+  secret: "github.com/nilorg/naas"
+  timeout: 20 # 生产30 分钟单位
+  max_refresh: 10
+  session:
+    name: "naas-session"
+    secret: "github.com/nilorg/naas"
+    redis:
+      address: "localhost:6379"
+      password: ""
+      db: 1
+
+mysql:
+  address: "naas:naas123@tcp(127.0.0.1:3306)/naas?charset=utf8&parseTime=True&loc=Local&time_zone=%27Asia%2FShanghai%27"
+  log: true
+  max_open: 100
+  max_idle: 10
+
+redis:
+  address: "localhost:6379"
+  password: ""
+  db: 0

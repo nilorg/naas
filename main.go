@@ -10,8 +10,9 @@ import (
 
 func init() {
 	logger.Init()
-	viper.SetConfigType("toml") // or viper.SetConfigType("YAML")
-	viper.SetConfigFile("config.toml")
+	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
+	viper.SetConfigFile("configs/example_config.yaml")
+	//viper.SetConfigFile("configs/config.yaml")
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
 		logger.Fatalf("Fatal error config file: %s ", err)

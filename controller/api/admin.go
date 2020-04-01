@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/naas/service"
 )
 
 type admin struct {
@@ -18,6 +19,11 @@ type admin struct {
 // @Failure 400 {object} api.ResultError "error"
 // @Router /admin/login [post]
 func (*admin) Login(c *gin.Context) {
-	err := ResultError{}
-	c.JSON(400, err)
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+	su, err := service.Admin.Login(username, password)
+	if err != nil {
+		c.JSON(400, err)
+	}
+	c.JSON(200, su)
 }
