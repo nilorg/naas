@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "github.com/nilorg/naas/docs"
+	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/nilorg/naas/internal/module"
 	"github.com/nilorg/naas/internal/server"
 	"github.com/nilorg/pkg/logger"
@@ -18,6 +19,7 @@ func init() {
 		logger.Fatalf("Fatal error config file: %s ", err)
 	}
 	module.Init()
+	oauth2.Init()
 }
 
 // @title NilOrg认证授权服务

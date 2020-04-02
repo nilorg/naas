@@ -4,6 +4,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
+
+	"github.com/nilorg/sdk/convert"
+
 	"github.com/nilorg/pkg/logger"
 
 	"github.com/nilorg/naas/pkg/tools"
@@ -26,18 +30,19 @@ var (
 	}
 )
 
-func init() {
+func Init() {
+	jwtSecret := []byte(viper.GetString("jwt.secret"))
 	oauth2Server = oauth2.NewServer()
-	oauth2Server.VerifyClient = func(clientID string) (basic *oauth2.ClientBasic, err error) {
+	oauth2Server.VerifyClient = func(basic *oauth2.ClientBasic) (err error) {
 		var client *model.OAuth2Client
-		client, err = service.OAuth2.GetClient(clientID)
+		client, err = service.OAuth2.GetClient(basic.ID)
 		if err != nil {
 			err = oauth2.ErrUnauthorizedClient
 			return
 		}
-		basic = &oauth2.ClientBasic{
-			ID:     client.GetClientID(),
-			Secret: client.ClientSecret,
+		if convert.ToString(client.ClientID) != basic.ID || client.ClientSecret != basic.Secret {
+			err = oauth2.ErrUnauthorizedClient
+			return
 		}
 		return
 	}
@@ -111,6 +116,9 @@ func init() {
 		}
 		return
 	}
+	oauth2Server.GenerateAccessToken = oauth2.NewDefaultGenerateAccessToken(jwtSecret)
+	oauth2Server.RefreshAccessToken = oauth2.NewDefaultRefreshAccessToken(jwtSecret)
+	oauth2Server.ParseAccessToken = oauth2.NewDefaultParseAccessToken(jwtSecret)
 	oauth2Server.Init()
 }
 
