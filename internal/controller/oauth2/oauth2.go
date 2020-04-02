@@ -4,6 +4,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nilorg/pkg/logger"
+
 	"github.com/nilorg/naas/pkg/tools"
 
 	"github.com/gin-contrib/sessions"
@@ -71,26 +73,39 @@ func init() {
 			RedirectURI: redirectURI,
 			Scope:       scope,
 		}
-		store.RedisClient.Set(key.WrapOAuth2Code(code), value, time.Minute)
+		err = store.RedisClient.Set(key.WrapOAuth2Code(code), value, time.Minute).Err()
+		if err != nil {
+			logger.Errorf("store.RedisClient.Set Error: %s", err)
+			err = oauth2.ErrServerError
+		}
 		return
 	}
 	oauth2Server.VerifyCode = func(code, clientID, redirectURI string) (value *oauth2.CodeValue, err error) {
 		value = &oauth2.CodeValue{}
-		err = store.RedisClient.Get(key.WrapOAuth2Code(code)).Scan(value)
+		redisKey := key.WrapOAuth2Code(code)
+		err = store.RedisClient.Get(redisKey).Scan(value)
 		if err != nil {
+			logger.Errorf("store.RedisClient.Get Error: %s", err)
 			err = oauth2.ErrAccessDenied
 			return
 		}
-		if value.ClientID != clientID || value.RedirectURI != redirectURI {
+		// 删除Key
+		_ = store.RedisClient.Del(redisKey)
+		if value.ClientID != clientID || (strings.HasPrefix(redirectURI, value.RedirectURI) && redirectURI != value.RedirectURI) {
 			err = oauth2.ErrAccessDenied
 			return
 		}
-		if !tools.ScopeIsEqual(value.Scope, sourceScope) {
+		// 包含
+		if !tools.ScopeIsSubset(value.Scope, sourceScope) {
 			err = oauth2.ErrInvalidScope
 		}
 		return
 	}
 	oauth2Server.VerifyScope = func(scope []string) (err error) {
+		// 表示权限范围，如果与客户端申请的范围一致，此项可省略。
+		if len(scope) == 0 {
+			return
+		}
 		if !tools.ScopeIsSubset(scope, sourceScope) {
 			err = oauth2.ErrInvalidScope
 		}

@@ -3,6 +3,7 @@ package oauth2
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,6 @@ import (
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
-	"golang.org/x/net/publicsuffix"
 )
 
 // AuthorizePage 授权页面
@@ -45,28 +45,8 @@ func AuthorizePage(ctx *gin.Context) {
 		// uri.RawQuery = query.Encode()
 		queryRedirectURI = client.RedirectURI
 	}
-	// 判断重定向顶级域名是否和数据库中的顶级域名相等
-	var qrLevelDomain string
-	qrLevelDomain, err = publicsuffix.EffectiveTLDPlusOne(queryRedirectURI)
-	if err != nil {
-		err = SetErrorMessage(ctx, err.Error())
-		if err != nil {
-			logger.Errorln(err)
-		}
-		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
-		return
-	}
-	var dbLevelDomain string
-	dbLevelDomain, err = publicsuffix.EffectiveTLDPlusOne(client.RedirectURI)
-	if err != nil {
-		err = SetErrorMessage(ctx, err.Error())
-		if err != nil {
-			logger.Errorln(err)
-		}
-		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
-		return
-	}
-	if qrLevelDomain != dbLevelDomain {
+	// 判断重定向URL存在数据库中的前缀
+	if !strings.HasPrefix(queryRedirectURI, client.RedirectURI) && queryRedirectURI != client.RedirectURI {
 		err = SetErrorMessage(ctx, "重定向域名不符合后台配置规范")
 		if err != nil {
 			logger.Errorln(err)
