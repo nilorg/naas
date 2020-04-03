@@ -77,10 +77,12 @@ func RunGRpcGateway() {
 	if err != nil {
 		return
 	}
+	addr := fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.grpc.gateway.port"))
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.grpc.gateway.port")),
+		Addr:    addr,
 		Handler: gatewayMux,
 	}
+	logger.Infof("启动GRpcGateway: %s", addr)
 	go func() {
 		if srvErr := srv.ListenAndServe(); srvErr != nil {
 			log.Printf("%s gateway server listen: %v\n", viper.GetString("server.name"), srvErr)

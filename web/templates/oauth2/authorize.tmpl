@@ -19,7 +19,7 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        {{ end }}
+        {{ else }}
         <form method="POST">
             <div class="jumbotron mt-3">
                 {{ if .client_info }}
@@ -41,6 +41,7 @@
                 <button type="submit" class="btn btn-primary">授权</button>
             </div>
         </form>
+        {{ end }}
     </div>
 
     {{ template "import.js" }}
