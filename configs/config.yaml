@@ -1,3 +1,11 @@
+server:
+  name: nats
+  oauth2:
+    port: 8080
+  grpc:
+    gateway:
+      port: 5000
+
 log:
   level: "debug" # panic/fatal/error/warn/info/debug
 

@@ -6,6 +6,7 @@ import (
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/pkg/errors"
 	"github.com/nilorg/pkg/logger"
+	"github.com/nilorg/sdk/convert"
 )
 
 type user struct {
@@ -14,6 +15,11 @@ type user struct {
 // GetUserByUsername 根据用户名获取用户
 func (u *user) GetUserByUsername(username string) (usr *model.User, err error) {
 	return dao.User.SelectByUsername(store.NewDBContext(), username)
+}
+
+// GetOneByID 根据ID获取用户
+func (u *user) GetOneByID(id string) (usr *model.User, err error) {
+	return dao.User.Select(store.NewDBContext(), convert.ToUint64(id))
 }
 
 // Login 登录 ...

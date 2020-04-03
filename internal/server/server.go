@@ -1,9 +1,15 @@
 package server
 
 import (
+	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/nilorg/naas/internal/controller/gateway"
 	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/nilorg/pkg/logger"
 
@@ -49,7 +55,7 @@ func RunHTTP() {
 	if err != nil {
 		logger.Fatalf("JWT Error:%s", err)
 	}
-	apiGroup := r.Group("/v1")
+	apiGroup := r.Group("api/v1")
 	{
 		apiGroup.POST("/auth/login", jwtMiddleware.LoginHandler)
 		authorized := apiGroup.Group("/")
@@ -59,5 +65,25 @@ func RunHTTP() {
 			authorized.GET("/auth/refresh_token", jwtMiddleware.RefreshHandler)
 		}
 	}
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
+}
+
+func RunGRpcGateway() {
+	var (
+		err error
+	)
+	gatewayMux := runtime.NewServeMux()
+	err = gateway.Service(gatewayMux)
+	if err != nil {
+		return
+	}
+	srv := &http.Server{
+		Addr:    fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.grpc.gateway.port")),
+		Handler: gatewayMux,
+	}
+	go func() {
+		if srvErr := srv.ListenAndServe(); srvErr != nil {
+			log.Printf("%s gateway server listen: %v\n", viper.GetString("server.name"), srvErr)
+		}
+	}()
 }
