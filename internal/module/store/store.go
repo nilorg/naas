@@ -3,12 +3,12 @@ package store
 import (
 	"context"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/pkg/logger"
 
-	// use db mysql
 	"github.com/jinzhu/gorm"
+	// use db mysql
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/spf13/viper"
