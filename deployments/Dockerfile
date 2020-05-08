@@ -7,6 +7,8 @@ RUN go build -o ./bin/app -i ./cmd/main.go
 #final stage
 FROM nilorg/alpine:latest
 WORKDIR /workspace
+VOLUME [ "/workspace" ]
+COPY configs configs
 COPY --from=builder /src/bin/app .
 ENTRYPOINT ./app
 EXPOSE 8080 5000
