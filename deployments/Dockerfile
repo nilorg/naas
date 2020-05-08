@@ -9,6 +9,7 @@ FROM nilorg/alpine:latest
 WORKDIR /workspace
 VOLUME [ "/workspace" ]
 COPY configs configs
+COPY web web
 COPY --from=builder /src/bin/app .
 ENTRYPOINT ./app
 EXPOSE 8080 5000
