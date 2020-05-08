@@ -2,7 +2,7 @@
 FROM nilorg/golang:latest AS builder
 WORKDIR /src
 COPY . .
-RUN go build -o ./bin/app -i ./main.go
+RUN go build -o ./bin/app -i ./cmd/main.go
 
 #final stage
 FROM nilorg/alpine:latest
