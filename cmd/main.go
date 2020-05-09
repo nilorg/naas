@@ -1,6 +1,8 @@
 package main
 
 import (
+	"runtime"
+
 	_ "github.com/nilorg/naas/docs"
 	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/nilorg/naas/internal/module"
@@ -10,6 +12,8 @@ import (
 )
 
 func init() {
+	// 初始化线程数量
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	logger.Init()
 	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
 	// viper.SetConfigFile("configs/example_config.yaml")
