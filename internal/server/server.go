@@ -78,7 +78,7 @@ func RunGRpc() {
 	// 在gRPC服务器上注册反射服务。
 	reflection.Register(gRPCServer)
 	addr := fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.grpc.port"))
-	logger.Infof("%s grpc server listen: %s\n", "naas", addr)
+	logger.Infof("%s grpc server listen: %s", "naas", addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		logger.Errorf("net.Listen Error: %s", err)
@@ -86,7 +86,7 @@ func RunGRpc() {
 	}
 	go func() {
 		if err := gRPCServer.Serve(lis); err != nil {
-			logger.Infof("%s grpc server failed to serve: %v\n", "naas", err)
+			logger.Infof("%s grpc server failed to serve: %v", "naas", err)
 		}
 	}()
 	return
