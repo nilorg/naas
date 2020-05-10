@@ -3,6 +3,7 @@ server:
   oauth2:
     port: 8080
   grpc:
+    port: 9000
     gateway:
       port: 5000
 

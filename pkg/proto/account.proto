@@ -13,6 +13,11 @@ service Account {
             get: "/account/current"
         };
     };
+    rpc GetUserInfo (GetUserInfoRequest) returns (GetCurrentResponse) {
+        option (google.api.http) = {
+            get: "/account/user_info"
+        };
+    };
 }
 
 message UserDetail {
@@ -24,6 +29,10 @@ message UserDetail {
 }
 
 message GetCurrentRequest {}
+message GetUserInfoRequest {
+    string open_id = 1;
+}
+
 
 message GetCurrentResponse {
     nilorg.protobuf.errors.BusinessError err = 1;

@@ -3,15 +3,18 @@ package server
 import (
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/nilorg/naas/internal/controller/gateway"
 	"github.com/nilorg/naas/internal/controller/oauth2"
+	"github.com/nilorg/naas/internal/controller/service"
 	"github.com/nilorg/pkg/logger"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	// swagger doc ...
 	_ "github.com/nilorg/naas/docs"
@@ -68,12 +71,34 @@ func RunHTTP() {
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
 }
 
+// RunGRpc 运行Grpc
+func RunGRpc() {
+	gRPCServer := grpc.NewServer()
+	service.RegisterGrpc(gRPCServer)
+	// 在gRPC服务器上注册反射服务。
+	reflection.Register(gRPCServer)
+	addr := fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.grpc.port"))
+	logger.Infof("%s grpc server listen: %s\n", "naas", addr)
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
+		logger.Errorf("net.Listen Error: %s", err)
+		return
+	}
+	go func() {
+		if err := gRPCServer.Serve(lis); err != nil {
+			logger.Infof("%s grpc server failed to serve: %v\n", "naas", err)
+		}
+	}()
+	return
+}
+
+// RunGRpcGateway 运行Grpc网关
 func RunGRpcGateway() {
 	var (
 		err error
 	)
 	gatewayMux := runtime.NewServeMux()
-	err = gateway.Service(gatewayMux)
+	err = service.RegisterGrpcGateway(gatewayMux)
 	if err != nil {
 		return
 	}

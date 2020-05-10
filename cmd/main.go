@@ -41,6 +41,7 @@ func init() {
 // @host localhost:8080
 // @BasePath /v1
 func main() {
+	server.RunGRpc()
 	server.RunGRpcGateway()
 	server.RunHTTP()
 }

@@ -1,4 +1,4 @@
-package gateway
+package service
 
 import (
 	"context"
@@ -18,17 +18,17 @@ import (
 type AccountService struct {
 }
 
-func (ctl *AccountService) GetCurrent(ctx context.Context, _ *proto.GetCurrentRequest) (res *proto.GetCurrentResponse, err error) {
+// GetUserInfo 根据OpenID获取用户信息
+func (ctl *AccountService) GetUserInfo(ctx context.Context, req *proto.GetUserInfoRequest) (res *proto.GetCurrentResponse, err error) {
 	res = new(proto.GetCurrentResponse)
-	openID := metautils.ExtractIncoming(ctx).Get("OpenId")
-	if openID == "" {
+	if req.OpenId == "" {
 		res.Err = &errors.BusinessError{
 			Code: 0,
 			Msg:  "metadata OpenId is empty",
 		}
 		return
 	}
-	user, userErr := service.User.GetOneByID(openID)
+	user, userErr := service.User.GetOneByID(req.OpenId)
 	if userErr != nil {
 		res.Err = &errors.BusinessError{
 			Code: 0,
@@ -47,5 +47,22 @@ func (ctl *AccountService) GetCurrent(ctx context.Context, _ *proto.GetCurrentRe
 		DeletedAt: deletedAt,
 		Username:  user.Username,
 	}
+	return
+}
+
+// GetCurrent 获取当前用户
+func (ctl *AccountService) GetCurrent(ctx context.Context, _ *proto.GetCurrentRequest) (res *proto.GetCurrentResponse, err error) {
+	res = new(proto.GetCurrentResponse)
+	openID := metautils.ExtractIncoming(ctx).Get("OpenId")
+	if openID == "" {
+		res.Err = &errors.BusinessError{
+			Code: 0,
+			Msg:  "metadata OpenId is empty",
+		}
+		return
+	}
+	res, err = ctl.GetUserInfo(ctx, &proto.GetUserInfoRequest{
+		OpenId: openID,
+	})
 	return
 }
