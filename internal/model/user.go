@@ -10,11 +10,8 @@ type User struct {
 //UserInfo 用户信息
 type UserInfo struct {
 	Model
-	UserID uint64 `gorm:"not null"`
-	// 昵称
-	NickName string `gorm:"null"`
-	// 头像
-	AvatarURL string `gorm:"null"`
-	// 性别
-	Gender int `gorm:"null"`
+	UserID    uint64 `json:"user_id" gorm:"not null"`
+	NickName  string `json:"nick_name" gorm:"null"`
+	AvatarURL string `json:"avatar_url" gorm:"null"`
+	Gender    int    `json:"gender" gorm:"null"`
 }
