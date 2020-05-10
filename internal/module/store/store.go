@@ -63,6 +63,7 @@ func initMySQL() {
 		&model.Role{},
 		&model.RoleWebFunction{},
 		&model.User{},
+		&model.UserInfo{},
 		&model.UserRole{},
 		&model.WebComponent{},
 		&model.WebFunction{},
