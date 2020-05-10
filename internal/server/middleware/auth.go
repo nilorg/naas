@@ -12,7 +12,7 @@ import (
 // NewJwtMiddleware 创建jwt授权中间件
 func NewJwtMiddleware() (*jwt.GinJWTMiddleware, error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
-		Realm:           "zcl",
+		Realm:           "naas",
 		Key:             []byte(viper.GetString("jwt.secret")),
 		Timeout:         viper.GetDuration("jwt.timeout") * time.Minute,
 		MaxRefresh:      viper.GetDuration("jwt.max_refresh") * time.Minute,
