@@ -12,4 +12,4 @@ COPY configs configs
 COPY web web
 COPY --from=builder /src/bin/app .
 ENTRYPOINT ./app
-EXPOSE 8080 5000
+EXPOSE 8080 5000 9000
