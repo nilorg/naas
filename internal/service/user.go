@@ -22,6 +22,11 @@ func (u *user) GetOneByID(id string) (usr *model.User, err error) {
 	return dao.User.Select(store.NewDBContext(), convert.ToUint64(id))
 }
 
+// GetInfoOneByUserID 根据用户ID获取信息
+func (u *user) GetInfoOneByUserID(userID string) (usr *model.UserInfo, err error) {
+	return dao.UserInfo.Select(store.NewDBContext(), convert.ToUint64(userID))
+}
+
 // Login 登录 ...
 func (u *user) Login(username, password string) (su *model.SessionAccount, err error) {
 	var usr *model.User

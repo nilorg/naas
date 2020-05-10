@@ -40,12 +40,20 @@ func (ctl *AccountService) GetUserInfo(ctx context.Context, req *proto.GetUserIn
 	if user.DeletedAt != nil {
 		deletedAt = user.DeletedAt.Unix()
 	}
-	res.UserDetail = &proto.UserDetail{
+	res.User = &proto.User{
 		Id:        convert.ToString(user.ID),
 		CreatedAt: user.CreatedAt.Unix(),
 		UpdatedAt: user.CreatedAt.Unix(),
 		DeletedAt: deletedAt,
 		Username:  user.Username,
+	}
+	userInfo, userInfoErr := service.User.GetInfoOneByUserID(req.OpenId)
+	if userInfoErr == nil && userInfo != nil {
+		res.UserInfo = &proto.UserInfo{
+			NickName:  userInfo.NickName,
+			AvatarUrl: userInfo.AvatarURL,
+			Gender:    uint32(userInfo.Gender),
+		}
 	}
 	return
 }
