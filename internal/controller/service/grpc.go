@@ -17,10 +17,14 @@ func RegisterGrpcGateway(mux *runtime.ServeMux) (err error) {
 	if err = proto.RegisterAccountHandlerServer(ctx, mux, new(AccountService)); err != nil {
 		return
 	}
+	if err = proto.RegisterPermissionHandlerServer(ctx, mux, new(PermissionService)); err != nil {
+		return
+	}
 	return nil
 }
 
 // RegisterGrpc 注册Grpc
 func RegisterGrpc(server *grpc.Server) {
 	proto.RegisterAccountServer(server, new(AccountService))
+	proto.RegisterPermissionServer(server, new(PermissionService))
 }

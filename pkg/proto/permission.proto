@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package nilorg.naas.pkg.proto;
+option go_package = "github.com/nilorg/naas/pkg/proto";
+
+import "google/api/annotations.proto";
+
+import "nilorg/protobuf/errors/business_error.proto";
+
+// Permission 许可
+service Permission {
+    // VerificationToken 验证Token
+    rpc VerificationToken(VerificationTokenRequest) returns (VerificationTokenResponse){
+        option (google.api.http) = {
+            post: "/permission/verification_token",
+            body: "*"
+        };
+    }
+    // VerificationHttpRouter 验证Http路由权限
+    rpc VerificationHttpRouter(VerificationHttpRouterRequest) returns (VerificationHttpRouterResponse){
+        option (google.api.http) = {
+            post: "/permission/verification_http_router",
+            body: "*"
+        };
+    }
+}
+
+// VerificationHttpRouterRequest 验证HTTP路由权限请求参数
+message VerificationHttpRouterRequest {
+    // token
+    string token = 1;
+    // 客户端ID
+    string client_id = 2;
+    // 路由
+    string router = 3;
+    // 请求方法
+    string method = 4;
+    // 是否返回用户信息,token验证通过的情况下
+    bool return_user_info = 5;
+}
+
+// VerificationHttpRouterResponse 验证HTTP路由权限响应参数
+message VerificationHttpRouterResponse {
+    // 用户信息
+    message UserInfo {
+        string open_id = 1;
+        string username = 2;
+        string nick_name = 3;
+        string avatar_url = 4;
+        uint32 gender = 5;
+    }
+    nilorg.protobuf.errors.BusinessError err = 1;
+    // 是否允许
+    bool allow = 2;
+    // 用户信息
+    UserInfo user_info = 3;
+}
+
+
+
+// VerificationTokenRequest 验证Token请求参数
+message VerificationTokenRequest {
+    // token
+    string token = 1;
+    // 客户端ID
+    string client_id = 2;
+    // 是否返回用户信息,token验证通过的情况下
+    bool return_user_info = 5;
+}
+
+// VerificationTokenResponse 验证Token响应参数
+message VerificationTokenResponse {
+    // 用户信息
+    message UserInfo {
+        string open_id = 1;
+        string username = 2;
+        string nick_name = 3;
+        string avatar_url = 4;
+        uint32 gender = 5;
+    }
+    nilorg.protobuf.errors.BusinessError err = 1;
+    // 是否允许
+    bool allow = 2;
+    // 用户信息
+    UserInfo user_info = 3;
+}
