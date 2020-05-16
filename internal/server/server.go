@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/nilorg/naas/internal/controller/oauth2"
+	"github.com/nilorg/naas/internal/controller/oidc"
 	"github.com/nilorg/naas/internal/controller/service"
 	"github.com/nilorg/pkg/logger"
 	"google.golang.org/grpc"
@@ -44,6 +45,9 @@ func RunHTTP() {
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.Redirect(302, "/www/index.html")
 	})
+	if viper.GetBool("server.oidc.enabled") {
+		r.Static("/.well-known/openid-configuration", viper.GetString("server.oidc.config"))
+	}
 
 	oauth2Group := r.Group("/oauth2")
 	{
@@ -52,6 +56,19 @@ func RunHTTP() {
 		oauth2Group.GET("/authorize", middleware.AuthRequired, oauth2.AuthorizePage)
 		oauth2Group.POST("/authorize", middleware.AuthRequired, oauth2.Authorize)
 		oauth2Group.POST("/token", oauth2.Token)
+		if viper.GetBool("server.oauth2.device_authorization_endpoint_enabled") {
+			oauth2Group.POST("/device/code", oauth2.DeviceCode)
+		}
+		if viper.GetBool("server.oauth2.token_introspect_enabled") {
+			oauth2Group.POST("/introspect", oauth2.TokenIntrospection)
+		}
+		if viper.GetBool("server.oauth2.revocation_endpoint_enabled") {
+			oauth2Group.POST("/revoke", oauth2.TokenRevoke)
+		}
+	}
+	if viper.GetBool("server.oidc.enabled") {
+		oidcGroup := r.Group("/oidc")
+		oidcGroup.POST("/userinfo", oidc.Userinfo)
 	}
 	// the jwt middleware
 	jwtMiddleware, err := middleware.NewJwtMiddleware()

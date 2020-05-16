@@ -30,9 +30,15 @@ var (
 	}
 )
 
+// Init 初始化
 func Init() {
 	jwtSecret := []byte(viper.GetString("jwt.secret"))
-	oauth2Server = oauth2.NewServer()
+	oauth2Server = oauth2.NewServer(
+		oauth2.ServerIssuer(viper.GetString("server.oauth2.issuer")),
+		oauth2.ServerDeviceAuthorizationEndpointEnabled(viper.GetBool("server.oauth2.device_authorization_endpoint_enabled")),
+		oauth2.ServerIntrospectEndpointEnabled(viper.GetBool("server.oauth2.introspection_endpoint_enabled")),
+		oauth2.ServerTokenRevocationEnabled(viper.GetBool("server.oauth2.revocation_endpoint_enabled")),
+	)
 	oauth2Server.VerifyClient = func(basic *oauth2.ClientBasic) (err error) {
 		var client *model.OAuth2Client
 		client, err = service.OAuth2.GetClient(basic.ID)
@@ -116,6 +122,18 @@ func Init() {
 		}
 		return
 	}
+	oauth2Server.GenerateDeviceAuthorization = func(issuer, verificationURI, clientID, scope string) (resp *oauth2.DeviceAuthorizationResponse, err error) {
+		return
+	}
+	oauth2Server.VerifyDeviceCode = func(deviceCode, clientID string) (value *oauth2.DeviceCodeValue, err error) {
+		return
+	}
+	oauth2Server.VerifyIntrospectionToken = func(token, clientID string, tokenTypeHint ...string) (resp *oauth2.IntrospectionResponse, err error) {
+		return
+	}
+	oauth2Server.TokenRevocation = func(token, clientID string, tokenTypeHint ...string) {
+
+	}
 	oauth2Server.GenerateAccessToken = oauth2.NewDefaultGenerateAccessToken(jwtSecret)
 	oauth2Server.RefreshAccessToken = oauth2.NewDefaultRefreshAccessToken(jwtSecret)
 	oauth2Server.ParseAccessToken = oauth2.NewDefaultParseAccessToken(jwtSecret)
@@ -144,4 +162,19 @@ func GetErrorMessage(ctx *gin.Context) string {
 // Token ...
 func Token(ctx *gin.Context) {
 	oauth2Server.HandleToken(ctx.Writer, ctx.Request)
+}
+
+// DeviceCode ...
+func DeviceCode(ctx *gin.Context) {
+	oauth2Server.HandleDeviceAuthorization(ctx.Writer, ctx.Request)
+}
+
+// TokenIntrospection ...
+func TokenIntrospection(ctx *gin.Context) {
+	oauth2Server.HandleTokenIntrospection(ctx.Writer, ctx.Request)
+}
+
+// TokenRevoke ...
+func TokenRevoke(ctx *gin.Context) {
+	oauth2Server.HandleTokenRevocation(ctx.Writer, ctx.Request)
 }

@@ -2,10 +2,17 @@ server:
   name: naas
   oauth2:
     port: 8080
+    issuer: "https://accounts.nilorg.com"
+    device_authorization_endpoint_enabled: false
+    introspection_endpoint_enabled: false
+    revocation_endpoint_enabled: false
   grpc:
     port: 9000
     gateway:
       port: 5000
+  oidc:
+    enabled: false
+    config: ./configs/openid-configuration.json
 
 log:
   level: "debug" # panic/fatal/error/warn/info/debug

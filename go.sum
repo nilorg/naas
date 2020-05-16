@@ -377,6 +377,8 @@ github.com/nats-io/nkeys v0.1.0/go.mod h1:xpnFELMwJABBLVhffcfd1MZx6VsNRFpEugbxzi
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=
 github.com/nilorg/oauth2 v0.1.0 h1:aU/iEFHnyUfkT+ogmB7QRH8V5mnuO1GBDfISJkEVHGM=
 github.com/nilorg/oauth2 v0.1.0/go.mod h1:XAmvpdgFuiSHUS6kpFkK0SAKOnSKdkPCr5bfD+qrjvI=
+github.com/nilorg/oauth2 v0.1.2-0.20200516070326-af2eec1f675d h1:M4n7g0SDu1jTJ2X66d8tNhg+uL/J600d06IeTzQFd1I=
+github.com/nilorg/oauth2 v0.1.2-0.20200516070326-af2eec1f675d/go.mod h1:ej3YNUy7x4iZb3ZLQz80dZmtXBNVeWJPhMAOXS3qYvw=
 github.com/nilorg/pkg v0.0.0-20191216151459-53ec4e665ff1 h1:p+uxIGl0JiDXBW7GCo61UAgivZlTKImYIawiLC1n8gw=
 github.com/nilorg/pkg v0.0.0-20191216151459-53ec4e665ff1/go.mod h1:7OoEMk2oAytsxb3Y8rKxKF2cqdPOa/HCWaKNuhzc7VA=
 github.com/nilorg/protobuf v0.0.0-20200503084506-2b10c53bd0f9 h1:GcX22XZzRMR1LGjiuQ/aSH+iDte5o3fYEAClVKXw8b4=

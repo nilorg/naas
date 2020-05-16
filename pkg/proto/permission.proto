@@ -25,12 +25,18 @@ service Permission {
     }
 }
 
+message OAuth2Client {
+    // 客户端ID
+    string id = 1;
+    string secret = 2;
+}
+
 // VerificationHttpRouterRequest 验证HTTP路由权限请求参数
 message VerificationHttpRouterRequest {
+    // 客户端
+    OAuth2Client client = 1;
     // token
-    string token = 1;
-    // 客户端ID
-    string client_id = 2;
+    string token = 2;
     // 路由
     string router = 3;
     // 请求方法
@@ -60,12 +66,12 @@ message VerificationHttpRouterResponse {
 
 // VerificationTokenRequest 验证Token请求参数
 message VerificationTokenRequest {
+    // 客户端
+    OAuth2Client client = 1;
     // token
-    string token = 1;
-    // 客户端ID
-    string client_id = 2;
+    string token = 2;
     // 是否返回用户信息,token验证通过的情况下
-    bool return_user_info = 5;
+    bool return_user_info = 3;
 }
 
 // VerificationTokenResponse 验证Token响应参数
