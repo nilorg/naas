@@ -49,7 +49,8 @@ func RunHTTP() {
 
 	if viper.GetBool("server.oidc.enabled") {
 		r.GET("/.well-known/jwks.json", wellknown.GetJwks)
-		r.StaticFile("/.well-known/openid-configuration", viper.GetString("server.oidc.config"))
+		r.GET("/.well-known/openid-configuration", wellknown.GetOpenIDProviderMetadata)
+		// r.StaticFile("/.well-known/openid-configuration", viper.GetString("server.oidc.config"))
 	}
 
 	oauth2Group := r.Group("/oauth2")
