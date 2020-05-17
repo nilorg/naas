@@ -25,7 +25,8 @@ func writeError(ctx *gin.Context, err error) {
 func AuthToken(oauth2Client *oauth2.Client, redirectURI string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		code := ctx.Query("code")
-		token, err := oauth2Client.TokenAuthorizationCode(code, redirectURI)
+		clientID := ctx.Query("client_id")
+		token, err := oauth2Client.TokenAuthorizationCode(code, redirectURI, clientID)
 		if err != nil {
 			writeError(ctx, err)
 			return

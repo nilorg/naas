@@ -201,3 +201,13 @@ https://accounts.google.com/.well-known/openid-configuration
  `grant_types_supported`: 授权类型
 
 内省端点是[《RFC 7662》](https://tools.ietf.org/html/rfc7662)的实现。
+
+# 使用telepresence调试
+```bash
+# 覆盖
+telepresence --namespace nilorg --swap-deployment naas --expose 8080 \
+--run go run cmd/main.go --port=8080
+# 创建新的
+telepresence --namespace nilorg --new-deployment naas --expose 8080 \
+--run go run cmd/main.go --port=8080
+```
