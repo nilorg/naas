@@ -13,6 +13,7 @@ import (
 	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/nilorg/naas/internal/controller/oidc"
 	"github.com/nilorg/naas/internal/controller/service"
+	"github.com/nilorg/naas/internal/controller/wellknown"
 	"github.com/nilorg/pkg/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -45,8 +46,10 @@ func RunHTTP() {
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.Redirect(302, "/www/index.html")
 	})
+
 	if viper.GetBool("server.oidc.enabled") {
-		r.Static("/.well-known/openid-configuration", viper.GetString("server.oidc.config"))
+		r.GET("/.well-known/jwks.json", wellknown.GetJwks)
+		r.StaticFile("/.well-known/openid-configuration", viper.GetString("server.oidc.config"))
 	}
 
 	oauth2Group := r.Group("/oauth2")
