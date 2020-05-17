@@ -108,16 +108,17 @@ Pk78NMGbTCMJ65lA96vscXaSk0hF9Y83YY9Jjiju+uwWdnx74khb
 
 	cl := jwt.Claims{
 		Subject:   "subject",
-		Issuer:    "issuer",
+		Issuer:    "http://localhost:8080",
 		NotBefore: jwt.NewNumericDate(time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC)),
-		Audience:  jwt.Audience{"leela", "fry"},
+		Audience:  jwt.Audience{"naas-oidc-test", "1xxxx000"},
+		Expiry:    jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 	}
 	privateRaw, err := jwt.Signed(sig).Claims(cl).CompactSerialize()
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(privateRaw)
+	fmt.Printf("token: %s\n", privateRaw)
 	tok, err := jose.ParseSigned(privateRaw)
 	fmt.Println("======================")
 	certPEM := `-----BEGIN CERTIFICATE-----
