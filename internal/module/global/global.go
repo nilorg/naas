@@ -35,7 +35,7 @@ func initPrivate() {
 		rsaPrivatePEMBlock *pem.Block
 		err                error
 	)
-	rsaPrivatePEMBlock, _ = pem.Decode([]byte(viper.GetString("server.oidc.rsa.private")))
+	rsaPrivatePEMBlock, _ = pem.Decode([]byte(viper.GetString("jwt.rsa.private")))
 	if rsaPrivatePEMBlock == nil {
 		logger.Fatalln("failed to parse certificate PEM")
 		return
@@ -52,7 +52,7 @@ func initCert() {
 		rsaCertPEMBlock *pem.Block
 		err             error
 	)
-	rsaCertPEMBlock, _ = pem.Decode([]byte(viper.GetString("server.oidc.rsa.cert")))
+	rsaCertPEMBlock, _ = pem.Decode([]byte(viper.GetString("jwt.rsa.cert")))
 	if rsaCertPEMBlock == nil {
 		logger.Fatalln("failed to parse certificate PEM")
 		return
