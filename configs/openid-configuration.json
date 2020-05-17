@@ -2,7 +2,7 @@
     "issuer": "https://accounts.nilorg.com",
     "authorization_endpoint": "https://accounts.nilorg.com/oauth2/authorize",
     "token_endpoint": "https://accounts.nilorg.com/oauth2/token",
-    "device_authorization_endpoint": "https://accounts.nilorg.com/oauth2/device_authorization",
+    "device_authorization_endpoint": "https://accounts.nilorg.com/oauth2/device/code",
     "introspection_endpoint":"https://accounts.nilorg.com/oauth2/introspect",
     "userinfo_endpoint": "https://accounts.nilorg.com/oidc/userinfo",
     "revocation_endpoint": "https://accounts.nilorg.com/oauth2/revoke",

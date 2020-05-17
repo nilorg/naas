@@ -15,7 +15,9 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/global"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/token"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
@@ -32,7 +34,6 @@ var (
 
 // Init 初始化
 func Init() {
-	jwtSecret := []byte(viper.GetString("jwt.secret"))
 	oauth2Server = oauth2.NewServer(
 		oauth2.ServerIssuer(viper.GetString("server.oauth2.issuer")),
 		oauth2.ServerDeviceAuthorizationEndpointEnabled(viper.GetBool("server.oauth2.device_authorization_endpoint_enabled")),
@@ -134,9 +135,9 @@ func Init() {
 	oauth2Server.TokenRevocation = func(token, clientID string, tokenTypeHint ...string) {
 
 	}
-	oauth2Server.GenerateAccessToken = oauth2.NewDefaultGenerateAccessToken(jwtSecret)
-	oauth2Server.RefreshAccessToken = oauth2.NewDefaultRefreshAccessToken(jwtSecret)
-	oauth2Server.ParseAccessToken = oauth2.NewDefaultParseAccessToken(jwtSecret)
+	oauth2Server.GenerateAccessToken = token.NewGenerateAccessToken(global.JwtPrivateKey)
+	oauth2Server.RefreshAccessToken = token.NewRefreshAccessToken(global.JwtPrivateKey)
+	oauth2Server.ParseAccessToken = token.NewParseAccessToken(global.JwtPrivateKey)
 	oauth2Server.Init()
 }
 
