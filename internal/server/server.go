@@ -68,7 +68,11 @@ func RunHTTP() {
 	}
 	if viper.GetBool("server.oidc.enabled") {
 		oidcGroup := r.Group("/oidc")
-		oidcGroup.POST("/userinfo", oidc.Userinfo)
+		{
+			if viper.GetBool("server.oidc.userinfo_endpoint_enabled") {
+				oidcGroup.POST("/userinfo", oidc.GetUserinfo)
+			}
+		}
 	}
 	// the jwt middleware
 	jwtMiddleware, err := middleware.NewJwtMiddleware()

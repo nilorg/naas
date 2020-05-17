@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Userinfo ...
-func Userinfo(ctx *gin.Context) {
+// GetUserinfo ...
+func GetUserinfo(ctx *gin.Context) {
 
 }

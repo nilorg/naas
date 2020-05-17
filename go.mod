@@ -28,6 +28,8 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.6.3
+	github.com/square/go-jose v2.5.1+incompatible
+	github.com/square/go-jose/v3 v3.0.0-20200430180204-d84c719419c2
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5
@@ -36,4 +38,5 @@ require (
 	google.golang.org/appengine v1.6.2 // indirect
 	google.golang.org/genproto v0.0.0-20191009194640-548a555dbc03
 	google.golang.org/grpc v1.24.0
+	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 )
