@@ -5,6 +5,7 @@ import (
 	"path"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/spf13/viper"
 )
 
@@ -45,11 +46,7 @@ func GetOpenIDProviderMetadata(ctx *gin.Context) {
 	metadata.IDTokenSigningAlgValuesSupported = append(metadata.IDTokenSigningAlgValuesSupported,
 		"RS256",
 	)
-	metadata.ScopesSupported = append(metadata.ScopesSupported,
-		"openid",
-		"email",
-		"profile",
-	)
+	metadata.ScopesSupported = append(metadata.ScopesSupported, oauth2.SourceScope...)
 	metadata.TokenEndpointAuthMethodsSupported = append(metadata.TokenEndpointAuthMethodsSupported,
 		"client_secret_post",
 		"client_secret_basic",

@@ -59,7 +59,7 @@ func AuthorizePage(ctx *gin.Context) {
 	// query scope checked scopes list.
 	scope := ctx.Query("scope")
 	scopes := make([]map[string]interface{}, 0)
-	for _, value := range sourceScope {
+	for _, value := range SourceScope {
 		scopes = append(scopes, map[string]interface{}{
 			"text":    value,
 			"checked": value == scope,

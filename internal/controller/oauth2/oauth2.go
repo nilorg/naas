@@ -25,10 +25,11 @@ import (
 
 var (
 	oauth2Server *oauth2.Server
-	sourceScope  = []string{
-		"read_write",
-		"read",
-		"write",
+	// SourceScope ...
+	SourceScope = []string{
+		"openid",
+		"profile",
+		"email",
 	}
 )
 
@@ -108,7 +109,7 @@ func Init() {
 			return
 		}
 		// 包含
-		if !tools.ScopeIsSubset(value.Scope, sourceScope) {
+		if !tools.ScopeIsSubset(value.Scope, SourceScope) {
 			err = oauth2.ErrInvalidScope
 		}
 		return
@@ -118,7 +119,7 @@ func Init() {
 		if len(scope) == 0 {
 			return
 		}
-		if !tools.ScopeIsSubset(scope, sourceScope) {
+		if !tools.ScopeIsSubset(scope, SourceScope) {
 			err = oauth2.ErrInvalidScope
 		}
 		return
