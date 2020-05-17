@@ -50,8 +50,8 @@ func (ctl *AccountService) GetUserInfo(ctx context.Context, req *proto.GetUserIn
 	userInfo, userInfoErr := service.User.GetInfoOneByUserID(req.OpenId)
 	if userInfoErr == nil && userInfo != nil {
 		res.UserInfo = &proto.UserInfo{
-			NickName:  userInfo.NickName,
-			AvatarUrl: userInfo.AvatarURL,
+			NickName:  userInfo.Nickname,
+			AvatarUrl: userInfo.Picture,
 			Gender:    uint32(userInfo.Gender),
 		}
 	}

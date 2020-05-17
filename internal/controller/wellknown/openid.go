@@ -60,11 +60,9 @@ func GetOpenIDProviderMetadata(ctx *gin.Context) {
 		"email",
 		"email_verified",
 		"exp",
-		"family_name",
-		"given_name",
+		"nickname",
 		"iat",
 		"iss",
-		"locale",
 		"name",
 		"picture",
 	)
