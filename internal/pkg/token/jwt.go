@@ -23,12 +23,26 @@ func NewGenerateAccessToken(key interface{}) oauth2.GenerateAccessTokenFunc {
 		if err != nil {
 			err = oauth2.ErrServerError
 		}
+		currTime := time.Now()
+		idTokenJwtClaims := oauth2.JwtStandardClaims{
+			Issuer:    issuer,
+			Subject:   openID,
+			IssuedAt:  currTime.Unix(),
+			ExpiresAt: currTime.Add(oauth2.AccessTokenExpire).Unix(),
+			Audience:  []string{clientID},
+		}
+		var idToken string
+		idToken, err = oauth2.NewJwtStandardClaimsToken(&idTokenJwtClaims, "RS256", key)
+		if err != nil {
+			err = oauth2.ErrServerError
+		}
 		token = &oauth2.TokenResponse{
 			AccessToken:  tokenStr,
 			TokenType:    oauth2.TokenTypeBearer,
 			ExpiresIn:    accessJwtClaims.ExpiresAt,
 			RefreshToken: refreshTokenStr,
 			Scope:        scope,
+			IDToken:      idToken,
 		}
 		return
 	}
@@ -38,7 +52,7 @@ func NewGenerateAccessToken(key interface{}) oauth2.GenerateAccessTokenFunc {
 func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 	return func(clientID, refreshToken string) (token *oauth2.TokenResponse, err error) {
 		refreshTokenClaims := &oauth2.JwtClaims{}
-		refreshTokenClaims, err = oauth2.ParseJwtToken(refreshToken, key)
+		refreshTokenClaims, err = oauth2.ParseJwtClaimsToken(refreshToken, key)
 		if err != nil {
 			return
 		}
@@ -53,7 +67,7 @@ func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 		refreshTokenClaims.ExpiresAt = time.Now().Add(oauth2.AccessTokenExpire).Unix()
 
 		var tokenClaims *oauth2.JwtClaims
-		tokenClaims, err = oauth2.ParseJwtToken(refreshTokenClaims.ID, key)
+		tokenClaims, err = oauth2.ParseJwtClaimsToken(refreshTokenClaims.ID, key)
 		if err != nil {
 			return
 		}
@@ -84,6 +98,6 @@ func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 // NewParseAccessToken 创建默认解析AccessToken方法
 func NewParseAccessToken(key interface{}) oauth2.ParseAccessTokenFunc {
 	return func(accessToken string) (claims *oauth2.JwtClaims, err error) {
-		return oauth2.ParseJwtToken(accessToken, key)
+		return oauth2.ParseJwtClaimsToken(accessToken, key)
 	}
 }

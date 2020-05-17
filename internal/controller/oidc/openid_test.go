@@ -250,7 +250,7 @@ Pk78NMGbTCMJ65lA96vscXaSk0hF9Y83YY9Jjiju+uwWdnx74khb
 	}
 	t.Logf("rsa token: %s\n", token)
 	t.Log("===================")
-	cl2, cl2Err := oauth2.ParseJwtToken(token, rsaPrivateKey.Public())
+	cl2, cl2Err := oauth2.ParseJwtClaimsToken(token, rsaPrivateKey.Public())
 	if cl2Err != nil {
 		t.Error(cl2Err)
 		return

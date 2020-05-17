@@ -95,7 +95,7 @@ func (ctl *PermissionService) VerificationToken(ctx context.Context, req *proto.
 		claims    *oauth2.JwtClaims
 		claimsErr error
 	)
-	claims, claimsErr = oauth2.ParseJwtToken(req.GetToken(), []byte(viper.GetString("jwt.secret")))
+	claims, claimsErr = oauth2.ParseJwtClaimsToken(req.GetToken(), []byte(viper.GetString("jwt.secret")))
 	if claimsErr != nil {
 		res.Err = &errors.BusinessError{
 			Code: 0,
