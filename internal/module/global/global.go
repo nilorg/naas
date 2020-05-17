@@ -15,6 +15,8 @@ import (
 var (
 	// JwtPrivateKey ...
 	JwtPrivateKey *rsa.PrivateKey
+	// JwtPublicKey ...
+	JwtPublicKey *rsa.PublicKey
 	// JwtCertificates ...
 	JwtCertificates []*x509.Certificate
 	// Jwk ...
@@ -60,6 +62,7 @@ func initCert() {
 		logger.Fatalln("failed to parse certificate: %s", err)
 		return
 	}
+	JwtPublicKey = JwtCertificates[0].PublicKey.(*rsa.PublicKey)
 }
 
 func initJwk() {

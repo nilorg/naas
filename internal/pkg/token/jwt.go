@@ -4,16 +4,18 @@ import (
 	"time"
 
 	"github.com/nilorg/oauth2"
+	"github.com/nilorg/sdk/strings"
 )
 
 // NewGenerateAccessToken 创建默认生成AccessToken方法
-func NewGenerateAccessToken(key interface{}) oauth2.GenerateAccessTokenFunc {
+func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.GenerateAccessTokenFunc {
 	return func(issuer, clientID, scope, openID string) (token *oauth2.TokenResponse, err error) {
 		accessJwtClaims := oauth2.NewJwtClaims(issuer, clientID, scope, openID)
 		var tokenStr string
 		tokenStr, err = oauth2.NewJwtToken(accessJwtClaims, "RS256", key)
 		if err != nil {
 			err = oauth2.ErrServerError
+			return
 		}
 
 		refreshAccessJwtClaims := oauth2.NewJwtClaims(issuer, clientID, oauth2.ScopeRefreshToken, "")
@@ -22,27 +24,41 @@ func NewGenerateAccessToken(key interface{}) oauth2.GenerateAccessTokenFunc {
 		refreshTokenStr, err = oauth2.NewJwtToken(accessJwtClaims, "RS256", key)
 		if err != nil {
 			err = oauth2.ErrServerError
+			return
 		}
 		currTime := time.Now()
-		idTokenJwtClaims := oauth2.JwtStandardClaims{
-			Issuer:    issuer,
-			Subject:   openID,
-			IssuedAt:  currTime.Unix(),
-			ExpiresAt: currTime.Add(oauth2.AccessTokenExpire).Unix(),
-			Audience:  []string{clientID},
-		}
-		var idToken string
-		idToken, err = oauth2.NewJwtStandardClaimsToken(&idTokenJwtClaims, "RS256", key)
-		if err != nil {
-			err = oauth2.ErrServerError
-		}
 		token = &oauth2.TokenResponse{
 			AccessToken:  tokenStr,
 			TokenType:    oauth2.TokenTypeBearer,
 			ExpiresIn:    accessJwtClaims.ExpiresAt,
 			RefreshToken: refreshTokenStr,
 			Scope:        scope,
-			IDToken:      idToken,
+		}
+		idTokenFlag := false
+		for _, s := range strings.Split(scope, " ") {
+			if s == "openid" {
+				idTokenFlag = true
+				break
+			}
+		}
+		if idTokenFlag && idTokenEnabled {
+			idTokenJwtClaims := oauth2.JwtClaims{
+				JwtStandardClaims: oauth2.JwtStandardClaims{
+					Issuer:    issuer,
+					Subject:   openID,
+					IssuedAt:  currTime.Unix(),
+					ExpiresAt: currTime.Add(oauth2.AccessTokenExpire).Unix(),
+					Audience:  []string{clientID},
+				},
+				Scope: scope,
+			}
+			var idToken string
+			idToken, err = oauth2.NewJwtClaimsToken(&idTokenJwtClaims, "RS256", key)
+			if err != nil {
+				err = oauth2.ErrServerError
+				return
+			}
+			token.IDToken = idToken
 		}
 		return
 	}

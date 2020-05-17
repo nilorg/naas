@@ -30,6 +30,7 @@ var (
 		"openid",
 		"profile",
 		"email",
+		"phone",
 	}
 )
 
@@ -136,7 +137,7 @@ func Init() {
 	oauth2Server.TokenRevocation = func(token, clientID string, tokenTypeHint ...string) {
 
 	}
-	oauth2Server.GenerateAccessToken = token.NewGenerateAccessToken(global.JwtPrivateKey)
+	oauth2Server.GenerateAccessToken = token.NewGenerateAccessToken(global.JwtPrivateKey, viper.GetBool("server.oidc.enabled") && viper.GetBool("server.oidc.userinfo_endpoint_enabled"))
 	oauth2Server.RefreshAccessToken = token.NewRefreshAccessToken(global.JwtPrivateKey)
 	oauth2Server.ParseAccessToken = token.NewParseAccessToken(global.JwtPrivateKey)
 	oauth2Server.Init()

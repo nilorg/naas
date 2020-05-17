@@ -21,7 +21,7 @@ type Userinfo struct {
 	Email               string           `json:"email,omitempty"`                 // 权限范围 email
 	EmailVerified       bool             `json:"email_verified,omitempty"`        // 权限范围 email
 	PhoneNumber         string           `json:"phone_number,omitempty"`          // 权限范围 phone
-	PhoneNumberVerified string           `json:"phone_number_verified,omitempty"` // 权限范围 phone
+	PhoneNumberVerified bool             `json:"phone_number_verified,omitempty"` // 权限范围 phone
 	Address             *UserinfoAddress `json:"address,omitempty"`               // 权限范围 address
 }
 

@@ -14,6 +14,7 @@ import (
 	"github.com/nilorg/naas/internal/controller/oidc"
 	"github.com/nilorg/naas/internal/controller/service"
 	"github.com/nilorg/naas/internal/controller/wellknown"
+	"github.com/nilorg/naas/internal/module/global"
 	"github.com/nilorg/pkg/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -73,7 +74,7 @@ func RunHTTP() {
 		oidcGroup := r.Group("/oidc")
 		{
 			if viper.GetBool("server.oidc.userinfo_endpoint_enabled") {
-				oidcGroup.POST("/userinfo", oidc.GetUserinfo)
+				oidcGroup.GET("/userinfo", middleware.AuthUserinfoRequired(global.JwtPublicKey), oidc.GetUserinfo)
 			}
 		}
 	}
