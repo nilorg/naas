@@ -12,13 +12,13 @@ func newJwtToken(claims jwt.Claims, key interface{}) (string, error) {
 	return token.SignedString(key)
 }
 
-// NewAccessToken ...
-func NewAccessToken(claims *oauth2.JwtClaims, key interface{}) (string, error) {
+// NewJwtToken ...
+func NewJwtToken(claims *oauth2.JwtClaims, key interface{}) (string, error) {
 	return newJwtToken(claims, key)
 }
 
-// ParseAccessToken ...
-func ParseAccessToken(accessToken string, key interface{}) (claims *oauth2.JwtClaims, err error) {
+// ParseJwtToken ...
+func ParseJwtToken(accessToken string, key interface{}) (claims *oauth2.JwtClaims, err error) {
 	var token *jwt.Token
 	token, err = jwt.ParseWithClaims(accessToken, &oauth2.JwtClaims{}, func(token *jwt.Token) (i interface{}, e error) {
 		if token.Method != jwt.SigningMethodRS256 {
@@ -40,7 +40,7 @@ func NewGenerateAccessToken(key interface{}) oauth2.GenerateAccessTokenFunc {
 	return func(issuer, clientID, scope, openID string) (token *oauth2.TokenResponse, err error) {
 		accessJwtClaims := oauth2.NewJwtClaims(issuer, clientID, scope, openID)
 		var tokenStr string
-		tokenStr, err = NewAccessToken(accessJwtClaims, key)
+		tokenStr, err = NewJwtToken(accessJwtClaims, key)
 		if err != nil {
 			err = oauth2.ErrServerError
 		}
@@ -67,7 +67,7 @@ func NewGenerateAccessToken(key interface{}) oauth2.GenerateAccessTokenFunc {
 func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 	return func(clientID, refreshToken string) (token *oauth2.TokenResponse, err error) {
 		refreshTokenClaims := &oauth2.JwtClaims{}
-		refreshTokenClaims, err = ParseAccessToken(refreshToken, key)
+		refreshTokenClaims, err = ParseJwtToken(refreshToken, key)
 		if err != nil {
 			return
 		}
@@ -82,7 +82,7 @@ func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 		refreshTokenClaims.ExpiresAt = time.Now().Add(oauth2.AccessTokenExpire).Unix()
 
 		var tokenClaims *oauth2.JwtClaims
-		tokenClaims, err = ParseAccessToken(refreshTokenClaims.Id, key)
+		tokenClaims, err = ParseJwtToken(refreshTokenClaims.Id, key)
 		if err != nil {
 			return
 		}
@@ -93,12 +93,12 @@ func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 		tokenClaims.ExpiresAt = time.Now().Add(oauth2.AccessTokenExpire).Unix()
 
 		var refreshTokenStr string
-		refreshTokenStr, err = NewAccessToken(refreshTokenClaims, key)
+		refreshTokenStr, err = NewJwtToken(refreshTokenClaims, key)
 		if err != nil {
 			return
 		}
 		var tokenStr string
-		tokenStr, err = NewAccessToken(tokenClaims, key)
+		tokenStr, err = NewJwtToken(tokenClaims, key)
 		token = &oauth2.TokenResponse{
 			AccessToken:  tokenStr,
 			RefreshToken: refreshTokenStr,
@@ -113,6 +113,6 @@ func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 // NewParseAccessToken 创建默认解析AccessToken方法
 func NewParseAccessToken(key interface{}) oauth2.ParseAccessTokenFunc {
 	return func(accessToken string) (claims *oauth2.JwtClaims, err error) {
-		return ParseAccessToken(accessToken, key)
+		return ParseJwtToken(accessToken, key)
 	}
 }
