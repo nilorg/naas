@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"runtime"
 
 	_ "github.com/nilorg/naas/docs"
@@ -16,8 +17,11 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	logger.Init()
 	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
-	viper.SetConfigFile("configs/example_config.yaml")
-	// viper.SetConfigFile("configs/config.yaml")
+	configFilename := "configs/config.yaml"
+	if v := os.Getenv("NAAS_CONFIG"); v != "" {
+		configFilename = v
+	}
+	viper.SetConfigFile(configFilename)
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
 		logger.Fatalf("Fatal error config file: %s ", err)
