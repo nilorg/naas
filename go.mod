@@ -9,7 +9,6 @@ require (
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/certifi/gocertifi v0.0.0-20191021191039-0944d244cd40 // indirect
 	github.com/deckarep/golang-set v1.7.1
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis/v7 v7.2.0
@@ -19,10 +18,10 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3
 	github.com/jinzhu/gorm v1.9.12
 	github.com/mailru/easyjson v0.7.1 // indirect
-	github.com/nilorg/oauth2 v0.1.2-0.20200516070326-af2eec1f675d
-	github.com/nilorg/pkg v0.0.0-20191216151459-53ec4e665ff1
+	github.com/nilorg/oauth2 v0.2.0
+	github.com/nilorg/pkg v0.0.0-20200517083116-9b88f6e458df
 	github.com/nilorg/protobuf v0.0.0-20200503084506-2b10c53bd0f9
-	github.com/nilorg/sdk v0.0.0-20200405075129-8f922eb1fa90
+	github.com/nilorg/sdk v0.0.0-20200517085820-1f0160ffff7a
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/afero v1.2.2 // indirect
@@ -33,6 +32,7 @@ require (
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5
+	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 // indirect
 	golang.org/x/net v0.0.0-20191021144547-ec77196f6094
 	golang.org/x/tools v0.0.0-20190830223141-573d9926052a // indirect
 	google.golang.org/appengine v1.6.2 // indirect

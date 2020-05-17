@@ -95,7 +95,7 @@ func (ctl *PermissionService) VerificationToken(ctx context.Context, req *proto.
 		claims    *oauth2.JwtClaims
 		claimsErr error
 	)
-	claims, claimsErr = oauth2.ParseAccessToken(req.GetToken(), []byte(viper.GetString("jwt.secret")))
+	claims, claimsErr = oauth2.ParseJwtToken(req.GetToken(), []byte(viper.GetString("jwt.secret")))
 	if claimsErr != nil {
 		res.Err = &errors.BusinessError{
 			Code: 0,
@@ -103,7 +103,7 @@ func (ctl *PermissionService) VerificationToken(ctx context.Context, req *proto.
 		}
 		return
 	}
-	if claims.Audience != req.GetClient().Id {
+	if claims.VerifyAudience([]string{req.GetClient().Id}, false) {
 		res.Err = &errors.BusinessError{
 			Code: 0,
 			Msg:  fmt.Sprintf("token claims audience not equal to %s", req.GetClient().Id),

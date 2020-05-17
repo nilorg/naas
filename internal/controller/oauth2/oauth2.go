@@ -109,7 +109,7 @@ func Init() {
 			return
 		}
 		// 包含
-		if !tools.ScopeIsSubset(value.Scope, SourceScope) {
+		if !tools.SliceIsSubset(value.Scope, SourceScope) {
 			err = oauth2.ErrInvalidScope
 		}
 		return
@@ -119,7 +119,7 @@ func Init() {
 		if len(scope) == 0 {
 			return
 		}
-		if !tools.ScopeIsSubset(scope, SourceScope) {
+		if !tools.SliceIsSubset(scope, SourceScope) {
 			err = oauth2.ErrInvalidScope
 		}
 		return

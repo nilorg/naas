@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nilorg/oauth2"
 	"github.com/square/go-jose/v3"
 	"github.com/square/go-jose/v3/jwt"
 )
@@ -56,6 +57,19 @@ func GenerateSigningKey(bits int) (crypto.PublicKey, crypto.PrivateKey, error) {
 		return nil, nil, err
 	}
 	return key.Public(), key, err
+}
+
+// Structured version of Claims Section, as referenced at
+// https://tools.ietf.org/html/rfc7519#section-4.1
+// See examples for how to use this with your own claim types
+type StandardClaims struct {
+	Audience  string `json:"aud,omitempty"`
+	ExpiresAt int64  `json:"exp,omitempty"`
+	ID        string `json:"jti,omitempty"`
+	IssuedAt  int64  `json:"iat,omitempty"`
+	Issuer    string `json:"iss,omitempty"`
+	NotBefore int64  `json:"nbf,omitempty"`
+	Subject   string `json:"sub,omitempty"`
 }
 
 func TestCert(t *testing.T) {
@@ -106,12 +120,19 @@ Pk78NMGbTCMJ65lA96vscXaSk0hF9Y83YY9Jjiju+uwWdnx74khb
 		panic(err)
 	}
 
-	cl := jwt.Claims{
+	// cl := jwt.Claims{
+	// 	Subject:   "subject",
+	// 	Issuer:    "http://localhost:8080",
+	// 	NotBefore: jwt.NewNumericDate(time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC)),
+	// 	Audience:  jwt.Audience{"naas-oidc-test", "1xxxx000"},
+	// 	Expiry:    jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+	// }
+	cl := StandardClaims{
 		Subject:   "subject",
 		Issuer:    "http://localhost:8080",
-		NotBefore: jwt.NewNumericDate(time.Date(2016, 1, 1, 0, 0, 0, 0, time.UTC)),
-		Audience:  jwt.Audience{"naas-oidc-test", "1xxxx000"},
-		Expiry:    jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		NotBefore: time.Now().Unix(),
+		Audience:  "naas-oidc-test",
+		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 	}
 	privateRaw, err := jwt.Signed(sig).Claims(cl).CompactSerialize()
 	if err != nil {
@@ -175,4 +196,64 @@ B36K98eWEdm2Wc3IY6OL2xj+DaYm8Tuyh9KzL9hU
 		fmt.Println("tok.Verify: ", okErr)
 	}
 	fmt.Printf("验证通过：%s\n", ok)
+}
+
+func TestOAuth2Token(t *testing.T) {
+	rsaPrivateKeyPEM := []byte(`-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEA20St6pqB4LQvqT1Aq2jZPbrkpSiwFeQwiu6AA2eBz3oYveYA
+SCDzl/jXfPsY36b8VahDWmhgB/ie5Ku+R6yXiZcY9SYDiu8sMONwdkhlIL4nP1oC
+97CffWf4vkt4mH7i5/rJWCd/MMLzjSmrMPdUOh9Jd2awNjUZ9QiVTBogZeMo8b5i
+nVBRfRcKAQDZYlo5/VkpaRBTqahh+RoIReX1MHy/LuPMJywPaqHpIh3dlwOvnY6Q
+uFrPo3cF4B7mi/ofTeRX7xzm6z+uxVZGkUHAxgm4VMAYmiP0dLSzyagA5IHUaPHV
+ex8luTSR6DcbINm0bw9skUzI8zYPIGzI/rchSQIDAQABAoIBAQDazaAXOfNcvbHJ
+2jvMUKZn+TXssbt1PO5L1U+dFg7tcVN7PCcP0wIBpumx6AecNtAa0fvUHc+mZKx6
+V/9bGpllTYg0KajjXWPlrTAueHOhxt73UuUfMfsVc0k+66T917Cp+RIui8taZ1AO
+j4QrKsO79Dilk61HipnKcLQ66t9liv4Uf/oxOjfvjaw0+mRDgD2eulTNE+pSIw6L
+uZXduUcpZkYenXCIS+YfRjKMJGHdCiy0bj8887vg0JiqF+mPxGo1UrOMrkWtC4am
+Fht7IMUO5KnfBveL1rMB3ed8LRie9B5EOopRoBZ7PhZ31sqlimYargHGnZwYH8BH
+HzazCGwBAoGBAO8N14JcbqEcs0VpGqyuuBffheu3+6waGt90MhYEMVJsL07qLkIw
+8P4zvPDthXMncrLBC7VJzKkZ7hmww3/qZX5xYjeSVggxG149I1Kncqn9l9BW/Qes
+IEmTUfDE8Js6mQfJVxf7qKDsN9E5N90Oj2j4XZK2ECfaLKbwWfDv3IBBAoGBAOrP
+x/jm9s6Y6KBzxBkXK0jtx2PGM1KxwJFcH9TKgz1A5yue0I1gVdU5Yf3HQowkUGJK
+lT2sUHh1JXUWd2gSrZ5ba6Fc7yITIRUYjAJaW4JKvGtk59QsdRUsHiKsMxmM1GJl
+/uDuZem+EiSA4R9ZZZSHAIfQY2VJD3MLDWVMvt8JAoGAJDebo/NvC1e2zVhMI0dh
+OrSxrHG2Xm+iDKKlB/LgqhUb4b/W/E4/5LNf97x0kGq0lOJsbK3epOv5x8ihBds0
+P0DcWYEBKcKO2+s1U8tsstZpzrWvJh9s0NjR/EFKFqp9DtHxMP/+n0rKdhdOIF6Z
+WZTvUE/nCLKkOzKE3dzpMkECgYAYkkmwyCqHkAS31aVtorkK1qcIz9LLEoK+M0+5
+ar+1BzepnuLgCHay62BPuCxEkgA/aOKZI5EAKfITgJhaMaotag+nQRxdCndpx7nO
+/TmaNsvkyRhhYY2W+5jjs/Vc9Rm8ekPjsc7EWPl5DGuCZk507nOlwq7ECJMvTLbI
+JPHMUQKBgF9O0xzJu7NwR1njqeU1MWdo8nzmb9F2itsYRXmOtC+rjTs3uqWBqlu3
+TE+L0j3o3S6navSHhzzcZLwozW6otHfDcmfFBQG48zbH7YgBVuTnSQyegEpSUHRa
+Pk78NMGbTCMJ65lA96vscXaSk0hF9Y83YY9Jjiju+uwWdnx74khb
+-----END RSA PRIVATE KEY-----`)
+	rsaPrivatePEMBlock, _ := pem.Decode(rsaPrivateKeyPEM)
+	if rsaPrivatePEMBlock == nil {
+		panic("failed to parse certificate PEM")
+	}
+	rsaPrivateKey, rsaPrivateKeyErr := x509.ParsePKCS1PrivateKey(rsaPrivatePEMBlock.Bytes)
+	if rsaPrivateKeyErr != nil {
+		fmt.Printf("x509.ParsePKCS1PrivateKey Error: %s\n", rsaPrivateKeyErr)
+	}
+	cl := oauth2.JwtClaims{
+		JwtStandardClaims: oauth2.JwtStandardClaims{
+			Subject:   "subject",
+			Issuer:    "http://localhost:8080",
+			NotBefore: time.Now().Unix(),
+			Audience:  []string{"naas-oidc-test"},
+			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+		},
+	}
+	token, tokenErr := oauth2.NewJwtToken(&cl, "RS256", rsaPrivateKey)
+	if tokenErr != nil {
+		t.Error(tokenErr)
+		return
+	}
+	t.Logf("rsa token: %s\n", token)
+	t.Log("===================")
+	cl2, cl2Err := oauth2.ParseJwtToken(token, rsaPrivateKey.Public())
+	if cl2Err != nil {
+		t.Error(cl2Err)
+		return
+	}
+	t.Logf("rsa token cl2: %+v\n", cl2)
 }

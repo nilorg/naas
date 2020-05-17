@@ -4,8 +4,8 @@ import (
 	mapset "github.com/deckarep/golang-set"
 )
 
-// ScopeIsEqual 是相等
-func ScopeIsEqual(input, source []string) bool {
+// SliceIsEqual 是相等
+func SliceIsEqual(input, source []string) bool {
 	inputSet := mapset.NewSet()
 	for _, i := range input {
 		inputSet.Add(i)
@@ -17,8 +17,8 @@ func ScopeIsEqual(input, source []string) bool {
 	return inputSet.Equal(sourceSet)
 }
 
-// ScopeIsSubset 是包含
-func ScopeIsSubset(input, source []string) bool {
+// SliceIsSubset 是包含
+func SliceIsSubset(input, source []string) bool {
 	inputSet := mapset.NewSet()
 	for _, i := range input {
 		inputSet.Add(i)
