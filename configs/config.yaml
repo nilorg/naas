@@ -13,7 +13,6 @@ server:
   oidc:
     enabled: false
     userinfo_endpoint_enabled: false
-    config: ./configs/openid-configuration.json
     rsa: 
       private: |
         -----BEGIN RSA PRIVATE KEY-----
