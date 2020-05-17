@@ -76,6 +76,12 @@ jwt:
 session:
   name: "naas-session"
   secret: "github.com/nilorg/naas"
+  options: 
+    path: "/"
+    domain: "accounts.nilorg.com"
+    max_age: 86400000
+    secure: true
+    http_only: true
   redis:
     address: "localhost:6379"
     password: ""

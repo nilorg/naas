@@ -34,6 +34,13 @@ func RunHTTP() {
 		logger.Errorf("redis.NewStore Error:", err)
 		return
 	}
+	store.Options(sessions.Options{
+		Path:     viper.GetString("session.options.path"),
+		Domain:   viper.GetString("session.options.domain"),
+		MaxAge:   viper.GetInt("session.options.max_age"),
+		Secure:   viper.GetBool("session.options.secure"),
+		HttpOnly: viper.GetBool("session.options.http_only"),
+	})
 	r := gin.Default()
 	r.Use(middleware.Header())
 	r.Use(sessions.Sessions(viper.GetString("session.name"), store))
