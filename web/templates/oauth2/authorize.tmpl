@@ -33,7 +33,7 @@
                 <h1>是否愿意代表您执行操作</h1>
                 <p class="lead">授权范围</p>
                 {{range $scope := .scopes}}
-                    <input type="checkbox" {{if $scope.checked}}checked{{end}} name="scopes" value="{{$scope.text}}" id="scope_{{$scope.text}}">
+                    <input type="checkbox" {{if $scope.checked}}checked{{end}} name="scope" value="{{$scope.text}}" id="scope_{{$scope.text}}">
                     <label for="scope_{{$scope.text}}">{{$scope.text}}</label>
                     <br />
                 {{end}}
