@@ -10,7 +10,7 @@ import (
 
 	"github.com/nilorg/pkg/logger"
 
-	"github.com/nilorg/naas/pkg/tools"
+	"github.com/nilorg/pkg/slice"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -109,7 +109,7 @@ func Init() {
 			return
 		}
 		// 包含
-		if !tools.SliceIsSubset(value.Scope, SourceScope) {
+		if !slice.IsSubset(value.Scope, SourceScope) {
 			err = oauth2.ErrInvalidScope
 		}
 		return
@@ -119,7 +119,7 @@ func Init() {
 		if len(scope) == 0 {
 			return
 		}
-		if !tools.SliceIsSubset(scope, SourceScope) {
+		if !slice.IsSubset(scope, SourceScope) {
 			err = oauth2.ErrInvalidScope
 		}
 		return

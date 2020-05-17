@@ -8,7 +8,6 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/certifi/gocertifi v0.0.0-20191021191039-0944d244cd40 // indirect
-	github.com/deckarep/golang-set v1.7.1
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis/v7 v7.2.0
