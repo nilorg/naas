@@ -45,6 +45,7 @@ func initPrivate() {
 		logger.Fatalf("x509.ParsePKCS1PrivateKey Error: %s", err)
 		return
 	}
+	JwtPublicKey = &JwtPrivateKey.PublicKey
 }
 
 func initCert() {
@@ -62,7 +63,6 @@ func initCert() {
 		logger.Fatalln("failed to parse certificate: %s", err)
 		return
 	}
-	JwtPublicKey = JwtCertificates[0].PublicKey.(*rsa.PublicKey)
 }
 
 func initJwk() {

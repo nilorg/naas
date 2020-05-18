@@ -51,7 +51,7 @@ func parseAuth(auth string) (token string, ok bool) {
 // AuthUserinfoRequired 身份验证
 func AuthUserinfoRequired(key interface{}) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		accessToken, ok := parseAuth(ctx.GetHeader("Authorization"))
+		tok, ok := parseAuth(ctx.GetHeader("Authorization"))
 		if !ok {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "Authorization Is Empty",
@@ -62,7 +62,7 @@ func AuthUserinfoRequired(key interface{}) gin.HandlerFunc {
 			idTokenClaims *oauth2.JwtClaims
 			err           error
 		)
-		idTokenClaims, err = oauth2.ParseJwtClaimsToken(accessToken, key)
+		idTokenClaims, err = oauth2.ParseJwtClaimsToken(tok, key)
 		if err != nil {
 			logger.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -83,7 +83,7 @@ func AuthUserinfoRequired(key interface{}) gin.HandlerFunc {
 			})
 			return
 		}
-		if idTokenClaims.VerifyScope("openid", false) {
+		if !idTokenClaims.VerifyScope("openid", false) {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": oauth2.ErrInvalidScope.Error(),
 			})

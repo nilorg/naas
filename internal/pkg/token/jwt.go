@@ -1,16 +1,26 @@
 package token
 
 import (
+	"strings"
 	"time"
 
 	"github.com/nilorg/oauth2"
-	"github.com/nilorg/sdk/strings"
+	sdkStrings "github.com/nilorg/sdk/strings"
 )
 
 // NewGenerateAccessToken 创建默认生成AccessToken方法
 func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.GenerateAccessTokenFunc {
 	return func(issuer, clientID, scope, openID string) (token *oauth2.TokenResponse, err error) {
-		accessJwtClaims := oauth2.NewJwtClaims(issuer, clientID, scope, openID)
+		idTokenFlag := false
+		var newScopes []string
+		for _, s := range sdkStrings.Split(scope, " ") {
+			if s == "openid" {
+				idTokenFlag = true
+			} else {
+				newScopes = append(newScopes, s)
+			}
+		}
+		accessJwtClaims := oauth2.NewJwtClaims(issuer, clientID, strings.Join(newScopes, " "), openID)
 		var tokenStr string
 		tokenStr, err = oauth2.NewJwtToken(accessJwtClaims, "RS256", key)
 		if err != nil {
@@ -34,13 +44,6 @@ func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.Generat
 			RefreshToken: refreshTokenStr,
 			Scope:        scope,
 		}
-		idTokenFlag := false
-		for _, s := range strings.Split(scope, " ") {
-			if s == "openid" {
-				idTokenFlag = true
-				break
-			}
-		}
 		if idTokenFlag && idTokenEnabled {
 			idTokenJwtClaims := oauth2.JwtClaims{
 				JwtStandardClaims: oauth2.JwtStandardClaims{
@@ -50,7 +53,7 @@ func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.Generat
 					ExpiresAt: currTime.Add(oauth2.AccessTokenExpire).Unix(),
 					Audience:  []string{clientID},
 				},
-				Scope: scope,
+				Scope: "openid",
 			}
 			var idToken string
 			idToken, err = oauth2.NewJwtClaimsToken(&idTokenJwtClaims, "RS256", key)
