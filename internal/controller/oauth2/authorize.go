@@ -9,9 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/service"
+	"github.com/nilorg/naas/pkg/tools"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
+	sdkStrings "github.com/nilorg/sdk/strings"
 )
 
 // AuthorizePage 授权页面
@@ -58,11 +60,12 @@ func AuthorizePage(ctx *gin.Context) {
 	clientInfo, err = service.OAuth2.GetClientInfo(clientID)
 	// query scope checked scopes list.
 	scope := ctx.Query("scope")
+	scopeSplit := sdkStrings.Split(scope, " ")
 	scopes := make([]map[string]interface{}, 0)
-	for _, value := range SourceScope {
+	for _, v := range SourceScope {
 		scopes = append(scopes, map[string]interface{}{
-			"text":    value,
-			"checked": value == scope,
+			"text":    v,
+			"checked": tools.InStringSplit(v, scopeSplit),
 		})
 	}
 	ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
