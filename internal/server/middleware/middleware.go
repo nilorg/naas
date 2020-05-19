@@ -83,7 +83,7 @@ func AuthUserinfoRequired(key interface{}) gin.HandlerFunc {
 			})
 			return
 		}
-		if !idTokenClaims.VerifyScope("openid", false) {
+		if !idTokenClaims.VerifyScope("openid", true) {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": oauth2.ErrInvalidScope.Error(),
 			})

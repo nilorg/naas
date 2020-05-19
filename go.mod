@@ -17,7 +17,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3
 	github.com/jinzhu/gorm v1.9.12
 	github.com/mailru/easyjson v0.7.1 // indirect
-	github.com/nilorg/oauth2 v0.2.4
+	github.com/nilorg/oauth2 v0.2.5
 	github.com/nilorg/pkg v0.0.0-20200517083116-9b88f6e458df
 	github.com/nilorg/protobuf v0.0.0-20200503084506-2b10c53bd0f9
 	github.com/nilorg/sdk v0.0.0-20200517085820-1f0160ffff7a

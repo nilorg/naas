@@ -37,6 +37,7 @@ func GetUserinfo(ctx *gin.Context) {
 			return
 		}
 		if idTokenClaims.VerifyScope("profile", true) {
+			resultUserinfo.Name = user.Username
 			resultUserinfo.Nickname = userInfo.Nickname
 			resultUserinfo.Picture = userInfo.Picture
 			resultUserinfo.Gender = convert.ToString(userInfo.Gender)

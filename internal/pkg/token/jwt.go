@@ -31,7 +31,7 @@ func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.Generat
 		refreshAccessJwtClaims := oauth2.NewJwtClaims(issuer, clientID, oauth2.ScopeRefreshToken, "")
 		refreshAccessJwtClaims.ID = tokenStr
 		var refreshTokenStr string
-		refreshTokenStr, err = oauth2.NewJwtToken(accessJwtClaims, "RS256", key)
+		refreshTokenStr, err = oauth2.NewJwtToken(refreshAccessJwtClaims, "RS256", key)
 		if err != nil {
 			err = oauth2.ErrServerError
 			return
