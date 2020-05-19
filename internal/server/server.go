@@ -70,7 +70,7 @@ func RunHTTP() {
 		if viper.GetBool("server.oauth2.device_authorization_endpoint_enabled") {
 			oauth2Group.POST("/device/code", oauth2.DeviceCode)
 		}
-		if viper.GetBool("server.oauth2.token_introspect_enabled") {
+		if viper.GetBool("server.oauth2.introspection_endpoint_enabled") {
 			oauth2Group.POST("/introspect", oauth2.TokenIntrospection)
 		}
 		if viper.GetBool("server.oauth2.revocation_endpoint_enabled") {

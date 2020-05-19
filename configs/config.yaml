@@ -4,7 +4,7 @@ server:
     port: 8080
     issuer: "https://accounts.nilorg.com"
     device_authorization_endpoint_enabled: false
-    introspection_endpoint_enabled: false
+    introspection_endpoint_enabled: true
     revocation_endpoint_enabled: false
   grpc:
     port: 9000

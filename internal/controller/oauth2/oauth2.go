@@ -132,6 +132,32 @@ func Init() {
 		return
 	}
 	oauth2Server.VerifyIntrospectionToken = func(token, clientID string, tokenTypeHint ...string) (resp *oauth2.IntrospectionResponse, err error) {
+		var tokenClaims *oauth2.JwtClaims
+		tokenClaims, err = oauth2.ParseJwtClaimsToken(token, global.JwtPrivateKey)
+		if err != nil {
+			logger.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
+			err = oauth2.ErrServerError
+			return
+		}
+		if !tokenClaims.VerifyAudience([]string{clientID}, false) {
+			err = oauth2.ErrInvalidClient
+		}
+		resp = new(oauth2.IntrospectionResponse)
+		if verr := tokenClaims.Valid(); verr != nil {
+			resp.Active = false
+			return
+		}
+		resp.ClientID = clientID
+		resp.Scope = tokenClaims.Scope
+		resp.Sub = tokenClaims.Subject
+		resp.Aud = clientID
+		resp.Exp = tokenClaims.ExpiresAt
+		resp.Iss = tokenClaims.IssuedAt
+		var user *model.User
+		user, err = service.User.GetOneByID(tokenClaims.Subject)
+		if err == nil && user != nil {
+			resp.Username = user.Username
+		}
 		return
 	}
 	oauth2Server.TokenRevocation = func(token, clientID string, tokenTypeHint ...string) {
