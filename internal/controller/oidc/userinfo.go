@@ -32,7 +32,7 @@ func GetUserinfo(ctx *gin.Context) {
 	userInfoFlag := idTokenClaims.VerifyScope("profile", true) || idTokenClaims.VerifyScope("email", true)
 	if userInfoFlag {
 		userInfo, err := service.User.GetInfoOneByUserID(idTokenClaims.Subject)
-		if err == nil && userInfo != nil {
+		if err == nil && userInfo == nil {
 			ctx.JSON(200, resultUserinfo)
 			return
 		}
