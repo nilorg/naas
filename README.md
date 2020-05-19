@@ -21,6 +21,13 @@ http://localhost:8080/oauth2/authorize?client_id=1000&redirect_uri=http://dev.wo
 
 客户端读取资源，要保证resource owner、client、token和数据库的记录都匹配才行。
 
+# 关于OAuth应用的范围
+
+范围使您可以准确指定所需的访问类型。范围限制了OAuth令牌的访问。
+他们不授予用户已经拥有的权限以外的任何其他权限。
+
+[参考Github OAuth Scopes](https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/)
+
 # OpenID Connent
 
 https://contoso.auth0.com/.well-known/openid-configuration
