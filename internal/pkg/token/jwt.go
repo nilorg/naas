@@ -5,15 +5,22 @@ import (
 	"time"
 
 	"github.com/nilorg/oauth2"
+	"github.com/nilorg/pkg/slice"
 	sdkStrings "github.com/nilorg/sdk/strings"
 )
 
 // NewGenerateAccessToken 创建默认生成AccessToken方法
 func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.GenerateAccessTokenFunc {
-	return func(issuer, clientID, scope, openID string) (token *oauth2.TokenResponse, err error) {
+	return func(issuer, clientID, scope, openID string, codeVlue *oauth2.CodeValue) (token *oauth2.TokenResponse, err error) {
+		scopeSplit := sdkStrings.Split(scope, " ")
 		idTokenFlag := false
+		if codeVlue != nil {
+			if !slice.IsEqual(scopeSplit, codeVlue.Scope) {
+				scopeSplit = codeVlue.Scope
+			}
+		}
 		var newScopes []string
-		for _, s := range sdkStrings.Split(scope, " ") {
+		for _, s := range scopeSplit {
 			if s == "openid" {
 				idTokenFlag = true
 			} else {

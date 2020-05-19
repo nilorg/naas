@@ -73,11 +73,19 @@ func AuthorizePage(ctx *gin.Context) {
 	return
 }
 
+func postFormScopeValue(r *http.Request) string {
+	if vs := r.PostForm["scope"]; len(vs) > 0 {
+		return strings.Join(r.PostForm["scope"], " ")
+	}
+	return ""
+}
+
 // Authorize authorize post
 func Authorize(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	currentAccount := session.Get(key.SessionAccount)
 	cu := currentAccount.(*model.SessionAccount)
+	ctx.Request.Form.Set("scope", postFormScopeValue(ctx.Request))
 	rctx := oauth2.NewOpenIDContext(ctx.Request.Context(), fmt.Sprint(cu.UserID))
 	req := ctx.Request.WithContext(rctx)
 	// 模拟请求客户端
