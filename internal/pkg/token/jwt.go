@@ -20,11 +20,22 @@ func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.Generat
 			}
 		}
 		var newScopes []string
+		var idTokenScopes []string
 		for _, s := range scopeSplit {
 			if s == "openid" {
 				idTokenFlag = true
+				idTokenScopes = append(idTokenScopes, "openid")
 			} else {
 				newScopes = append(newScopes, s)
+				if s == "profile" {
+					idTokenScopes = append(idTokenScopes, "profile")
+				}
+				if s == "email" {
+					idTokenScopes = append(idTokenScopes, "email")
+				}
+				if s == "phone" {
+					idTokenScopes = append(idTokenScopes, "phone")
+				}
 			}
 		}
 		accessJwtClaims := oauth2.NewJwtClaims(issuer, clientID, strings.Join(newScopes, " "), openID)
@@ -60,7 +71,7 @@ func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.Generat
 					ExpiresAt: currTime.Add(oauth2.AccessTokenExpire).Unix(),
 					Audience:  []string{clientID},
 				},
-				Scope: "openid",
+				Scope: strings.Join(idTokenScopes, " "),
 			}
 			var idToken string
 			idToken, err = oauth2.NewJwtClaimsToken(&idTokenJwtClaims, "RS256", key)
