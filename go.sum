@@ -379,8 +379,8 @@ github.com/nats-io/nats.go v1.8.1/go.mod h1:BrFz9vVn0fU3AcH9Vn4Kd7W0NpJ651tD5omQ
 github.com/nats-io/nkeys v0.0.2/go.mod h1:dab7URMsZm6Z/jp9Z5UGa87Uutgc2mVpXLC4B7TDb/4=
 github.com/nats-io/nkeys v0.1.0/go.mod h1:xpnFELMwJABBLVhffcfd1MZx6VsNRFpEugbxziKVo7w=
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=
-github.com/nilorg/oauth2 v0.2.6 h1:VnRFTnFYl7noYpY/WtfuyIcJyLrb4qOW0BEzfxxyUBo=
-github.com/nilorg/oauth2 v0.2.6/go.mod h1:a3NN/02vXZmw054tbt8mGHmvp/lyF2w8H/hYqVgppOg=
+github.com/nilorg/oauth2 v0.2.7 h1:UnaxeJNnkIbzLPqphFlPYw1iZe58nesKsCfK0F+P4W0=
+github.com/nilorg/oauth2 v0.2.7/go.mod h1:a3NN/02vXZmw054tbt8mGHmvp/lyF2w8H/hYqVgppOg=
 github.com/nilorg/pkg v0.0.0-20200517083116-9b88f6e458df h1:rz+qPqZNzEYrAe/VqlX+DEI2Mj+t/zu6e5AkOUSn/pE=
 github.com/nilorg/pkg v0.0.0-20200517083116-9b88f6e458df/go.mod h1:UjETEjErg9a2LREGwU34bJTfprTw9gkqqHq2Q+3URHI=
 github.com/nilorg/protobuf v0.0.0-20200503084506-2b10c53bd0f9 h1:GcX22XZzRMR1LGjiuQ/aSH+iDte5o3fYEAClVKXw8b4=
