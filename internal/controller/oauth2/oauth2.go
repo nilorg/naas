@@ -132,18 +132,22 @@ func Init() {
 		return
 	}
 	oauth2Server.VerifyIntrospectionToken = func(token, clientID string, tokenTypeHint ...string) (resp *oauth2.IntrospectionResponse, err error) {
+		logger.Debugf("oauth2Server.VerifyIntrospectionToken....")
 		var tokenClaims *oauth2.JwtClaims
-		tokenClaims, err = oauth2.ParseJwtClaimsToken(token, global.JwtPrivateKey)
+		tokenClaims, err = oauth2.ParseJwtClaimsToken(token, global.JwtPrivateKey.Public())
 		if err != nil {
 			logger.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
 			err = oauth2.ErrServerError
 			return
 		}
 		if !tokenClaims.VerifyAudience([]string{clientID}, false) {
+			logger.Debugf("tokenClaims.VerifyAudience.....false")
 			err = oauth2.ErrInvalidClient
 		}
 		resp = new(oauth2.IntrospectionResponse)
+		resp.Active = true
 		if verr := tokenClaims.Valid(); verr != nil {
+			logger.Debugf("tokenClaims.Valid: %s", verr)
 			resp.Active = false
 			return
 		}

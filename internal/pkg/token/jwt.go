@@ -1,6 +1,7 @@
 package token
 
 import (
+	"crypto/rsa"
 	"strings"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 )
 
 // NewGenerateAccessToken 创建默认生成AccessToken方法
-func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.GenerateAccessTokenFunc {
+func NewGenerateAccessToken(key *rsa.PrivateKey, idTokenEnabled bool) oauth2.GenerateAccessTokenFunc {
 	return func(issuer, clientID, scope, openID string, codeVlue *oauth2.CodeValue) (token *oauth2.TokenResponse, err error) {
 		scopeSplit := sdkStrings.Split(scope, " ")
 		idTokenFlag := false
@@ -86,10 +87,10 @@ func NewGenerateAccessToken(key interface{}, idTokenEnabled bool) oauth2.Generat
 }
 
 // NewRefreshAccessToken 创建默认刷新AccessToken方法
-func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
+func NewRefreshAccessToken(key *rsa.PrivateKey) oauth2.RefreshAccessTokenFunc {
 	return func(clientID, refreshToken string) (token *oauth2.TokenResponse, err error) {
 		refreshTokenClaims := &oauth2.JwtClaims{}
-		refreshTokenClaims, err = oauth2.ParseJwtClaimsToken(refreshToken, key)
+		refreshTokenClaims, err = oauth2.ParseJwtClaimsToken(refreshToken, key.Public())
 		if err != nil {
 			return
 		}
@@ -104,7 +105,7 @@ func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 		refreshTokenClaims.ExpiresAt = time.Now().Add(oauth2.AccessTokenExpire).Unix()
 
 		var tokenClaims *oauth2.JwtClaims
-		tokenClaims, err = oauth2.ParseJwtClaimsToken(refreshTokenClaims.ID, key)
+		tokenClaims, err = oauth2.ParseJwtClaimsToken(refreshTokenClaims.ID, key.Public())
 		if err != nil {
 			return
 		}
@@ -133,8 +134,8 @@ func NewRefreshAccessToken(key interface{}) oauth2.RefreshAccessTokenFunc {
 }
 
 // NewParseAccessToken 创建默认解析AccessToken方法
-func NewParseAccessToken(key interface{}) oauth2.ParseAccessTokenFunc {
+func NewParseAccessToken(key *rsa.PrivateKey) oauth2.ParseAccessTokenFunc {
 	return func(accessToken string) (claims *oauth2.JwtClaims, err error) {
-		return oauth2.ParseJwtClaimsToken(accessToken, key)
+		return oauth2.ParseJwtClaimsToken(accessToken, key.Public())
 	}
 }
