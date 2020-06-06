@@ -48,11 +48,11 @@ func RunHTTP() {
 	r.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "NAME_OF_ENV_VARIABLE"))
 
 	r.Static("/static", "./web/static")
-	r.Static("/www", "./web/templates/www")
+	r.Static("/admin", "./web/templates/admin")
 	r.LoadHTMLGlob("./web/templates/oauth2/*")
 
 	r.GET("/", func(ctx *gin.Context) {
-		ctx.Redirect(302, "/www/index.html")
+		ctx.Redirect(302, "/admin/index.html")
 	})
 
 	if viper.GetBool("server.oidc.enabled") {
