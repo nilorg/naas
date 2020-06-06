@@ -26,20 +26,25 @@ Authentication authorization server（认证授权服务器）
 # 页面展示（以下展示Nilorg任务调度平台对接使用）
 
 1. 登录页面
-  ![login](./examples/images/login.png)
-  
+   
+    ![login](./examples/images/login.png)
+
 2. 授权页面
 
-   ![authorize](./examples/images/authorize.png)
+    ![authorize](./examples/images/authorize.png)
 
 
 # Develop
-## Nilorg Gateway
+## 授权码模式（Authorization Code）
 
 ```bash
-# client_id=1000
-# redirect_uri=http://localhost:8000/auth/callback
-http://localhost:8080/oauth2/authorize?client_id=1000&redirect_uri=http://dev.wohuitao.vip:8000/auth/callback&response_type=code&state=somestate&scope=read_write
+http://localhost:8080/oauth2/authorize?client_id=1000&redirect_uri=http://localhost:8081/auth/callback&response_type=code&state=somestate&scope=read_write
+# client_id=1000 客户端ID
+# redirect_uri=http://localhost:8081/auth/callback&response_type=code&state=somestate&scope=openid
+# http://localhost:8081/auth/callback authorization_code回调地址
+# response_type=code 返回类型
+# state=somestate 状态码
+# scope=openid 范围，用于授权页面自动选中scope
 ```
 
 # naas-token-server
