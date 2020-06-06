@@ -3,6 +3,7 @@ package oauth2
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gin-contrib/sessions"
@@ -27,8 +28,11 @@ func AuthorizePage(ctx *gin.Context) {
 	}
 
 	clientID := ctx.Query("client_id")
-	var err error
-	var client *model.OAuth2Client
+	var (
+		err        error
+		client     *model.OAuth2Client
+		clientInfo *model.OAuth2ClientInfo
+	)
 	client, err = service.OAuth2.GetClient(clientID)
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
@@ -56,8 +60,16 @@ func AuthorizePage(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
-	var clientInfo *model.OAuth2ClientInfo
 	clientInfo, err = service.OAuth2.GetClientInfo(clientID)
+	if err != nil {
+		ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	session := sessions.Default(ctx)
+	currentAccount := session.Get(key.SessionAccount)
+	cu := currentAccount.(*model.SessionAccount)
 	// query scope checked scopes list.
 	scope := ctx.Query("scope")
 	scopeSplit := sdkStrings.Split(scope, " ")
@@ -68,10 +80,17 @@ func AuthorizePage(ctx *gin.Context) {
 			"checked": tools.InStringSplit(v, scopeSplit),
 		})
 	}
+	logBackInURI, _ := url.Parse("/oauth2/login")
+	logBackInURIQuery := url.Values{}
+	logBackInURIQuery.Set("client_id", clientID)
+	logBackInURIQuery.Set("login_redirect_uri", ctx.Request.RequestURI)
+	logBackInURI.RawQuery = logBackInURIQuery.Encode()
 	ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
-		"error":       err,
-		"client_info": clientInfo,
-		"scopes":      scopes,
+		"error":        err,
+		"client_info":  clientInfo,
+		"scopes":       scopes,
+		"current_user": cu,
+		"log_back_in":  logBackInURI.String(),
 	})
 	return
 }

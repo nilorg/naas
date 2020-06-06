@@ -10,4 +10,6 @@ func init() {
 type SessionAccount struct {
 	UserID   uint64
 	UserName string
+	Nickname string
+	Picture  string
 }

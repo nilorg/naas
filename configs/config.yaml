@@ -13,6 +13,8 @@ server:
   oidc:
     enabled: false
     userinfo_endpoint_enabled: false
+  admin:
+    super_user: root
  
 log:
   level: "debug" # panic/fatal/error/warn/info/debug
@@ -79,7 +81,7 @@ session:
   options: 
     path: "/"
     domain: "accounts.nilorg.com"
-    max_age: 86400000
+    max_age: 86400
     secure: true
     http_only: true
   redis:

@@ -22,23 +22,36 @@
         {{ else }}
         <form method="POST">
             <div class="jumbotron mt-3">
-                {{ if .client_info }}
-                    <div style="text-align: center;">
-                        <img style="width: 100px; height: 100px;" src="{{.client_info.Profile}}" />
-                        <br/>
-                        <h3>{{.client_info.Name}}</h3>
-                        <p>{{.client_info.Description}}</p>
-                    </div>
+                {{ if .current_user }}
+                <div style="text-align: center;">
+                    <img style="width: 100px; height: 100px;" src="{{.current_user.Picture}}" />
+                    <br />
+                    <p>{{if .current_user.Nickname}}{{.current_user.Nickname}}{{else}}{{.current_user.UserName}}{{end}}
+                    </p>
+                    {{if .log_back_in}}<a href="{{.log_back_in}}">切换用户</a>{{end}}
+                </div>
                 {{ end }}
-                <h1>是否愿意代表您执行操作</h1>
-                <p class="lead">授权范围</p>
-                {{range $scope := .scopes}}
-                    <input type="checkbox" {{if $scope.checked}}checked{{end}} name="scope" value="{{$scope.text}}" id="scope_{{$scope.text}}">
+                {{ if .client_info }}
+                <div style="text-align: center;">
+                    <img style="width: 100px; height: 100px;" src="{{.client_info.Profile}}" />
+                    <br />
+                    <a href="{{ if .client_info.Website}}{{.client_info.Website}}{{ else }}javascript:void(0){{ end }}"
+                        title="{{.client_info.Description}}">{{.client_info.Name}}</a>
+                </div>
+                {{ end }}
+                <div style="text-align: center;">
+                    <p class="lead">将获得以下权限</p>
+                    {{range $scope := .scopes}}
+                    <input type="checkbox" {{if $scope.checked}}checked{{end}} name="scope" value="{{$scope.text}}"
+                        id="scope_{{$scope.text}}">
                     <label for="scope_{{$scope.text}}">{{$scope.text}}</label>
                     <br />
-                {{end}}
-                <br />
-                <button type="submit" class="btn btn-primary">授权</button>
+                    {{end}}
+                    <br />
+                    <button type="submit" class="btn btn-primary">授权</button>
+
+                    {{if .client_info.Website}}<p>授权将重定向到：{{.client_info.Website}}</p>{{ end }}
+                </div>
             </div>
         </form>
         {{ end }}

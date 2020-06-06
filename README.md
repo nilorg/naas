@@ -211,6 +211,7 @@ https://accounts.google.com/.well-known/openid-configuration
 
 # 使用telepresence调试
 ```bash
+export NAAS_CONFIG=configs/example_config.yaml
 # 覆盖
 telepresence --namespace nilorg --swap-deployment naas --expose 8080 \
 --run go run cmd/main.go --port=8080

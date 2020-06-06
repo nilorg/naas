@@ -10,38 +10,33 @@
 
 <body>
     <form method="POST" class="form-signin">
+    {{ if .error }}
         <div class="text-center mb-4">
-            <!--
-            <img class="mb-4" src="https://avatars0.githubusercontent.com/u/45484932" alt="" width="72" height="72">
-            -->
-            <h1 class="h3 mb-3 font-weight-normal">NilOrg认证授权服务平台</h1>
-            {{ if .error }}
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>错误：</strong> {{ .error }}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            {{ end }}
+        </div>
+    {{ else }}
+        <div class="text-center mb-4">
+            <img class="mb-4" src="{{.client_info.Profile}}" alt="{{.client_info.Name}}" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal" title="{{.client_info.Description}}">{{.client_info.Name}}</h1>
         </div>
         <div class="form-label-group">
-            <input type="text" id="inputUsername" name="username" class="form-control" placeholder="用户名" required autofocus />
+            <input type="text" id="inputUsername" name="username" class="form-control" placeholder="用户名" required
+                autofocus />
             <label for="inputUsername">用户名</label>
         </div>
-
         <div class="form-label-group">
             <input type="password" id="inputPassword" name="password" class="form-control" placeholder="密码" required />
             <label for="inputPassword">密码</label>
         </div>
-        <!--
-        <div class="checkbox mb-3">
-            <label>
-                <input type="checkbox" value="remember-me"> 记住我
-            </label>
-        </div>
-        -->
+
         <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
-        <p class="mt-5 mb-3 text-muted text-center">&copy; Naas 2020</p>
+        <p class="mt-5 mb-3 text-muted text-center"> &copy; <a target="_blank" href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
+    {{ end }}
     </form>
     {{ template "import.js" }}
 </body>

@@ -36,9 +36,13 @@ func (u *user) Login(username, password string) (su *model.SessionAccount, err e
 		return
 	}
 	if usr.Username == username && usr.Password == password {
+		var userInfo *model.UserInfo
+		userInfo, err = u.GetInfoOneByUserID(convert.ToString(usr.ID))
 		su = &model.SessionAccount{
 			UserID:   usr.ID,
 			UserName: usr.Username,
+			Nickname: userInfo.Nickname,
+			Picture:  userInfo.Picture,
 		}
 	} else {
 		err = errors.ErrUsernameOrPassword
