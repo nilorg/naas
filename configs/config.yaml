@@ -14,6 +14,9 @@ server:
     enabled: false
     userinfo_endpoint_enabled: false
   admin:
+    enabled: true
+    external: true # 启用外部管理，需要配置外部URL
+    external_url: https://admin-accounts.nilorg.com
     super_user: root
  
 log:

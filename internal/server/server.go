@@ -48,12 +48,20 @@ func RunHTTP() {
 	r.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "NAME_OF_ENV_VARIABLE"))
 
 	r.Static("/static", "./web/static")
-	r.Static("/admin", "./web/templates/admin")
 	r.LoadHTMLGlob("./web/templates/oauth2/*")
-
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.Redirect(302, "/admin/index.html")
-	})
+	logger.Debugln(viper.GetBool("server.admin.enabled"))
+	if viper.GetBool("server.admin.enabled") {
+		if viper.GetBool("server.admin.external") {
+			r.GET("/", func(ctx *gin.Context) {
+				ctx.Redirect(302, viper.GetString("server.admin.external_url"))
+			})
+		} else {
+			r.Static("/admin", "./web/templates/admin")
+			r.GET("/", func(ctx *gin.Context) {
+				ctx.Redirect(302, "/admin/index.html")
+			})
+		}
+	}
 
 	if viper.GetBool("server.oidc.enabled") {
 		r.GET("/.well-known/jwks.json", wellknown.GetJwks)
