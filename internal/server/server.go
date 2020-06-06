@@ -72,8 +72,8 @@ func RunHTTP() {
 	{
 		oauth2Group.GET("/login", oauth2.LoginPage)
 		oauth2Group.POST("/login", oauth2.Login)
-		oauth2Group.GET("/authorize", middleware.AuthRequired, oauth2.AuthorizePage)
-		oauth2Group.POST("/authorize", middleware.AuthRequired, oauth2.Authorize)
+		oauth2Group.GET("/authorize", middleware.OAuth2AuthRequired, oauth2.AuthorizePage)
+		oauth2Group.POST("/authorize", middleware.OAuth2AuthRequired, oauth2.Authorize)
 		oauth2Group.POST("/token", oauth2.Token)
 		if viper.GetBool("server.oauth2.device_authorization_endpoint_enabled") {
 			oauth2Group.POST("/device/code", oauth2.DeviceCode)
@@ -89,23 +89,16 @@ func RunHTTP() {
 		oidcGroup := r.Group("/oidc")
 		{
 			if viper.GetBool("server.oidc.userinfo_endpoint_enabled") {
-				oidcGroup.GET("/userinfo", middleware.AuthUserinfoRequired(global.JwtPublicKey), oidc.GetUserinfo)
+				oidcGroup.GET("/userinfo", middleware.OAuth2AuthUserinfoRequired(global.JwtPublicKey), oidc.GetUserinfo)
 			}
 		}
 	}
-	// the jwt middleware
-	jwtMiddleware, err := middleware.NewJwtMiddleware()
-	if err != nil {
-		logger.Fatalf("JWT Error:%s", err)
-	}
-	apiGroup := r.Group("api/v1")
-	{
-		apiGroup.POST("/auth/login", jwtMiddleware.LoginHandler)
-		authorized := apiGroup.Group("/")
-		authorized.Use(jwtMiddleware.MiddlewareFunc())
+	if viper.GetBool("server.admin.enabled") {
+		apiGroup := r.Group("api/v1", middleware.AdminAuthRequired(global.JwtPublicKey), middleware.AdminAuthSuperUserRequired())
 		{
-			// Refresh time can be longer than token timeout
-			authorized.GET("/auth/refresh_token", jwtMiddleware.RefreshHandler)
+			apiGroup.GET("/ping", func(ctx *gin.Context) {
+				ctx.JSON(200, "hhhhhh")
+			})
 		}
 	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
