@@ -4,7 +4,7 @@ Authentication authorization server（认证授权服务器）
 # 功能
 ✅ 以实现&emsp;&emsp;♻️ 实现中&emsp;&emsp;❗️待实现
 
-1. ✅ OAuth2
+1. ✅ [OAuth2](https://github.com/nilorg/oauth2)
     * ✅ 授权码模式（Authorization Code）
     * ✅ 简化模式（Implicit Grant Type）
     * ✅ 密码模式（Resource Owner Password Credentials Grant）
@@ -18,9 +18,9 @@ Authentication authorization server（认证授权服务器）
    * ✅ openid
    * ✅ openid-configuration
    * ✅ Userinfo（用户信息端点）
-3. ♻️ Casbin
-   * ♻️ RBAC
-4. ♻️ 后台管理系统
+3. ♻️ [Casbin](https://github.com/casbin/casbin)
+   * ♻️ [RBAC](https://casbin.org/docs/zh-CN/rbac-api)
+4. ♻️ [NAAS后台管理系统](https://github.com/nilorg/naas-web)
    * ✅ 集成OAuth2认证
 
 # 页面展示（以下展示Nilorg任务调度平台对接使用）

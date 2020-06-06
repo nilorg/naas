@@ -18,7 +18,7 @@ server:
     external: true # 启用外部管理，需要配置外部URL
     external_url: https://admin-accounts.nilorg.com
     super_user: "root"
- 
+
 log:
   level: "debug" # panic/fatal/error/warn/info/debug
 
@@ -102,3 +102,6 @@ redis:
   address: "localhost:6379"
   password: ""
   db: 0
+
+casbin:
+  config: configs/rbac_model.conf

@@ -1,6 +1,7 @@
 package module
 
 import (
+	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/global"
 	"github.com/nilorg/naas/internal/module/store"
 )
@@ -9,4 +10,5 @@ import (
 func Init() {
 	store.Init()
 	global.Init()
+	casbin.Init()
 }
