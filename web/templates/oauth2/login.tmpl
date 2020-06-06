@@ -19,7 +19,7 @@
                 </button>
             </div>
         </div>
-    {{ else }}
+    {{ end }}
         <div class="text-center mb-4">
             <img class="mb-4" src="{{.client_info.Profile}}" alt="{{.client_info.Name}}" width="72" height="72">
             <h1 class="h3 mb-3 font-weight-normal" title="{{.client_info.Description}}">{{.client_info.Name}}</h1>
@@ -35,8 +35,7 @@
         </div>
 
         <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
-        <p class="mt-5 mb-3 text-muted text-center"> &copy; <a target="_blank" href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
-    {{ end }}
+        <p class="mt-5 mb-3 text-muted text-center">&copy; <a target="_blank" href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
     </form>
     {{ template "import.js" }}
 </body>

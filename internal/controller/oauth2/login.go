@@ -13,13 +13,6 @@ import (
 
 // LoginPage 登录页面
 func LoginPage(ctx *gin.Context) {
-	errMsg := GetErrorMessage(ctx)
-	if errMsg != "" {
-		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error": errMsg,
-		})
-		return
-	}
 	var (
 		err        error
 		clientInfo *model.OAuth2ClientInfo
@@ -33,6 +26,7 @@ func LoginPage(ctx *gin.Context) {
 		return
 	}
 
+	errMsg := GetErrorMessage(ctx)
 	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
 		"error":       errMsg,
 		"client_info": clientInfo,

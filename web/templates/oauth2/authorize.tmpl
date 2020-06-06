@@ -7,10 +7,73 @@
     <title>授权</title>
 </head>
 
-<body>
-
+<body class="bg-light">
 
     <div class="container">
+        {{ if .error }}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>错误：</strong> {{ .error }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {{ else }}
+        <form method="POST">
+            {{ if .client_info }}
+            <div class="py-5 text-center">
+                <a target="_blank"
+                    href="{{ if .client_info.Website}}{{.client_info.Website}}{{ else }}javascript:void(0){{ end }}"
+                    title="{{.client_info.Description}}">
+                    <img class="d-block mx-auto mb-4" src="{{.client_info.Profile}}" alt="{{.client_info.Description}}"
+                        width="72" height="72" />
+                </a>
+                <h2>{{.client_info.Name}}</h2>
+                <p class="lead">{{.client_info.Description}}</p>
+            </div>
+            {{ end }}
+            <div class="row">
+                <div class="col-md-4 order-md-2 mb-4">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">将获得以下权限</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        {{range $scope := .scopes}}
+                        <li class="list-group-item d-flex justify-content-between lh-condensed">
+                            <div>
+                                <h6 class="my-0">{{$scope.text}}</h6>
+                                <small class="text-muted">{{$scope.text}}</small>
+                            </div>
+                            <span class="text-muted"><input type="checkbox" {{if $scope.checked}}checked{{end}}
+                                    name="scope" value="{{$scope.text}}" id="scope_{{$scope.text}}"></span>
+                        </li>
+                        {{end}}
+                    </ul>
+
+                </div>
+                <div class="col-md-8 order-md-1">
+                    {{ if .current_user }}
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <img class="bd-placeholder-img rounded-circle" width="140" height="140"
+                                src="{{.current_user.Picture}}" />
+                            <h2>{{if .current_user.Nickname}}{{.current_user.Nickname}}{{else}}{{.current_user.UserName}}{{end}}
+                            </h2>
+                            {{if .log_back_in}}<a href="{{.log_back_in}}">切换用户</a>{{end}}
+                        </div>
+                    </div>
+                    {{ end }}
+                    <hr class="mb-4">
+                    <button class="btn btn-primary btn-lg btn-block" type="submit">授权</button>
+                </div>
+            </div>
+        </form>
+        {{ end }}
+        <footer class="my-5 pt-5 text-muted text-center text-small">
+            <p class="mb-1">&copy; <a target="_blank" href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
+        </footer>
+    </div>
+
+    <!-- <div class="container">
 
         {{ if .error }}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -55,7 +118,7 @@
             </div>
         </form>
         {{ end }}
-    </div>
+    </div> -->
 
     {{ template "import.js" }}
 </body>
