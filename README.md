@@ -2,26 +2,26 @@
 Authentication authorization server（认证授权服务器）
 
 # 功能
-✅：以实现&emsp;&emsp;♻️：实现中&emsp;&emsp;❗️：待实现
+✅ 以实现&emsp;&emsp;♻️ 实现中&emsp;&emsp;❗️待实现
 
-1. ✅OAuth2
-    * ✅授权码模式（Authorization Code）
-    * ✅简化模式（Implicit Grant Type）
-    * ✅密码模式（Resource Owner Password Credentials Grant）
-    * ✅客户端模式（Client Credentials Grant）
-    * ✅设备模式（Device Code）
-    * ✅内省端点（Token Introspection）
-    * ❗️Token销毁端点（Token Revocation）
+1. ✅ OAuth2
+    * ✅ 授权码模式（Authorization Code）
+    * ✅ 简化模式（Implicit Grant Type）
+    * ✅ 密码模式（Resource Owner Password Credentials Grant）
+    * ✅ 客户端模式（Client Credentials Grant）
+    * ✅ 设备模式（Device Code）
+    * ✅ 内省端点（Token Introspection）
+    * ❗️ Token销毁端点（Token Revocation）
 
-2. ✅OpenIDConnent
-   * ✅jwks
-   * ✅openid
-   * ✅openid-configuration
-   * ✅Userinfo（用户信息端点）
-3. ♻️Casbin
-   * ♻️RBAC
-4. ♻️后台管理系统
-   * ✅集成OAuth2认证
+2. ✅ OpenIDConnent
+   * ✅ jwks
+   * ✅ openid
+   * ✅ openid-configuration
+   * ✅ Userinfo（用户信息端点）
+3. ♻️ Casbin
+   * ♻️ RBAC
+4. ♻️ 后台管理系统
+   * ✅ 集成OAuth2认证
 
 # 页面展示（以下展示Nilorg任务调度平台对接使用）
 
