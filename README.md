@@ -1,16 +1,6 @@
 # naas
 Authentication authorization server（认证授权服务器）
 
-# 页面展示（以下展示Nilorg任务调度平台对接使用）
-
-1. 登录页面
-  ![login](./examples/images/login.png)
-  
-2. 授权页面
-
-   ![authorize](./examples/images/authorize.png)
-
-
 # 功能
 ✅：以实现&emsp;&emsp;♻️：实现中&emsp;&emsp;❗️：待实现
 
@@ -32,6 +22,16 @@ Authentication authorization server（认证授权服务器）
    * ♻️RBAC
 4. ♻️后台管理系统
    * ✅集成OAuth2认证
+
+# 页面展示（以下展示Nilorg任务调度平台对接使用）
+
+1. 登录页面
+  ![login](./examples/images/login.png)
+  
+2. 授权页面
+
+   ![authorize](./examples/images/authorize.png)
+
 
 # Develop
 ## Nilorg Gateway
