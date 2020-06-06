@@ -5,6 +5,15 @@ Authentication authorization server（认证授权服务器）
 http://localhost:8080/oauth2/authorize?client_id=oauth2_client&redirect_uri=http://localhost/callback&response_type=code&state=somestate&scope=read_write
 ```
 
+# 页面展示（以下展示Nilorg任务调度平台对接使用）
+
+1. 登录页面
+  ![login](./examples/images/login.png)
+  
+2. 授权页面
+
+   ![authorize](./examples/images/authorize.png)
+
 # Develop
 ## Nilorg Gateway
 
@@ -178,17 +187,17 @@ https://accounts.google.com/.well-known/openid-configuration
  [OpenID Provider Metadata](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata)
 
  `issuer`: 发行网址，也就是说我们的权限验证站点
- 
+
  `authorization_endpoint`: 授权服务器的授权端点的URL
- 
+
  `token_endpoint`: 获取token的网址
- 
+
  `device_authorization_endpoint`: 设备授权端点URL
- 
+
  `introspection_endpoint`: 内省端点，[《RFC 7662》](https://tools.ietf.org/html/rfc7662)的实现，它可以用于验证token(或如果客户端不支持适当的JWT或加密库，则JWTs)。
- 
+
  `userinfo_endpoint`: 根据token获取用户信息
- 
+
  `revocation_endpoint`:Token销毁端点，[《RFC7009》](https://tools.ietf.org/html/rfc7009)的实现，允许撤销访问Token。
 
  `jwks_uri`: 这个接口获取的是公钥，用于验证jwt的数字签名部用的。
@@ -196,13 +205,13 @@ https://accounts.google.com/.well-known/openid-configuration
  `response_types_supported`: 支持的请求方式
 
  `subject_types_supported`: JSON数组，包含此OP支持的主题标识符类型列表。 有效值是`pairwise`和`public`类型。[SubjectIDTypes](https://openid.net/specs/openid-connect-core-1_0.html#SubjectIDTypes)
- 
+
  `id_token_signing_alg_values_supported`: 验证id_token的方式
- 
+
  `scopes_supported`: 支持的范围
- 
+
  `token_endpoint_auth_methods_supported`: SON数组，包含此令牌端点支持的客户端身份验证方法列表。
- 
+
  `code_challenge_methods_supported`: JSON数组，包含此授权服务器支持的PKCE代码方法列表。
 
  `grant_types_supported`: 授权类型
