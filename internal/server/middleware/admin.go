@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/server/auth"
+	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
 
@@ -14,6 +16,7 @@ import (
 )
 
 // NewJwtMiddleware 创建jwt授权中间件
+// 早期思路，后台管理系统不走OAuth2认证
 func NewJwtMiddleware() (*jwt.GinJWTMiddleware, error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           "naas",
@@ -91,12 +94,25 @@ func AdminAuthRequired(key interface{}) gin.HandlerFunc {
 func AdminAuthSuperUserRequired() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenClaims := ctx.MustGet("token").(*oauth2.JwtClaims)
-		if tokenClaims.Subject != viper.GetString("server.admin.super_user") {
+		usr, userInfo, err := service.User.GetInfoOneByCache(tokenClaims.Subject)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		if usr.Username != viper.GetString("server.admin.super_user") {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": oauth2.ErrAccessDenied.Error(),
 			})
 			return
 		}
+		ctx.Set("current_user", &model.SessionAccount{
+			UserID:   usr.ID,
+			UserName: usr.Username,
+			Nickname: userInfo.Nickname,
+			Picture:  userInfo.Picture,
+		})
 		ctx.Next()
 	}
 }

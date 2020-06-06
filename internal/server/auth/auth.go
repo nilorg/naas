@@ -9,6 +9,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// 备注：
+// 早期思路，后台管理系统不走OAuth2认证
+
 type login struct {
 	Username string `form:"username" json:"username" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`

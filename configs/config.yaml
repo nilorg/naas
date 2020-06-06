@@ -17,7 +17,7 @@ server:
     enabled: true
     external: true # 启用外部管理，需要配置外部URL
     external_url: https://admin-accounts.nilorg.com
-    super_user: "1"
+    super_user: "root"
  
 log:
   level: "debug" # panic/fatal/error/warn/info/debug

@@ -27,6 +27,17 @@ func (u *user) GetInfoOneByUserID(userID string) (usr *model.UserInfo, err error
 	return dao.UserInfo.Select(store.NewDBContext(), convert.ToUint64(userID))
 }
 
+// GetInfoOneByCache 根据用户ID获取信息
+// TODO: 后期需要添加缓存
+func (u *user) GetInfoOneByCache(userID string) (usr *model.User, usrInfo *model.UserInfo, err error) {
+	usr, err = dao.User.Select(store.NewDBContext(), convert.ToUint64(userID))
+	if err != nil {
+		return
+	}
+	usrInfo, err = dao.UserInfo.Select(store.NewDBContext(), convert.ToUint64(userID))
+	return
+}
+
 // Login 登录 ...
 func (u *user) Login(username, password string) (su *model.SessionAccount, err error) {
 	var usr *model.User

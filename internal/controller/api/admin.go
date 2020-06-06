@@ -5,6 +5,9 @@ import (
 	"github.com/nilorg/naas/internal/service"
 )
 
+// 备注：
+// 早期思路，后台管理系统不走OAuth2认证
+
 type admin struct {
 }
 
