@@ -20,6 +20,7 @@ Authentication authorization server（认证授权服务器）
    * ✅ Userinfo（用户信息端点）
 3. ♻️ [Casbin](https://github.com/casbin/casbin)
    * ♻️ [RBAC](https://casbin.org/docs/zh-CN/rbac-api)
+   * ♻️ [多租户](https://casbin.org/docs/zh-CN/rbac-with-domains)
 4. ♻️ [NAAS后台管理系统](https://github.com/nilorg/naas-web)
    * ✅ 集成OAuth2认证
 
@@ -252,3 +253,19 @@ telepresence --namespace nilorg --swap-deployment naas --expose 8080 \
 telepresence --namespace nilorg --new-deployment naas --expose 8080 \
 --run go run cmd/main.go --port=8080
 ```
+一个域对应多个角色
+一个用户对应多个域
+
+一个用户在一个域对应多个角色
+
+一个角色
+
+p, role:reader, domain:naas, /users/*, GET
+p, role:writer, domain:naas, /users/*, POST
+
+p, alice, domain:naas, /logs/*, GET
+
+g, role:naas_admin, domain:naas, role:reader
+g, role:naas_admin, domain:naas, role:writer
+
+g, alice, domain:naas, role:naas_admin

@@ -49,7 +49,6 @@ func RunHTTP() {
 
 	r.Static("/static", "./web/static")
 	r.LoadHTMLGlob("./web/templates/oauth2/*")
-	logger.Debugln(viper.GetBool("server.admin.enabled"))
 	if viper.GetBool("server.admin.enabled") {
 		if viper.GetBool("server.admin.external") {
 			r.GET("/", func(ctx *gin.Context) {
