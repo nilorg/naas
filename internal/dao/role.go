@@ -34,7 +34,7 @@ func (r *role) Delete(ctx context.Context, id uint64) (err error) {
 	if err != nil {
 		return
 	}
-	err = gdb.Unscoped().Delete(&model.Role{}, id).Error
+	err = gdb.Delete(&model.Role{}, id).Error
 	return
 }
 func (r *role) Select(ctx context.Context, id uint64) (m *model.Role, err error) {
@@ -57,7 +57,7 @@ func (r *role) Update(ctx context.Context, m *model.Role) (err error) {
 	if err != nil {
 		return
 	}
-	err = gdb.Update(m).Error
+	err = gdb.Model(m).Update(m).Error
 	if err != nil {
 		return
 	}

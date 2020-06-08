@@ -10,6 +10,7 @@ import (
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
+	"github.com/nilorg/sdk/convert"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/spf13/viper"
@@ -94,7 +95,7 @@ func AdminAuthRequired(key interface{}) gin.HandlerFunc {
 func AdminAuthSuperUserRequired() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenClaims := ctx.MustGet("token").(*oauth2.JwtClaims)
-		usr, userInfo, err := service.User.GetInfoOneByCache(tokenClaims.Subject)
+		usr, userInfo, err := service.User.GetInfoOneByCache(convert.ToUint64(tokenClaims.Subject))
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": err.Error(),

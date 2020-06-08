@@ -10,9 +10,11 @@ import (
 
 // UserInfoer ...
 type UserInfoer interface {
-	SelectByUserID(ctx context.Context, userID string) (mu *model.UserInfo, err error)
+	SelectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error)
 	Insert(ctx context.Context, mu *model.UserInfo) (err error)
 	Delete(ctx context.Context, id uint64) (err error)
+	DeleteByUserID(ctx context.Context, userID uint64) (err error)
+	DeleteInUserIDs(ctx context.Context, userIDs []uint64) (err error)
 	Select(ctx context.Context, id uint64) (mu *model.UserInfo, err error)
 	Update(ctx context.Context, mu *model.UserInfo) (err error)
 }
@@ -20,7 +22,7 @@ type UserInfoer interface {
 type userInfo struct {
 }
 
-func (*userInfo) SelectByUserID(ctx context.Context, userID string) (mu *model.UserInfo, err error) {
+func (*userInfo) SelectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -41,7 +43,7 @@ func (*userInfo) Insert(ctx context.Context, mu *model.UserInfo) (err error) {
 	if err != nil {
 		return
 	}
-	err = gdb.Create(mu).Error
+	err = gdb.Model(mu).Create(mu).Error
 	return
 }
 
@@ -51,7 +53,27 @@ func (*userInfo) Delete(ctx context.Context, id uint64) (err error) {
 	if err != nil {
 		return
 	}
-	err = gdb.Unscoped().Delete(&model.UserInfo{}, id).Error
+	err = gdb.Delete(&model.UserInfo{}, id).Error
+	return
+}
+
+func (*userInfo) DeleteByUserID(ctx context.Context, userID uint64) (err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where("user_id = ?", userID).Delete(model.UserInfo{}).Error
+	return
+}
+
+func (*userInfo) DeleteInUserIDs(ctx context.Context, userIDs []uint64) (err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where("user_id in (?)", userIDs).Delete(model.UserInfo{}).Error
 	return
 }
 

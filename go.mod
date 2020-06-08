@@ -23,6 +23,7 @@ require (
 	github.com/nilorg/pkg v0.0.0-20200517083116-9b88f6e458df
 	github.com/nilorg/protobuf v0.0.0-20200503084506-2b10c53bd0f9
 	github.com/nilorg/sdk v0.0.0-20200517085820-1f0160ffff7a
+	github.com/o1egl/govatar v0.3.0
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/afero v1.2.2 // indirect

@@ -34,7 +34,7 @@ func Init() {
 	}
 	// Load the policy from DB.
 	Enforcer.LoadPolicy()
-	Enforcer.StartAutoLoadPolicy(time.Second * 10)
+	Enforcer.StartAutoLoadPolicy(time.Minute)
 
 	// Enforcer.AddFunction("MyDomKeyMatch2", MyDomKeyMatch2Func)
 	// Enforcer.AddFunction("MyRegexMatch", MyRegexMatchFunc)

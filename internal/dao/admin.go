@@ -51,7 +51,7 @@ func (*admin) Delete(ctx context.Context, id uint64) (err error) {
 	if err != nil {
 		return
 	}
-	err = gdb.Unscoped().Delete(&model.Admin{}, id).Error
+	err = gdb.Delete(&model.Admin{}, id).Error
 	return
 }
 
@@ -76,7 +76,7 @@ func (*admin) Update(ctx context.Context, ma *model.Admin) (err error) {
 	if err != nil {
 		return
 	}
-	err = gdb.Update(ma).Error
+	err = gdb.Model(ma).Update(ma).Error
 	if err != nil {
 		return
 	}

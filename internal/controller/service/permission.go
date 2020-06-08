@@ -126,7 +126,7 @@ func (ctl *PermissionService) VerificationToken(ctx context.Context, req *proto.
 			OpenId:   convert.ToString(user.ID),
 			Username: user.Username,
 		}
-		userInfo, userInfoErr := service.User.GetInfoOneByUserID(res.UserInfo.OpenId)
+		userInfo, userInfoErr := service.User.GetInfoOneByUserID(convert.ToUint64(res.UserInfo.OpenId))
 		if userInfoErr == nil && userInfo != nil {
 			res.UserInfo.NickName = userInfo.Nickname
 			res.UserInfo.AvatarUrl = userInfo.Picture

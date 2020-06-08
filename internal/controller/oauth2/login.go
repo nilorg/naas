@@ -52,7 +52,12 @@ func Login(ctx *gin.Context) {
 	session.Set(key.SessionAccount, suser)
 	err = session.Save()
 	if err != nil {
-		_ = SetErrorMessage(ctx, err.Error())
+		logger.Errorf("Login-Success-session.Save: %s", err)
+		err = nil
+		err = SetErrorMessage(ctx, err.Error())
+		if err != nil {
+			logger.Errorf("SetErrorMessage: %s", err)
+		}
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}

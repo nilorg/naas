@@ -47,7 +47,7 @@ func (ctl *AccountService) GetUserInfo(ctx context.Context, req *proto.GetUserIn
 		DeletedAt: deletedAt,
 		Username:  user.Username,
 	}
-	userInfo, userInfoErr := service.User.GetInfoOneByUserID(req.OpenId)
+	userInfo, userInfoErr := service.User.GetInfoOneByUserID(convert.ToUint64(req.OpenId))
 	if userInfoErr == nil && userInfo != nil {
 		res.UserInfo = &proto.UserInfo{
 			NickName:  userInfo.Nickname,

@@ -72,6 +72,9 @@ func initMySQL() {
 }
 
 // NewDBContext ...
-func NewDBContext() context.Context {
+func NewDBContext(dbs ...*gorm.DB) context.Context {
+	if len(dbs) > 0 {
+		return db.NewContext(context.Background(), dbs[0])
+	}
 	return db.NewContext(context.Background(), DB)
 }

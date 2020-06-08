@@ -1,15 +1,113 @@
 package service
 
 import (
+	"bytes"
+	"encoding/base64"
+	"fmt"
+	"image"
+
+	"image/png"
+
+	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/pkg/errors"
 	"github.com/nilorg/pkg/logger"
 	"github.com/nilorg/sdk/convert"
+	"github.com/o1egl/govatar"
 )
 
 type user struct {
+}
+
+// createPicture 创建头像
+func createPicture(username string) (bs string, err error) {
+	var img image.Image
+	img, err = govatar.GenerateForUsername(govatar.MALE, username)
+	if err != nil {
+		return
+	}
+	buff := bytes.NewBuffer(nil)
+	err = png.Encode(buff, img)
+	if err != nil {
+		return
+	}
+	bs = fmt.Sprintf("data:image/png;base64,%s", base64.StdEncoding.EncodeToString(buff.Bytes()))
+	return
+}
+
+// Create 创建用户
+func (u *user) Create(username, password string) (err error) {
+	tran := store.DB.Begin()
+	ctx := store.NewDBContext(tran)
+	var exist bool
+	exist, err = dao.User.ExistByUsername(ctx, username)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	if exist {
+		tran.Rollback()
+		err = errors.ErrUsernameExist
+		return
+	}
+	user := &model.User{
+		Username: username,
+		Password: password, // TODO: 后期需要使用加密，或者前台加密
+	}
+	err = dao.User.Insert(ctx, user)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	userInfo := &model.UserInfo{
+		UserID:   user.ID,
+		Nickname: fmt.Sprintf("用户%d", user.ID),
+	}
+	userInfo.Picture, err = createPicture(convert.ToString(user.ID))
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	err = dao.UserInfo.Insert(ctx, userInfo)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	err = tran.Commit().Error
+	return
+}
+
+// Update 修改用户
+func (u *user) Update(id uint64, username, password string) (err error) {
+	ctx := store.NewDBContext()
+	var (
+		user          *model.User
+		usernameExist bool
+	)
+	user, err = dao.User.Select(ctx, id)
+	if err != nil {
+		return
+	}
+	if user.Username != username {
+		usernameExist, err = dao.User.ExistByUsername(ctx, username)
+		if err != nil {
+			return
+		}
+		if usernameExist {
+			err = errors.ErrUsernameExist
+			return
+		}
+	}
+	user.Username = username
+	// TODO: 后期需要使用加密，或者前台加密
+	user.Password = password
+	err = dao.User.Update(ctx, user)
+	if err != nil {
+		return
+	}
+	return
 }
 
 // GetUserByUsername 根据用户名获取用户
@@ -22,19 +120,31 @@ func (u *user) GetOneByID(id string) (usr *model.User, err error) {
 	return dao.User.Select(store.NewDBContext(), convert.ToUint64(id))
 }
 
+// GetOneCachedByID 根据ID获取用户
+// TODO: 后期需要添加缓存
+func (u *user) GetOneCachedByID(id uint64) (usr *model.User, err error) {
+	return dao.User.Select(store.NewDBContext(), id)
+}
+
 // GetInfoOneByUserID 根据用户ID获取信息
-func (u *user) GetInfoOneByUserID(userID string) (usr *model.UserInfo, err error) {
-	return dao.UserInfo.Select(store.NewDBContext(), convert.ToUint64(userID))
+func (u *user) GetInfoOneByUserID(userID uint64) (usr *model.UserInfo, err error) {
+	return dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
+}
+
+// GetInfoOneCachedByUserID 根据用户ID获取信息
+// TODO: 后期需要添加缓存
+func (u *user) GetInfoOneCachedByUserID(userID uint64) (usr *model.UserInfo, err error) {
+	return dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
 }
 
 // GetInfoOneByCache 根据用户ID获取信息
 // TODO: 后期需要添加缓存
-func (u *user) GetInfoOneByCache(userID string) (usr *model.User, usrInfo *model.UserInfo, err error) {
-	usr, err = dao.User.Select(store.NewDBContext(), convert.ToUint64(userID))
+func (u *user) GetInfoOneByCache(userID uint64) (usr *model.User, usrInfo *model.UserInfo, err error) {
+	usr, err = dao.User.Select(store.NewDBContext(), userID)
 	if err != nil {
 		return
 	}
-	usrInfo, err = dao.UserInfo.Select(store.NewDBContext(), convert.ToUint64(userID))
+	usrInfo, err = dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
 	return
 }
 
@@ -47,16 +157,60 @@ func (u *user) Login(username, password string) (su *model.SessionAccount, err e
 		return
 	}
 	if usr.Username == username && usr.Password == password {
-		var userInfo *model.UserInfo
-		userInfo, err = u.GetInfoOneByUserID(convert.ToString(usr.ID))
 		su = &model.SessionAccount{
 			UserID:   usr.ID,
 			UserName: usr.Username,
-			Nickname: userInfo.Nickname,
-			Picture:  userInfo.Picture,
+		}
+		var userInfo *model.UserInfo
+		userInfo, err = u.GetInfoOneCachedByUserID(usr.ID)
+		if err == nil {
+			su.Nickname = userInfo.Nickname
+			su.Picture = userInfo.Picture
 		}
 	} else {
 		err = errors.ErrUsernameOrPassword
 	}
+	return
+}
+
+func (u *user) ListPaged(start, limit int) (result []*model.ResultUserInfo, total uint64, err error) {
+	var (
+		userList []*model.User
+	)
+	userList, total, err = dao.User.ListPaged(store.NewDBContext(), start, limit)
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = nil
+		}
+		return
+	}
+	for _, user := range userList {
+		userInfo, userInfoErr := u.GetInfoOneCachedByUserID(user.ID)
+		resultInfo := &model.ResultUserInfo{
+			User: user,
+		}
+		if userInfoErr == nil {
+			resultInfo.UserInfo = userInfo
+		}
+		result = append(result, resultInfo)
+	}
+	return
+}
+
+// DeleteByID 根据ID删除用户
+func (u *user) DeleteByIDs(ids ...uint64) (err error) {
+	tran := store.DB.Begin()
+	ctx := store.NewDBContext(tran)
+	err = dao.User.DeleteInIDs(ctx, ids)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	err = dao.UserInfo.DeleteInUserIDs(ctx, ids)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	err = tran.Commit().Error
 	return
 }

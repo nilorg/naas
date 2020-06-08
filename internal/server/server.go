@@ -10,6 +10,7 @@ import (
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/nilorg/naas/internal/controller/api"
 	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/nilorg/naas/internal/controller/oidc"
 	"github.com/nilorg/naas/internal/controller/service"
@@ -95,9 +96,11 @@ func RunHTTP() {
 	if viper.GetBool("server.admin.enabled") {
 		apiGroup := r.Group("api/v1", middleware.AdminAuthRequired(global.JwtPublicKey), middleware.AdminAuthSuperUserRequired())
 		{
-			apiGroup.GET("/ping", func(ctx *gin.Context) {
-				ctx.JSON(200, "hhhhhh")
-			})
+			apiGroup.GET("/users", api.User.ListByPaged)
+			apiGroup.GET("/users/:user_id", api.User.GetOne)
+			apiGroup.POST("/users", api.User.Create)
+			apiGroup.PUT("/users/:user_id", api.User.Update)
+			apiGroup.DELETE("/users/:user_id", api.User.Delete)
 		}
 	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080

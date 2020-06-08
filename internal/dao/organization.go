@@ -34,7 +34,7 @@ func (o *organization) Delete(ctx context.Context, id uint64) (err error) {
 	if err != nil {
 		return
 	}
-	err = gdb.Unscoped().Delete(&model.Organization{}, id).Error
+	err = gdb.Delete(&model.Organization{}, id).Error
 	return
 }
 func (o *organization) Select(ctx context.Context, id uint64) (m *model.Organization, err error) {
@@ -57,7 +57,7 @@ func (o *organization) Update(ctx context.Context, m *model.Organization) (err e
 	if err != nil {
 		return
 	}
-	err = gdb.Update(m).Error
+	err = gdb.Model(m).Update(m).Error
 	if err != nil {
 		return
 	}
