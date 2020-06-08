@@ -23,6 +23,17 @@ Authentication authorization server（认证授权服务器）
    * ♻️ [多租户](https://casbin.org/docs/zh-CN/rbac-with-domains)
 4. ♻️ [NAAS后台管理系统](https://github.com/nilorg/naas-web)
    * ✅ 集成OAuth2认证
+   * ✅ 用户管理
+   * ♻️ OAuth2
+     * ♻️ 客户端
+     * ♻️ 范围
+   * ❗️ Casbin
+     * ❗️租户
+     * ❗️角色
+     * ❗️访问策略
+   * ❗️ 资源
+     * ❗️路由
+     * ❗️菜单
 
 # 页面展示（以下展示Nilorg任务调度平台对接使用）
 
