@@ -49,6 +49,10 @@ func RunHTTP() {
 	r.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "NAME_OF_ENV_VARIABLE"))
 
 	r.Static("/static", "./web/static")
+	storageType := viper.GetString("storage.type")
+	if storageType != "" {
+		r.Static("/storage", viper.GetString(fmt.Sprintf("storage.%s.base_path", storageType)))
+	}
 	r.LoadHTMLGlob("./web/templates/oauth2/*")
 	if viper.GetBool("server.admin.enabled") {
 		if viper.GetBool("server.admin.external") {

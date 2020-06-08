@@ -53,7 +53,6 @@ func Login(ctx *gin.Context) {
 	err = session.Save()
 	if err != nil {
 		logger.Errorf("Login-Success-session.Save: %s", err)
-		err = nil
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {
 			logger.Errorf("SetErrorMessage: %s", err)

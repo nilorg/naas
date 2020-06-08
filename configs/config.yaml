@@ -105,3 +105,10 @@ redis:
 
 casbin:
   config: configs/rbac_model.conf
+
+storage:
+  type: default
+  default: 
+    base_path: ./web/storage
+  picture:
+    public_path: https://accounts.dianfeng58.com/storage/picture

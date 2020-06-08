@@ -2,12 +2,14 @@ package store
 
 import (
 	"context"
+	"path/filepath"
 
 	"github.com/go-redis/redis/v7"
+	"github.com/jinzhu/gorm"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/pkg/logger"
+	"github.com/nilorg/sdk/storage"
 
-	"github.com/jinzhu/gorm"
 	// use db mysql
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/nilorg/naas/internal/model"
@@ -19,12 +21,15 @@ var (
 	RedisClient *redis.Client
 	// DB ...
 	DB *gorm.DB
+	// Picture 头像
+	Picture storage.Storager
 )
 
 // Init 初始化
 func Init() {
 	initRedis()
 	initMySQL()
+	initPicture()
 }
 
 func initRedis() {
@@ -77,4 +82,12 @@ func NewDBContext(dbs ...*gorm.DB) context.Context {
 		return db.NewContext(context.Background(), dbs[0])
 	}
 	return db.NewContext(context.Background(), DB)
+}
+
+func initPicture() {
+	if viper.GetString("storage.type") == "default" {
+		Picture = &storage.DefaultStorage{
+			BasePath: filepath.Join(viper.GetString("storage.default.base_path"), "picture"),
+		}
+	}
 }

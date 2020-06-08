@@ -2,9 +2,10 @@ package service
 
 import (
 	"bytes"
-	"encoding/base64"
 	"fmt"
 	"image"
+	"net/url"
+	"path"
 
 	"image/png"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/nilorg/pkg/logger"
 	"github.com/nilorg/sdk/convert"
 	"github.com/o1egl/govatar"
+	"github.com/spf13/viper"
 )
 
 type user struct {
@@ -33,7 +35,18 @@ func createPicture(username string) (bs string, err error) {
 	if err != nil {
 		return
 	}
-	bs = fmt.Sprintf("data:image/png;base64,%s", base64.StdEncoding.EncodeToString(buff.Bytes()))
+	filename := fmt.Sprintf("%s.png", username)
+	_, err = store.Picture.Upload(buff, filename)
+	if err != nil {
+		return
+	}
+	var u *url.URL
+	u, err = url.Parse(viper.GetString("storage.picture.public_path"))
+	if err != nil {
+		return
+	}
+	u.Path = path.Join(u.Path, filename)
+	bs = u.String()
 	return
 }
 
