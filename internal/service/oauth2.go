@@ -17,6 +17,6 @@ func (o *oauth2) GetClient(id string) (client *model.OAuth2Client, err error) {
 
 // GetClient get oauth2 client info.
 func (o *oauth2) GetClientInfo(id string) (client *model.OAuth2ClientInfo, err error) {
-	client, err = dao.OAuth2ClientInfo.SelectByID(store.NewDBContext(), id)
+	client, err = dao.OAuth2ClientInfo.SelectByClientID(store.NewDBContext(), id)
 	return
 }

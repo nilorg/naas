@@ -10,11 +10,55 @@ import (
 
 // OAuth2Clienter oauth2 client 接口
 type OAuth2Clienter interface {
+	Insert(ctx context.Context, mc *model.OAuth2Client) (err error)
+	Delete(ctx context.Context, id uint64) (err error)
+	DeleteInIDs(ctx context.Context, ids []uint64) (err error)
+	Update(ctx context.Context, mc *model.OAuth2Client) (err error)
 	SelectByID(ctx context.Context, clientID string) (mc *model.OAuth2Client, err error)
 	ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total uint64, err error)
 }
 
 type oauth2Client struct {
+}
+
+func (*oauth2Client) Insert(ctx context.Context, mc *model.OAuth2Client) (err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Create(mc).Error
+	return
+}
+
+func (*oauth2Client) Delete(ctx context.Context, id uint64) (err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Delete(model.OAuth2Client{}, id).Error
+	return
+}
+
+func (*oauth2Client) DeleteInIDs(ctx context.Context, ids []uint64) (err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where("id in (?)", ids).Delete(model.OAuth2Client{}).Error
+	return
+}
+
+func (*oauth2Client) Update(ctx context.Context, mc *model.OAuth2Client) (err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Model(mc).Update(mc).Error
+	return
 }
 
 func (*oauth2Client) SelectByID(ctx context.Context, clientID string) (mc *model.OAuth2Client, err error) {
