@@ -24,9 +24,9 @@ type user struct {
 }
 
 // createPicture 创建头像
-func createPicture(username string) (bs string, err error) {
+func createPicture(typ, id string) (bs string, err error) {
 	var img image.Image
-	img, err = govatar.GenerateForUsername(govatar.MALE, username)
+	img, err = govatar.GenerateForUsername(govatar.MALE, id)
 	if err != nil {
 		return
 	}
@@ -35,7 +35,7 @@ func createPicture(username string) (bs string, err error) {
 	if err != nil {
 		return
 	}
-	filename := fmt.Sprintf("%s.png", username)
+	filename := fmt.Sprintf("%s-%s.png", typ, id)
 	_, err = store.Picture.Upload(buff, filename)
 	if err != nil {
 		return
@@ -78,7 +78,7 @@ func (u *user) Create(username, password string) (err error) {
 		UserID:   user.ID,
 		Nickname: fmt.Sprintf("用户%d", user.ID),
 	}
-	userInfo.Picture, err = createPicture(convert.ToString(user.ID))
+	userInfo.Picture, err = createPicture("user", convert.ToString(user.ID))
 	if err != nil {
 		tran.Rollback()
 		return
@@ -92,8 +92,14 @@ func (u *user) Create(username, password string) (err error) {
 	return
 }
 
+// UserUpdateModel ...
+type UserUpdateModel struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 // Update 修改用户
-func (u *user) Update(id uint64, username, password string) (err error) {
+func (u *user) Update(id uint64, update *UserUpdateModel) (err error) {
 	ctx := store.NewDBContext()
 	var (
 		user          *model.User
@@ -103,8 +109,8 @@ func (u *user) Update(id uint64, username, password string) (err error) {
 	if err != nil {
 		return
 	}
-	if user.Username != username {
-		usernameExist, err = dao.User.ExistByUsername(ctx, username)
+	if user.Username != update.Username {
+		usernameExist, err = dao.User.ExistByUsername(ctx, update.Username)
 		if err != nil {
 			return
 		}
@@ -113,9 +119,9 @@ func (u *user) Update(id uint64, username, password string) (err error) {
 			return
 		}
 	}
-	user.Username = username
+	user.Username = update.Username
 	// TODO: 后期需要使用加密，或者前台加密
-	user.Password = password
+	user.Password = update.Password
 	err = dao.User.Update(ctx, user)
 	if err != nil {
 		return

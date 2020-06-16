@@ -108,6 +108,8 @@ func RunHTTP() {
 
 			apiGroup.GET("/oauth2/scopes", api.OAuth2.GetScopes)
 			apiGroup.GET("/oauth2/clients", api.OAuth2.ClientListByPaged)
+			apiGroup.POST("/oauth2/clients", api.OAuth2.CreateClient)
+			apiGroup.PUT("/oauth2/clients/:client_id", api.OAuth2.UpdateClient)
 			apiGroup.GET("/oauth2/clients/:client_id/scopes", api.OAuth2.GetClientScopes)
 		}
 	}

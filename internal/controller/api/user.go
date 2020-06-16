@@ -30,12 +30,6 @@ func (*user) Create(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
-// UserUpdateModel ...
-type UserUpdateModel struct {
-	Username string `json:"username" gorm:"column:username"`
-	Password string `json:"password" gorm:"column:password"`
-}
-
 func (*user) GetOne(ctx *gin.Context) {
 	var (
 		user *model.User
@@ -69,7 +63,7 @@ func (*user) Delete(ctx *gin.Context) {
 
 func (*user) Update(ctx *gin.Context) {
 	var (
-		user UserUpdateModel
+		user service.UserUpdateModel
 		err  error
 	)
 	userID := convert.ToUint64(ctx.Param("user_id"))
@@ -78,7 +72,7 @@ func (*user) Update(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.User.Update(userID, user.Username, user.Password)
+	err = service.User.Update(userID, &user)
 	if err != nil {
 		writeError(ctx, err)
 		return

@@ -37,6 +37,43 @@ func (*oauth2) GetClientScopes(ctx *gin.Context) {
 	writeData(ctx, scopes)
 }
 
+func (*oauth2) CreateClient(ctx *gin.Context) {
+	var (
+		create service.OAuth2ClientEditModel
+		err    error
+	)
+	err = ctx.ShouldBindJSON(&create)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.OAuth2.CreateClient(&create)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+func (*oauth2) UpdateClient(ctx *gin.Context) {
+	var (
+		update service.OAuth2ClientEditModel
+		err    error
+	)
+	clientID := convert.ToUint64(ctx.Param("client_id"))
+	err = ctx.ShouldBindJSON(&update)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.OAuth2.UpdateClient(clientID, &update)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
 func (*oauth2) ClientListByPaged(ctx *gin.Context) {
 	var (
 		result []*service.ResultClientInfo

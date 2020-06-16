@@ -1,17 +1,105 @@
 package service
 
 import (
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/sdk/convert"
 )
 
 type oauth2 struct {
 }
 
+// OAuth2ClientEditModel ...
+type OAuth2ClientEditModel struct {
+	RedirectURI string `json:"redirect_uri"`
+	Name        string `json:"name"`
+	Website     string `json:"website"`
+	Profile     string `json:"profile"`
+	Description string `json:"description"`
+}
+
+// CreateClient 创建客户端
+func (*oauth2) CreateClient(create *OAuth2ClientEditModel) (err error) {
+	tran := store.DB.Begin()
+	ctx := store.NewDBContext(tran)
+	client := &model.OAuth2Client{
+		ClientSecret: uuid.New().String(),
+		RedirectURI:  create.RedirectURI,
+	}
+	err = dao.OAuth2Client.Insert(ctx, client)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	clientInfo := &model.OAuth2ClientInfo{
+		ClientID:    client.ClientID,
+		Name:        create.Name,
+		Website:     create.Website,
+		Profile:     create.Profile,
+		Description: create.Description,
+	}
+	if clientInfo.Profile == "" {
+		clientInfo.Profile, err = createPicture("oauth2_client", convert.ToString(clientInfo.ClientID))
+		if err != nil {
+			tran.Rollback()
+			return
+		}
+	}
+	err = dao.OAuth2ClientInfo.Insert(ctx, clientInfo)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	err = tran.Commit().Error
+	return
+}
+
+// UpdateClient 修改客户端
+func (*oauth2) UpdateClient(id uint64, update *OAuth2ClientEditModel) (err error) {
+	tran := store.DB.Begin()
+	ctx := store.NewDBContext(tran)
+	var (
+		oauth2Client     *model.OAuth2Client
+		oauth2ClientInfo *model.OAuth2ClientInfo
+	)
+	oauth2Client, err = dao.OAuth2Client.SelectByID(ctx, id)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	if oauth2Client.RedirectURI != update.RedirectURI {
+		err = dao.OAuth2Client.UpdateRedirectURI(ctx, id, update.RedirectURI)
+		if err != nil {
+			tran.Rollback()
+			return
+		}
+		oauth2Client.RedirectURI = update.RedirectURI
+	}
+
+	oauth2ClientInfo, err = dao.OAuth2ClientInfo.SelectByClientID(ctx, id)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	oauth2ClientInfo.Name = update.Name
+	oauth2ClientInfo.Profile = update.Profile
+	oauth2ClientInfo.Description = update.Description
+	oauth2ClientInfo.Website = update.Website
+
+	err = dao.OAuth2ClientInfo.Update(ctx, oauth2ClientInfo)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
+	err = tran.Commit().Error
+	return
+}
+
 // GetClient get oauth2 client.
-func (o *oauth2) GetClient(id string) (client *model.OAuth2Client, err error) {
+func (o *oauth2) GetClient(id uint64) (client *model.OAuth2Client, err error) {
 	client, err = dao.OAuth2Client.SelectByID(store.NewDBContext(), id)
 	return
 }

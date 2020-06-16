@@ -14,15 +14,16 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/golang/protobuf v1.4.0
+	github.com/google/uuid v1.1.1
 	github.com/gorilla/sessions v1.2.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3
 	github.com/jinzhu/gorm v1.9.12
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/nilorg/oauth2 v0.2.7
-	github.com/nilorg/pkg v0.0.0-20200524073457-fbe24e45b20b
+	github.com/nilorg/pkg v0.0.0-20200615052845-4a8e2324303e
 	github.com/nilorg/protobuf v0.0.0-20200503084506-2b10c53bd0f9
-	github.com/nilorg/sdk v0.0.0-20200608094820-3b721f30747b
+	github.com/nilorg/sdk v0.0.0-20200616011248-5d624af65bca
 	github.com/o1egl/govatar v0.3.0
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1

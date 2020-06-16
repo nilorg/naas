@@ -49,7 +49,7 @@ func (ctl *PermissionService) checkOAuth2(oauth2Client *proto.OAuth2Client) (err
 		client    *model.OAuth2Client
 		clientErr error
 	)
-	client, clientErr = service.OAuth2.GetClient(oauth2Client.Id)
+	client, clientErr = service.OAuth2.GetClient(convert.ToUint64(oauth2Client.Id))
 	if clientErr != nil {
 		logger.Errorf("service.OAuth2.GetClient Error: %s", clientErr)
 		err = &errors.BusinessError{

@@ -14,7 +14,8 @@ type OAuth2Clienter interface {
 	Delete(ctx context.Context, id uint64) (err error)
 	DeleteInIDs(ctx context.Context, ids []uint64) (err error)
 	Update(ctx context.Context, mc *model.OAuth2Client) (err error)
-	SelectByID(ctx context.Context, clientID string) (mc *model.OAuth2Client, err error)
+	UpdateRedirectURI(ctx context.Context, id uint64, redirectURI string) (err error)
+	SelectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error)
 	ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total uint64, err error)
 }
 
@@ -61,7 +62,17 @@ func (*oauth2Client) Update(ctx context.Context, mc *model.OAuth2Client) (err er
 	return
 }
 
-func (*oauth2Client) SelectByID(ctx context.Context, clientID string) (mc *model.OAuth2Client, err error) {
+func (*oauth2Client) UpdateRedirectURI(ctx context.Context, id uint64, redirectURI string) (err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Model(model.OAuth2Client{}).Where("client_id = ?", id).UpdateColumn("redirect_uri", redirectURI).Error
+	return
+}
+
+func (*oauth2Client) SelectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
