@@ -105,6 +105,10 @@ func RunHTTP() {
 			apiGroup.POST("/users", api.User.Create)
 			apiGroup.PUT("/users/:user_id", api.User.Update)
 			apiGroup.DELETE("/users/:user_id", api.User.Delete)
+
+			apiGroup.GET("/oauth2/scopes", api.OAuth2.GetScopes)
+			apiGroup.GET("/oauth2/clients", api.OAuth2.ClientListByPaged)
+			apiGroup.GET("/oauth2/clients/:client_id/scopes", api.OAuth2.GetClientScopes)
 		}
 	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080

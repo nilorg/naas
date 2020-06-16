@@ -10,7 +10,7 @@ import (
 
 // OAuth2ClientScoper oauth2 client 范围 接口
 type OAuth2ClientScoper interface {
-	SelectByOAuth2ClientID(ctx context.Context, clientID string) (mc []*model.OAuth2ClientScope, err error)
+	SelectByOAuth2ClientID(ctx context.Context, clientID uint64) (scopes []*model.OAuth2ClientScope, err error)
 	Insert(ctx context.Context, mc *model.OAuth2ClientScope) (err error)
 	Delete(ctx context.Context, id uint64) (err error)
 	Update(ctx context.Context, mc *model.OAuth2ClientScope) (err error)
@@ -19,13 +19,13 @@ type OAuth2ClientScoper interface {
 type oauth2ClientScope struct {
 }
 
-func (*oauth2ClientScope) SelectByClientID(ctx context.Context, clientID string) (mc []*model.OAuth2ClientScope, err error) {
+func (*oauth2ClientScope) SelectByOAuth2ClientID(ctx context.Context, clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Where("client_id = ?", clientID).Find(&mc).Error
+	err = gdb.Where("client_id = ?", clientID).Find(&scopes).Error
 	return
 }
 

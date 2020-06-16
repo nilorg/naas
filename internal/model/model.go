@@ -12,7 +12,7 @@ type Model struct {
 
 // CodeModel ...
 type CodeModel struct {
-	Code      uint64     `gorm:"primary_key;column:code"`
+	Code      string     `gorm:"primary_key;column:code"`
 	CreatedAt time.Time  `sql:"index" gorm:"column:created_at"`
 	UpdatedAt time.Time  `gorm:"column:updated_at"`
 	DeletedAt *time.Time `sql:"index" gorm:"column:deleted_at"`

@@ -35,14 +35,31 @@ func (*OAuth2ClientInfo) TableName() string {
 	return "oauth2_client_info"
 }
 
+const (
+	// OAuth2ScopeTypeBasic scope type basic
+	OAuth2ScopeTypeBasic = "basic"
+)
+
 // OAuth2Scope ...
 type OAuth2Scope struct {
-	Model
-	Name        string `json:"name" gorm:"column:name"`
-	Description string `json:"description" gorm:"column:description"`
+	CodeModel
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Type        string `json:"type"` // basic,
 }
 
 // TableName ...
 func (*OAuth2Scope) TableName() string {
 	return "oauth2_scope"
+}
+
+// OAuth2ClientScope OAuth2客户端范围
+type OAuth2ClientScope struct {
+	Model
+	OAuth2ClientID uint64 `json:"oauth2_client_id" gorm:"column:oauth2_client_id"`
+	ScopeCode      string `json:"scope_code" gorm:"column:scope_code"`
+}
+
+func (*OAuth2ClientScope) TableName() string {
+	return "oauth2_client_scope"
 }

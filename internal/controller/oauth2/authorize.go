@@ -14,6 +14,7 @@ import (
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
+	"github.com/nilorg/sdk/convert"
 	sdkStrings "github.com/nilorg/sdk/strings"
 )
 
@@ -60,7 +61,7 @@ func AuthorizePage(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
-	clientInfo, err = service.OAuth2.GetClientInfo(clientID)
+	clientInfo, err = service.OAuth2.GetClientInfo(convert.ToUint64(clientID))
 	if err != nil {
 		ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
 			"error": err.Error(),

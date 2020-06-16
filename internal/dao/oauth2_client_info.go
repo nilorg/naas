@@ -10,7 +10,7 @@ import (
 
 // OAuth2ClientInfoer oauth2 client 接口
 type OAuth2ClientInfoer interface {
-	SelectByClientID(ctx context.Context, clientID string) (mc *model.OAuth2ClientInfo, err error)
+	SelectByClientID(ctx context.Context, clientID uint64) (mc *model.OAuth2ClientInfo, err error)
 	Insert(ctx context.Context, mc *model.OAuth2ClientInfo) (err error)
 	Delete(ctx context.Context, id uint64) (err error)
 	DeleteByClientID(ctx context.Context, clientID uint64) (err error)
@@ -21,7 +21,7 @@ type OAuth2ClientInfoer interface {
 type oauth2ClientInfo struct {
 }
 
-func (*oauth2ClientInfo) SelectByClientID(ctx context.Context, clientID string) (mc *model.OAuth2ClientInfo, err error) {
+func (*oauth2ClientInfo) SelectByClientID(ctx context.Context, clientID uint64) (mc *model.OAuth2ClientInfo, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
