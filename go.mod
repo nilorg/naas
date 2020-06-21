@@ -23,7 +23,7 @@ require (
 	github.com/nilorg/oauth2 v0.2.7
 	github.com/nilorg/pkg v0.0.0-20200615052845-4a8e2324303e
 	github.com/nilorg/protobuf v0.0.0-20200503084506-2b10c53bd0f9
-	github.com/nilorg/sdk v0.0.0-20200616011248-5d624af65bca
+	github.com/nilorg/sdk v0.0.0-20200619071328-568bec6cd6d2
 	github.com/o1egl/govatar v0.3.0
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1

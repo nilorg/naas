@@ -435,8 +435,8 @@ github.com/nilorg/sdk v0.0.0-20191026091914-3f2265e98dfb/go.mod h1:X1swpPdqguAZa
 github.com/nilorg/sdk v0.0.0-20200517085820-1f0160ffff7a h1:ECwQVV6X0ZozwReLGr111sijt8Hfge8wCTH5KhcDN28=
 github.com/nilorg/sdk v0.0.0-20200517085820-1f0160ffff7a/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
 github.com/nilorg/sdk v0.0.0-20200612034020-c5507b4d59e0/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
-github.com/nilorg/sdk v0.0.0-20200616011248-5d624af65bca h1:RDAw/Ja6d2vopchrUEpzR07g04UQ47/Rm4u7N/FTOdo=
-github.com/nilorg/sdk v0.0.0-20200616011248-5d624af65bca/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
+github.com/nilorg/sdk v0.0.0-20200619071328-568bec6cd6d2 h1:aBfhBPFGDeeDDbQcCFso0PDbC5A/jnv2znCeSzm8h4I=
+github.com/nilorg/sdk v0.0.0-20200619071328-568bec6cd6d2/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
 github.com/nlopes/slack v0.5.0/go.mod h1:jVI4BBK3lSktibKahxBF74txcK2vyvkza1z/+rRnVAM=
 github.com/o1egl/govatar v0.3.0 h1:hGDsiJJs6qgQ6Ea4JiaukRsUKTY2Ai4dgMEdsYvlUa0=
 github.com/o1egl/govatar v0.3.0/go.mod h1:YeDGDII+2Ji1RcBKvb1KqaPhk4PmuZyBq+rPYc6b+cQ=

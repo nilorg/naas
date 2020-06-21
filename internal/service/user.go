@@ -9,6 +9,8 @@ import (
 
 	"image/png"
 
+	"context"
+
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
@@ -35,8 +37,9 @@ func createPicture(typ, id string) (bs string, err error) {
 	if err != nil {
 		return
 	}
+	ctx := context.Background()
 	filename := fmt.Sprintf("%s-%s.png", typ, id)
-	_, err = store.Picture.Upload(buff, filename)
+	_, err = store.Picture.Upload(ctx, buff, filename)
 	if err != nil {
 		return
 	}
