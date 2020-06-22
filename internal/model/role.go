@@ -7,6 +7,7 @@ type Role struct {
 	Description  string        `json:"description"`
 	ParentCode   string        `json:"parent_code"`
 	WebFunctions []WebFunction `json:"web_functions" gorm:"-"`
+	ChildRoles   []*Role       `json:"child_roles" gorm:"-"`
 }
 
 // RoleWebFunction ...

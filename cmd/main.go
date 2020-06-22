@@ -26,6 +26,8 @@ func init() {
 	if err != nil {             // Handle errors reading the config file
 		logger.Fatalf("Fatal error config file: %s ", err)
 	}
+	viper.WatchConfig()
+
 	module.Init()
 	oauth2.Init()
 }

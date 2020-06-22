@@ -3,9 +3,8 @@ package model
 // Organization ...
 type Organization struct {
 	Model
-	Name        string  `json:"name" gorm:"column:name"`
-	Description string  `json:"description" gorm:"column:description"`
-	ParentID    *uint64 `json:"parent_id" gorm:"column:parent_id"`
+	Name        string `json:"name" gorm:"column:name"`
+	Description string `json:"description" gorm:"column:description"`
 }
 
 // OrganizationRole 组织权限

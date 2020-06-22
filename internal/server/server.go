@@ -98,6 +98,7 @@ func RunHTTP() {
 		}
 	}
 	if viper.GetBool("server.admin.enabled") {
+		r.GET("/roles", api.Role.Recursive)
 		apiGroup := r.Group("api/v1", middleware.AdminAuthRequired(global.JwtPublicKey), middleware.AdminAuthSuperUserRequired())
 		{
 			apiGroup.GET("/users", api.User.ListByPaged)

@@ -7,4 +7,6 @@ var (
 	User = &user{}
 	// OAuth2 service
 	OAuth2 = &oauth2{}
+	// Role service
+	Role = &role{}
 )
