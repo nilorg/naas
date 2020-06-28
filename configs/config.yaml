@@ -103,6 +103,13 @@ redis:
   password: ""
   db: 0
 
+swagger:
+  enabled: true
+  client_id: 111
+  client_secret: 22222
+  realm:
+  app_name: naas-server
+
 casbin:
   config: configs/rbac_model.conf
 

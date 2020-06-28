@@ -19,7 +19,7 @@ type admin struct {
 // @Param	username		formData	string		true	"用户名"
 // @Param	password		formData	string		true	"密码"
 // @Success 200 {string} string	"ok"
-// @Failure 400 {object} api.ResultError "error"
+// @Failure 400 {object} api.Result "error"
 // @Router /admin/login [post]
 func (*admin) Login(c *gin.Context) {
 	username := c.PostForm("username")

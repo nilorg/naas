@@ -1,10 +1,29 @@
-basePath: /v1
+basePath: /api/v1
 definitions:
+  api.Result:
+    properties:
+      data:
+        type: object
+      error:
+        $ref: '#/definitions/api.ResultError'
+        type: object
+      status:
+        type: string
+    type: object
   api.ResultError:
     properties:
       code:
         type: integer
       message:
+        type: string
+    type: object
+  api.userCreateModel:
+    properties:
+      password:
+        example: "123456"
+        type: string
+      username:
+        example: test
         type: string
     type: object
 host: localhost:8080
@@ -47,7 +66,36 @@ paths:
         "400":
           description: error
           schema:
-            $ref: '#/definitions/api.ResultError'
-            type: object
+            $ref: '#/definitions/api.Result'
       summary: 管理员登录
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: 创建用户
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.userCreateModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 创建用户
+securityDefinitions:
+  OAuth2AccessCode:
+    authorizationUrl: https://accounts.dianfeng58.com/oauth2/authorize
+    flow: accessCode
+    scopes:
+      admin: ' Grants read and write access to administrative information'
+    tokenUrl: https://accounts.dianfeng58.com/oauth2/token
+    type: oauth2
 swagger: "2.0"

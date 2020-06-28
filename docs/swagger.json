@@ -16,7 +16,7 @@
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/v1",
+    "basePath": "/api/v1",
     "paths": {
         "/admin/login": {
             "post": {
@@ -54,8 +54,43 @@
                     "400": {
                         "description": "error",
                         "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/api.ResultError"
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "创建用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "创建用户",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.userCreateModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
                         }
                     }
                 }
@@ -63,6 +98,21 @@
         }
     },
     "definitions": {
+        "api.Result": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object"
+                },
+                "error": {
+                    "type": "object",
+                    "$ref": "#/definitions/api.ResultError"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "api.ResultError": {
             "type": "object",
             "properties": {
@@ -72,6 +122,30 @@
                 "message": {
                     "type": "string"
                 }
+            }
+        },
+        "api.userCreateModel": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "OAuth2AccessCode": {
+            "type": "oauth2",
+            "flow": "accessCode",
+            "authorizationUrl": "https://accounts.dianfeng58.com/oauth2/authorize",
+            "tokenUrl": "https://accounts.dianfeng58.com/oauth2/token",
+            "scopes": {
+                "admin": " Grants read and write access to administrative information"
             }
         }
     }

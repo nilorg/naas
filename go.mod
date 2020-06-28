@@ -33,10 +33,11 @@ require (
 	github.com/spf13/viper v1.7.0
 	github.com/square/go-jose/v3 v3.0.0-20200430180204-d84c719419c2
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
-	github.com/swaggo/gin-swagger v1.2.0
-	github.com/swaggo/swag v1.6.5
+	github.com/swaggo/swag v1.6.7
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 // indirect
-	golang.org/x/net v0.0.0-20191021144547-ec77196f6094
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
+	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/tools v0.0.0-20200623204733-f8e0ea3a3a8f // indirect
 	google.golang.org/genproto v0.0.0-20191108220845-16a3f7862a1a
 	google.golang.org/grpc v1.24.0
 )

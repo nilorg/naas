@@ -12,17 +12,31 @@ import (
 type user struct {
 }
 
+type userCreateModel struct {
+	Username string `json:"username" example:"test"`
+	Password string `json:"password" example:"123456"`
+}
+
+// Create 创建用户
+// @Summary	创建用户
+// @Description	创建用户
+// @Accept  json
+// @Produce	json
+// @Param 	body	body	userCreateModel	true	"body"
+// @Success 200	{object}	Result
+// @Router /users [POST]
+// @Security OAuth2AccessCode
 func (*user) Create(ctx *gin.Context) {
 	var (
-		user model.User
-		err  error
+		m   userCreateModel
+		err error
 	)
-	err = ctx.ShouldBindJSON(&user)
+	err = ctx.ShouldBindJSON(&m)
 	if err != nil {
 		writeError(ctx, err)
 		return
 	}
-	err = service.User.Create(user.Username, user.Password)
+	err = service.User.Create(m.Username, m.Password)
 	if err != nil {
 		writeError(ctx, err)
 		return

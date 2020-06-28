@@ -25,8 +25,29 @@ import (
 	"github.com/nilorg/naas/internal/server/middleware"
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	//ginSwagger "github.com/swaggo/gin-swagger"
+	ginSwagger "github.com/nilorg/naas/internal/pkg/gin-swagger"
 )
+
+// @title NilOrg认证授权服务
+// @version 1.0
+// @description NilOrg认证授权服务Api详情.
+// @termsOfService https://github.com/nilorg
+
+// @contact.name API Support
+// @contact.url https://github.com/nilorg/naas
+// @contact.email 862860000@qq.com
+
+// @license.name GNU General Public License v3.0
+// @license.url https://github.com/nilorg/naas/blob/master/LICENSE
+
+// @host localhost:8080
+// @BasePath /api/v1
+
+// @securitydefinitions.oauth2.accessCode OAuth2AccessCode
+// @tokenUrl https://accounts.dianfeng58.com/oauth2/token
+// @authorizationurl https://accounts.dianfeng58.com/oauth2/authorize
+// @scope.admin Grants read and write access to administrative information
 
 // RunHTTP ...
 func RunHTTP() {
@@ -46,7 +67,17 @@ func RunHTTP() {
 	r.Use(middleware.Header())
 	r.Use(sessions.Sessions(viper.GetString("session.name"), store))
 	// use ginSwagger middleware to
-	r.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "NAME_OF_ENV_VARIABLE"))
+	if viper.GetBool("swagger.enabled") {
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(
+			swaggerFiles.Handler,
+			ginSwagger.OAuth(&ginSwagger.OAuthConfig{
+				ClientId:     viper.GetString("swagger.client_id"),
+				ClientSecret: viper.GetString("swagger.client_secret"),
+				Realm:        viper.GetString("swagger.realm"),
+				AppName:      viper.GetString("swagger.app_name"),
+			}),
+		))
+	}
 
 	r.Static("/static", "./web/static")
 	storageType := viper.GetString("storage.type")
@@ -115,6 +146,22 @@ func RunHTTP() {
 		}
 	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
+}
+
+func queryChildren(v map[string]gin.HandlerFunc) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		q := ctx.Query("q")
+		if q == "" {
+			ctx.String(400, "未知的查询类型")
+			return
+		}
+		h, ok := v[q]
+		if !ok {
+			ctx.String(400, "未找到查询类型")
+			return
+		}
+		h(ctx)
+	}
 }
 
 // RunGRpc 运行Grpc

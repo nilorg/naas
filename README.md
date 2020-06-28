@@ -18,6 +18,7 @@ Authentication authorization server（认证授权服务器）
    * ✅ openid
    * ✅ openid-configuration
    * ✅ Userinfo（用户信息端点）
+3. ♻️ [Swagger](https://github.com/swaggo/gin-swagger)
 3. ♻️ [Casbin](https://github.com/casbin/casbin)
    * ♻️ [RBAC](https://casbin.org/docs/zh-CN/rbac-api)
    * ♻️ [多租户](https://casbin.org/docs/zh-CN/rbac-with-domains)
