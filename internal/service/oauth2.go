@@ -142,15 +142,68 @@ func (o *oauth2) ClientListPaged(start, limit int) (result []*ResultClientInfo, 
 }
 
 // GetClientScope 获取客户端的范围
-// TODO: 后期添加缓存
 func (o *oauth2) GetClientAllScope(clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
 	scopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(store.NewDBContext(), clientID)
 	return
 }
 
+type OAuth2ClientScopeInfo struct {
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+}
+
+func (o *oauth2) GetClientAllScopeInfo(clientID uint64) (scopeInfos []*OAuth2ClientScopeInfo, err error) {
+	ctx := store.NewDBContext()
+	var clientScopes []*model.OAuth2ClientScope
+	clientScopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(ctx, clientID)
+	if err != nil {
+		return
+	}
+	var scope *model.OAuth2Scope
+	for _, clientScope := range clientScopes {
+		scope, err = dao.OAuth2Scope.Select(ctx, clientScope.ScopeCode)
+		if err != nil {
+			return
+		}
+		scopeInfos = append(scopeInfos, &OAuth2ClientScopeInfo{
+			Code:        scope.Code,
+			Name:        scope.Name,
+			Description: scope.Description,
+			Type:        scope.Type,
+		})
+	}
+	return
+}
+
+// GetClientAllScopeCode 获取客户端的范围code
+func (o *oauth2) GetClientAllScopeCode(clientID uint64) (scopes []string, err error) {
+	var scopeArray []*model.OAuth2ClientScope
+	scopeArray, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(store.NewDBContext(), clientID)
+	if err != nil {
+		return
+	}
+	for _, scope := range scopeArray {
+		scopes = append(scopes, scope.ScopeCode)
+	}
+	return
+}
+
 // AllScope 获取所有的范围
-// TODO: 后期添加缓存
 func (o *oauth2) AllScope() (scopes []*model.OAuth2Scope, err error) {
 	scopes, err = dao.OAuth2Scope.SelectAll(store.NewDBContext())
+	return
+}
+
+func (o *oauth2) AllScopeCode() (scopeCodes []string, err error) {
+	var scopes []*model.OAuth2Scope
+	scopes, err = dao.OAuth2Scope.SelectAll(store.NewDBContext())
+	if err != nil {
+		return
+	}
+	for _, scope := range scopes {
+		scopeCodes = append(scopeCodes, scope.Code)
+	}
 	return
 }

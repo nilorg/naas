@@ -45,10 +45,12 @@ import (
 // @BasePath /api/v1
 
 // @securitydefinitions.oauth2.accessCode OAuth2AccessCode
-// @tokenUrl https://accounts.dianfeng58.com/oauth2/token
-// @authorizationurl https://accounts.dianfeng58.com/oauth2/authorize
-// @scope.admin Grants read and write access to administrative information
-
+// @tokenUrl http://localhost:8080/oauth2/token
+// @authorizationurl http://localhost:8080/oauth2/authorize
+// @scope.openid 用户openid
+// @scope.profile 用户资料
+// @scope.email 用户emial
+// @scope.phone 用户手机号
 // RunHTTP ...
 func RunHTTP() {
 	store, err := redis.NewStore(10, "tcp", viper.GetString("session.redis.address"), viper.GetString("session.redis.password"), []byte(viper.GetString("session.secret")))
@@ -71,11 +73,12 @@ func RunHTTP() {
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(
 			swaggerFiles.Handler,
 			ginSwagger.OAuth(&ginSwagger.OAuthConfig{
-				ClientId:     viper.GetString("swagger.client_id"),
-				ClientSecret: viper.GetString("swagger.client_secret"),
-				Realm:        viper.GetString("swagger.realm"),
-				AppName:      viper.GetString("swagger.app_name"),
+				ClientId:     viper.GetString("swagger.oauth2.client_id"),
+				ClientSecret: viper.GetString("swagger.oauth2.client_secret"),
+				Realm:        viper.GetString("swagger.oauth2.realm"),
+				AppName:      viper.GetString("swagger.oauth2.app_name"),
 			}),
+			ginSwagger.OAuth2RedirectURL(viper.GetString("swagger.oauth2.redirect_url")),
 		))
 	}
 
@@ -129,7 +132,6 @@ func RunHTTP() {
 		}
 	}
 	if viper.GetBool("server.admin.enabled") {
-		r.GET("/roles", api.Role.Recursive)
 		apiGroup := r.Group("api/v1", middleware.AdminAuthRequired(global.JwtPublicKey), middleware.AdminAuthSuperUserRequired())
 		{
 			apiGroup.GET("/users", api.User.ListByPaged)
@@ -137,6 +139,8 @@ func RunHTTP() {
 			apiGroup.POST("/users", api.User.Create)
 			apiGroup.PUT("/users/:user_id", api.User.Update)
 			apiGroup.DELETE("/users/:user_id", api.User.Delete)
+
+			apiGroup.GET("/roles", api.Role.QueryChildren())
 
 			apiGroup.GET("/oauth2/scopes", api.OAuth2.GetScopes)
 			apiGroup.GET("/oauth2/clients", api.OAuth2.ClientListByPaged)
@@ -146,22 +150,6 @@ func RunHTTP() {
 		}
 	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
-}
-
-func queryChildren(v map[string]gin.HandlerFunc) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		q := ctx.Query("q")
-		if q == "" {
-			ctx.String(400, "未知的查询类型")
-			return
-		}
-		h, ok := v[q]
-		if !ok {
-			ctx.String(400, "未找到查询类型")
-			return
-		}
-		h(ctx)
-	}
 }
 
 // RunGRpc 运行Grpc

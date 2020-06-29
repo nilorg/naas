@@ -18,7 +18,8 @@ type userCreateModel struct {
 }
 
 // Create 创建用户
-// @Summary	创建用户
+// @Tags 		用户
+// @Summary		创建用户
 // @Description	创建用户
 // @Accept  json
 // @Produce	json
@@ -44,6 +45,16 @@ func (*user) Create(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// GetOne 获取一个用户
+// @Tags 		用户
+// @Summary		获取一个用户
+// @Description	根据用户ID,获取一个用户
+// @Accept  json
+// @Produce	json
+// @Param 	user_id	path	string	true	"user id"
+// @Success 200	{object}	Result
+// @Router /users/{user_id} [GET]
+// @Security OAuth2AccessCode
 func (*user) GetOne(ctx *gin.Context) {
 	var (
 		user *model.User
@@ -58,6 +69,16 @@ func (*user) GetOne(ctx *gin.Context) {
 	writeData(ctx, user)
 }
 
+// Delete 删除一个用户
+// @Tags 		用户
+// @Summary		删除一个用户
+// @Description	根据用户ID,删除一个用户
+// @Accept  json
+// @Produce	json
+// @Param 	user_id	path	string	true	"user id"
+// @Success 200	{object}	Result
+// @Router /users/{user_id} [DELETE]
+// @Security OAuth2AccessCode
 func (*user) Delete(ctx *gin.Context) {
 	var (
 		err error
@@ -75,6 +96,17 @@ func (*user) Delete(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// Update 修改一个用户
+// @Tags 		用户
+// @Summary		修改一个用户
+// @Description	根据用户ID,修改一个用户
+// @Accept  json
+// @Produce	json
+// @Param 	user_id	path	string	true	"user id"
+// @Param 	body	body	service.UserUpdateModel	true	"用户需要修改的信息"
+// @Success 200	{object}	Result
+// @Router /users/{user_id} [PUT]
+// @Security OAuth2AccessCode
 func (*user) Update(ctx *gin.Context) {
 	var (
 		user service.UserUpdateModel
@@ -94,6 +126,17 @@ func (*user) Update(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// ListByPaged 查询用户
+// @Tags 		用户
+// @Summary		查询用户
+// @Description	查询用户翻页数据
+// @Accept  json
+// @Produce	json
+// @Param	current		query	int	true	"当前页"
+// @Param	pageSize	query	int	true	"页大小"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Router /users [GET]
+// @Security OAuth2AccessCode
 func (*user) ListByPaged(ctx *gin.Context) {
 	var (
 		result []*model.ResultUserInfo

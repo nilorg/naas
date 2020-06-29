@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/nilorg/naas/internal/model"
 	"net/http"
 	"net/url"
 
@@ -17,7 +18,7 @@ func OAuth2AuthRequired(ctx *gin.Context) {
 	clientID := ctx.Query("client_id")
 	session := sessions.Default(ctx)
 	currentAccount := session.Get(key.SessionAccount)
-	if currentAccount == nil {
+	if currentAccount == nil || currentAccount.(*model.SessionAccount) == nil {
 		uri := *ctx.Request.URL
 		redirectURI, _ := url.Parse("/oauth2/login")
 		redirectURIQuery := url.Values{}

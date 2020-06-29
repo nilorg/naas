@@ -4,6 +4,7 @@ package ginSwagger
 // 期待swaggo更好的实现，参考如下：
 // https://github.com/swaggo/swag/issues/595
 // https://github.com/drewsilcock/echo-swagger/blob/master/swagger.go
+// https://github.com/swaggo/gin-swagger/issues/115
 
 import (
 	"html/template"
@@ -20,9 +21,10 @@ import (
 // Config stores ginSwagger configuration variables.
 type Config struct {
 	//The url pointing to API definition (normally swagger.json or swagger.yaml). Default is `doc.json`.
-	URL         string
-	DeepLinking bool
-	OAuth       *OAuthConfig
+	URL               string
+	DeepLinking       bool
+	OAuth             *OAuthConfig
+	OAuth2RedirectURL string
 }
 
 // Configuration for Swagger UI OAuth2 integration. See
@@ -60,6 +62,12 @@ func OAuth(oauth *OAuthConfig) func(c *Config) {
 	}
 }
 
+func OAuth2RedirectURL(url string) func(c *Config) {
+	return func(c *Config) {
+		c.OAuth2RedirectURL = url
+	}
+}
+
 // WrapHandler wraps `http.Handler` into `gin.HandlerFunc`.
 func WrapHandler(h *webdav.Handler, confs ...func(c *Config)) gin.HandlerFunc {
 	defaultConfig := &Config{
@@ -85,9 +93,10 @@ func CustomWrapHandler(config *Config, h *webdav.Handler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		type swaggerUIBundle struct {
-			URL         string
-			DeepLinking bool
-			OAuth       *OAuthConfig
+			URL               string
+			DeepLinking       bool
+			OAuth             *OAuthConfig
+			OAuth2RedirectURL string
 		}
 
 		var matches []string
@@ -113,9 +122,10 @@ func CustomWrapHandler(config *Config, h *webdav.Handler) gin.HandlerFunc {
 		switch path {
 		case "index.html":
 			index.Execute(c.Writer, &swaggerUIBundle{
-				URL:         config.URL,
-				DeepLinking: config.DeepLinking,
-				OAuth:       config.OAuth,
+				URL:               config.URL,
+				DeepLinking:       config.DeepLinking,
+				OAuth:             config.OAuth,
+				OAuth2RedirectURL: config.OAuth2RedirectURL,
 			})
 		case "doc.json":
 			doc, err := swag.ReadDoc()
@@ -224,6 +234,7 @@ window.onload = function() {
   const ui = SwaggerUIBundle({
     url: "{{.URL}}",
     dom_id: '#swagger-ui',
+	oauth2RedirectUrl: "{{.OAuth2RedirectURL}}",
     validatorUrl: null,
     presets: [
       SwaggerUIBundle.presets.apis,

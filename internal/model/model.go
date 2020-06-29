@@ -4,16 +4,16 @@ import "time"
 
 // Model ...
 type Model struct {
-	ID        uint64     `gorm:"primary_key;column:id"`
-	CreatedAt time.Time  `sql:"index" gorm:"column:created_at"`
-	UpdatedAt time.Time  `gorm:"column:updated_at"`
-	DeletedAt *time.Time `sql:"index" gorm:"column:deleted_at"`
+	ID        uint64     `json:"id" gorm:"primary_key;column:id"`
+	CreatedAt time.Time  `json:"created_at" sql:"index" gorm:"column:created_at"`
+	UpdatedAt time.Time  `json:"updated_at" gorm:"column:updated_at"`
+	DeletedAt *time.Time `json:"deleted_at" sql:"index" gorm:"column:deleted_at"`
 }
 
 // CodeModel ...
 type CodeModel struct {
-	Code      string     `gorm:"primary_key;column:code"`
-	CreatedAt time.Time  `sql:"index" gorm:"column:created_at"`
-	UpdatedAt time.Time  `gorm:"column:updated_at"`
-	DeletedAt *time.Time `sql:"index" gorm:"column:deleted_at"`
+	Code      string     `json:"code" gorm:"primary_key;column:code"`
+	CreatedAt time.Time  `json:"created_at" sql:"index" gorm:"column:created_at"`
+	UpdatedAt time.Time  `json:"updated_at" gorm:"column:updated_at"`
+	DeletedAt *time.Time `json:"deleted_at" sql:"index" gorm:"column:deleted_at"`
 }

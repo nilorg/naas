@@ -11,8 +11,8 @@ import (
 // OAuth2Scoper ...
 type OAuth2Scoper interface {
 	Insert(ctx context.Context, m *model.OAuth2Scope) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	Select(ctx context.Context, id uint64) (m *model.OAuth2Scope, err error)
+	Delete(ctx context.Context, code string) (err error)
+	Select(ctx context.Context, code string) (m *model.OAuth2Scope, err error)
 	SelectAll(ctx context.Context) (m []*model.OAuth2Scope, err error)
 	SelectByAllBasic(ctx context.Context) (m []*model.OAuth2Scope, err error)
 	Update(ctx context.Context, m *model.OAuth2Scope) (err error)
@@ -31,13 +31,13 @@ func (s *oauth2Scope) Insert(ctx context.Context, m *model.OAuth2Scope) (err err
 	return
 }
 
-func (s *oauth2Scope) Delete(ctx context.Context, id uint64) (err error) {
+func (s *oauth2Scope) Delete(ctx context.Context, code string) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Delete(&model.Role{}, id).Error
+	err = gdb.Delete(&model.OAuth2Scope{}, "code = ?", code).Error
 	return
 }
 
@@ -61,14 +61,14 @@ func (s *oauth2Scope) SelectByAllBasic(ctx context.Context) (scopes []*model.OAu
 	return
 }
 
-func (s *oauth2Scope) Select(ctx context.Context, id uint64) (m *model.OAuth2Scope, err error) {
+func (s *oauth2Scope) Select(ctx context.Context, code string) (m *model.OAuth2Scope, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
 		return
 	}
 	var dbResult model.OAuth2Scope
-	err = gdb.First(&dbResult, id).Error
+	err = gdb.First(&dbResult, "code = ?", code).Error
 	if err != nil {
 		return
 	}

@@ -25,7 +25,7 @@ func (*oauth2ClientScope) SelectByOAuth2ClientID(ctx context.Context, clientID u
 	if err != nil {
 		return
 	}
-	err = gdb.Where("client_id = ?", clientID).Find(&scopes).Error
+	err = gdb.Where("oauth2_client_id = ?", clientID).Find(&scopes).Error
 	return
 }
 

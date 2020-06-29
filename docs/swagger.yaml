@@ -26,6 +26,99 @@ definitions:
         example: test
         type: string
     type: object
+  model.Pagination:
+    properties:
+      current:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.Role:
+    properties:
+      child_roles:
+        items:
+          $ref: '#/definitions/model.Role'
+        type: array
+      code:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      parent_code:
+        type: string
+      updated_at:
+        type: string
+      web_functions:
+        items:
+          $ref: '#/definitions/model.WebFunction'
+        type: array
+    type: object
+  model.TableListData:
+    properties:
+      list:
+        type: object
+      pagination:
+        $ref: '#/definitions/model.Pagination'
+        type: object
+    type: object
+  model.WebComponent:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      extension:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+      type_value:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.WebFunction:
+    properties:
+      components:
+        items:
+          $ref: '#/definitions/model.WebComponent'
+        type: array
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      extension:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  service.UserUpdateModel:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -68,7 +161,76 @@ paths:
           schema:
             $ref: '#/definitions/api.Result'
       summary: 管理员登录
+      tags:
+      - 管理员（已弃用）
+  /roles:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        recursive:递归获取所有角色
+        list:查询列表
+      parameters:
+      - description: 查询参数
+        enum:
+        - recursive
+        - list
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Role'
+                  type: array
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 查询角色
+      tags:
+      - 角色
   /users:
+    get:
+      consumes:
+      - application/json
+      description: 查询用户翻页数据
+      parameters:
+      - description: 当前页
+        in: query
+        name: current
+        required: true
+        type: integer
+      - description: 页大小
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 查询用户
+      tags:
+      - 用户
     post:
       consumes:
       - application/json
@@ -90,12 +252,90 @@ paths:
       security:
       - OAuth2AccessCode: []
       summary: 创建用户
+      tags:
+      - 用户
+  /users/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据用户ID,删除一个用户
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 删除一个用户
+      tags:
+      - 用户
+    get:
+      consumes:
+      - application/json
+      description: 根据用户ID,获取一个用户
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个用户
+      tags:
+      - 用户
+    put:
+      consumes:
+      - application/json
+      description: 根据用户ID,修改一个用户
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 用户需要修改的信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.UserUpdateModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个用户
+      tags:
+      - 用户
 securityDefinitions:
   OAuth2AccessCode:
-    authorizationUrl: https://accounts.dianfeng58.com/oauth2/authorize
+    authorizationUrl: http://localhost:8080/oauth2/authorize
     flow: accessCode
     scopes:
-      admin: ' Grants read and write access to administrative information'
-    tokenUrl: https://accounts.dianfeng58.com/oauth2/token
+      email: ' 用户emial'
+      openid: ' 用户openid'
+      phone: ' 用户手机号'
+      profile: ' 用户资料'
+    tokenUrl: http://localhost:8080/oauth2/token
     type: oauth2
 swagger: "2.0"

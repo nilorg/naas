@@ -105,10 +105,12 @@ redis:
 
 swagger:
   enabled: true
-  client_id: 111
-  client_secret: 22222
-  realm:
-  app_name: naas-server
+  oauth2:
+    client_id: 1000
+    client_secret: 22222
+    realm:
+    app_name: naas-server
+    redirect_url: http://localhost:8080/swagger/oauth2-redirect.html
 
 casbin:
   config: configs/rbac_model.conf

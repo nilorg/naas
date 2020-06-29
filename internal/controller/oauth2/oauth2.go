@@ -25,13 +25,13 @@ import (
 
 var (
 	oauth2Server *oauth2.Server
-	// SourceScope ...
-	SourceScope = []string{
-		"openid",
-		"profile",
-		"email",
-		"phone",
-	}
+	//// SourceScope ...
+	//SourceScope = []string{
+	//	"openid",
+	//	"profile",
+	//	"email",
+	//	"phone",
+	//}
 )
 
 // Init 初始化
@@ -85,7 +85,7 @@ func Init() {
 			ClientID:    clientID,
 			OpenID:      openID,
 			RedirectURI: redirectURI,
-			Scope:       scope,
+			Scope:       RemoveRepeat(scope),
 		}
 		err = store.RedisClient.Set(key.WrapOAuth2Code(code), value, time.Minute).Err()
 		if err != nil {
@@ -107,20 +107,21 @@ func Init() {
 		_ = store.RedisClient.Del(redisKey)
 		if value.ClientID != clientID || (strings.HasPrefix(redirectURI, value.RedirectURI) && redirectURI != value.RedirectURI) {
 			err = oauth2.ErrAccessDenied
-			return
-		}
-		// 包含
-		if !slice.IsSubset(value.Scope, SourceScope) {
-			err = oauth2.ErrInvalidScope
 		}
 		return
 	}
-	oauth2Server.VerifyScope = func(scope []string) (err error) {
+	oauth2Server.VerifyScope = func(scope []string, clientID string) (err error) {
 		// 表示权限范围，如果与客户端申请的范围一致，此项可省略。
 		if len(scope) == 0 {
 			return
 		}
-		if !slice.IsSubset(scope, SourceScope) {
+		var scopes []string
+		scopes, err = service.OAuth2.GetClientAllScopeCode(convert.ToUint64(clientID))
+		if err != nil {
+			err = oauth2.ErrInvalidScope
+			return
+		}
+		if !slice.IsSubset(scope, scopes) {
 			err = oauth2.ErrInvalidScope
 		}
 		return
@@ -210,4 +211,17 @@ func TokenIntrospection(ctx *gin.Context) {
 // TokenRevoke ...
 func TokenRevoke(ctx *gin.Context) {
 	oauth2Server.HandleTokenRevocation(ctx.Writer, ctx.Request)
+}
+
+// RemoveRepeat 过滤重复元素
+func RemoveRepeat(slc []string) (result []string) {
+	tempMap := map[string]byte{}
+	for _, e := range slc {
+		l := len(tempMap)
+		tempMap[e] = 0
+		if len(tempMap) != l { // 加入map后，map长度变化，则元素不重复
+			result = append(result, e)
+		}
+	}
+	return result
 }

@@ -12,6 +12,8 @@ require (
 	github.com/certifi/gocertifi v0.0.0-20191021191039-0944d244cd40 // indirect
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
+	github.com/go-openapi/spec v0.19.8 // indirect
+	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/golang/protobuf v1.4.0
 	github.com/google/uuid v1.1.1
@@ -20,7 +22,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3
 	github.com/jinzhu/gorm v1.9.12
 	github.com/mailru/easyjson v0.7.1 // indirect
-	github.com/nilorg/oauth2 v0.2.7
+	github.com/nilorg/oauth2 v0.2.8
 	github.com/nilorg/pkg v0.0.0-20200615052845-4a8e2324303e
 	github.com/nilorg/protobuf v0.0.0-20200503084506-2b10c53bd0f9
 	github.com/nilorg/sdk v0.0.0-20200619071328-568bec6cd6d2
@@ -31,13 +33,13 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.0
-	github.com/square/go-jose/v3 v3.0.0-20200430180204-d84c719419c2
+	github.com/square/go-jose/v3 v3.0.0-20200622023058-052237293361
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/swag v1.6.7
-	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 // indirect
-	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
+	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/text v0.3.3 // indirect
-	golang.org/x/tools v0.0.0-20200623204733-f8e0ea3a3a8f // indirect
+	golang.org/x/tools v0.0.0-20200626171337-aa94e735be7f // indirect
 	google.golang.org/genproto v0.0.0-20191108220845-16a3f7862a1a
 	google.golang.org/grpc v1.24.0
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )

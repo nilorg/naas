@@ -12,7 +12,8 @@ type admin struct {
 }
 
 // Login .
-// @Summary 管理员登录
+// @Tags 		管理员（已弃用）
+// @Summary 	管理员登录
 // @Description 后台管理员登录
 // @Accept  json
 // @Produce  json

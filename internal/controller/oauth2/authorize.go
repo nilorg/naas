@@ -75,10 +75,18 @@ func AuthorizePage(ctx *gin.Context) {
 	scope := ctx.Query("scope")
 	scopeSplit := sdkStrings.Split(scope, " ")
 	scopes := make([]map[string]interface{}, 0)
-	for _, v := range SourceScope {
+	var scopeInfos []*service.OAuth2ClientScopeInfo
+	scopeInfos, err = service.OAuth2.GetClientAllScopeInfo(clientInfo.ClientID)
+	if err != nil {
+		ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	for _, v := range scopeInfos {
 		scopes = append(scopes, map[string]interface{}{
-			"text":    v,
-			"checked": tools.InStringSplit(v, scopeSplit),
+			"info":    v,
+			"checked": tools.InStringSplit(v.Code, scopeSplit),
 		})
 	}
 	logBackInURI, _ := url.Parse("/oauth2/login")
@@ -87,7 +95,6 @@ func AuthorizePage(ctx *gin.Context) {
 	logBackInURIQuery.Set("login_redirect_uri", ctx.Request.RequestURI)
 	logBackInURI.RawQuery = logBackInURIQuery.Encode()
 	ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
-		"error":        err,
 		"client_info":  clientInfo,
 		"scopes":       scopes,
 		"current_user": cu,

@@ -79,3 +79,19 @@ func writeData(ctx *gin.Context, data interface{}) {
 		"data":   data,
 	})
 }
+
+func QueryChildren(v map[string]gin.HandlerFunc) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		q := ctx.Query("q")
+		if q == "" {
+			ctx.String(400, "未知的查询类型")
+			return
+		}
+		h, ok := v[q]
+		if !ok {
+			ctx.String(400, "未找到查询类型")
+			return
+		}
+		h(ctx)
+	}
+}

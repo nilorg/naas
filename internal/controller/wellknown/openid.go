@@ -1,11 +1,11 @@
 package wellknown
 
 import (
+	"github.com/nilorg/naas/internal/service"
 	"net/http"
 	"path"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/spf13/viper"
 )
 
@@ -46,7 +46,9 @@ func GetOpenIDProviderMetadata(ctx *gin.Context) {
 	metadata.IDTokenSigningAlgValuesSupported = append(metadata.IDTokenSigningAlgValuesSupported,
 		"RS256",
 	)
-	metadata.ScopesSupported = append(metadata.ScopesSupported, oauth2.SourceScope...)
+	if scopeCodes, err := service.OAuth2.AllScopeCode(); err == nil {
+		metadata.ScopesSupported = append(metadata.ScopesSupported, scopeCodes...)
+	}
 	metadata.TokenEndpointAuthMethodsSupported = append(metadata.TokenEndpointAuthMethodsSupported,
 		"client_secret_post",
 		"client_secret_basic",
