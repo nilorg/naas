@@ -14,6 +14,7 @@ type UserRoleer interface {
 	Delete(ctx context.Context, id uint64) (err error)
 	Select(ctx context.Context, id uint64) (m *model.UserRole, err error)
 	Update(ctx context.Context, m *model.UserRole) (err error)
+	SelectAllByUserID(ctx context.Context, userID uint64) (m []*model.UserRole, err error)
 }
 
 type userRole struct {
@@ -61,5 +62,15 @@ func (u *userRole) Update(ctx context.Context, m *model.UserRole) (err error) {
 	if err != nil {
 		return
 	}
+	return
+}
+
+func (u *userRole) SelectAllByUserID(ctx context.Context, userID uint64) (roles []*model.UserRole, err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Model(model.UserRole{}).Where("user_id = ?", userID).Find(&roles).Error
 	return
 }

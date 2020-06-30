@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
@@ -42,4 +41,11 @@ func (r *role) recursive(ctx context.Context, roles []*model.Role) {
 		r.recursive(ctx, childRoles)
 		role.ChildRoles = childRoles
 	}
+}
+
+// GetAllRoleByUserID TODO: 需要修改
+func (r *role) GetAllRoleByUserID(userID uint64) (roles []*model.UserRole, err error) {
+	ctx := store.NewDBContext()
+	roles, err = dao.UserRole.SelectAllByUserID(ctx, userID)
+	return
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/nilorg/naas/internal/service"
 	"os"
 	"runtime"
 
@@ -29,6 +30,10 @@ func init() {
 
 	module.Init()
 	oauth2.Init()
+
+	if viper.GetBool("casbin.init.enabled") {
+		service.Casbin.InitLoadAllPolicy()
+	}
 }
 
 func main() {

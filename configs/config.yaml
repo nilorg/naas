@@ -113,6 +113,8 @@ swagger:
     redirect_url: http://localhost:8080/swagger/oauth2-redirect.html
 
 casbin:
+  init:
+    enabled: true
   config: configs/rbac_model.conf
 
 storage:

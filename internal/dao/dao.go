@@ -1,26 +1,18 @@
 package dao
 
 var (
-	// OAuth2Client ...
-	OAuth2Client OAuth2Clienter = &oauth2Client{}
-	// OAuth2ClientInfo ...
-	OAuth2ClientInfo OAuth2ClientInfoer = &oauth2ClientInfo{}
-	// OAuth2ClientScope ...
-	OAuth2ClientScope OAuth2ClientScoper = &oauth2ClientScope{}
-	// Admin ...
-	Admin Adminer = &admin{}
-	// User ...
-	User Userer = &user{}
-	// UserInfo ...
-	UserInfo UserInfoer = &userInfo{}
-	// Organization ...
-	Organization Organizationer = &organization{}
-	// OrganizationRole ...
-	OrganizationRole OrganizationRoleer = &organizationRole{}
-	// Role ...
-	Role Roleer = &role{}
-	// UserRole ...
-	UserRole UserRoleer = &userRole{}
-	// OAuth2Scope ...
-	OAuth2Scope OAuth2Scoper = &oauth2Scope{}
+	OAuth2Client         OAuth2Clienter        = &oauth2Client{}
+	OAuth2ClientInfo     OAuth2ClientInfoer    = &oauth2ClientInfo{}
+	OAuth2ClientScope    OAuth2ClientScoper    = &oauth2ClientScope{}
+	OAuth2Scope          OAuth2Scoper          = &oauth2Scope{}
+	Resource             Resourcer             = &resource{}
+	ResourceWebRoute     ResourceWebRouter     = &resourceWebRoute{}
+	Admin                Adminer               = &admin{}
+	User                 Userer                = &user{}
+	UserInfo             UserInfoer            = &userInfo{}
+	Organization         Organizationer        = &organization{}
+	OrganizationRole     OrganizationRoleer    = &organizationRole{}
+	Role                 Roleer                = &role{}
+	UserRole             UserRoleer            = &userRole{}
+	RoleResourceWebRoute RoleResourceWebRouter = &roleResourceWebRoute{}
 )

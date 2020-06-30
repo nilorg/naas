@@ -5,8 +5,6 @@ option go_package = "github.com/nilorg/naas/pkg/proto";
 
 import "google/api/annotations.proto";
 
-import "nilorg/protobuf/errors/business_error.proto";
-
 // Permission 许可
 service Permission {
     // VerificationToken 验证Token
@@ -25,20 +23,19 @@ service Permission {
     }
 }
 
-message OAuth2Client {
-    // 客户端ID
+message Resource {
     string id = 1;
     string secret = 2;
 }
 
 // VerificationHttpRouterRequest 验证HTTP路由权限请求参数
 message VerificationHttpRouterRequest {
-    // 客户端
-    OAuth2Client client = 1;
+    // 资源
+    Resource resource = 1;
     // token
     string token = 2;
     // 路由
-    string router = 3;
+    string path = 3;
     // 请求方法
     string method = 4;
     // 是否返回用户信息,token验证通过的情况下
@@ -55,19 +52,18 @@ message VerificationHttpRouterResponse {
         string avatar_url = 4;
         uint32 gender = 5;
     }
-    nilorg.protobuf.errors.BusinessError err = 1;
     // 是否允许
-    bool allow = 2;
+    bool allow = 1;
     // 用户信息
-    UserInfo user_info = 3;
+    UserInfo user_info = 2;
 }
 
 
 
 // VerificationTokenRequest 验证Token请求参数
 message VerificationTokenRequest {
-    // 客户端
-    OAuth2Client client = 1;
+    // 资源
+    Resource resource = 1;
     // token
     string token = 2;
     // 是否返回用户信息,token验证通过的情况下
@@ -84,9 +80,8 @@ message VerificationTokenResponse {
         string avatar_url = 4;
         uint32 gender = 5;
     }
-    nilorg.protobuf.errors.BusinessError err = 1;
     // 是否允许
-    bool allow = 2;
+    bool allow = 1;
     // 用户信息
-    UserInfo user_info = 3;
+    UserInfo user_info = 2;
 }

@@ -51,6 +51,7 @@ import (
 // @scope.profile 用户资料
 // @scope.email 用户emial
 // @scope.phone 用户手机号
+
 // RunHTTP ...
 func RunHTTP() {
 	store, err := redis.NewStore(10, "tcp", viper.GetString("session.redis.address"), viper.GetString("session.redis.password"), []byte(viper.GetString("session.secret")))

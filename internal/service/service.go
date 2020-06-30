@@ -9,4 +9,8 @@ var (
 	OAuth2 = &oauth2{}
 	// Role service
 	Role = &role{}
+	// Casbin service
+	Casbin = &casbinService{}
+	// Resource service
+	Resource = &resource{}
 )

@@ -36,8 +36,8 @@ func Init() {
 	Enforcer.LoadPolicy()
 	Enforcer.StartAutoLoadPolicy(time.Minute)
 
-	// Enforcer.AddFunction("MyDomKeyMatch2", MyDomKeyMatch2Func)
-	// Enforcer.AddFunction("MyRegexMatch", MyRegexMatchFunc)
+	Enforcer.AddFunction("MyDomKeyMatch2", MyDomKeyMatch2Func)
+	Enforcer.AddFunction("MyRegexMatch", MyRegexMatchFunc)
 
 	// aaa, ww := Enforcer.Enforce("eve", "tenant1", "/alice_data/111", "POST")
 	// logger.Debugln(aaa, ww)
@@ -83,7 +83,7 @@ func MyDomKeyMatch2Func(args ...interface{}) (interface{}, error) {
 	name2 := args[1].(string)
 	dom1 := args[2].(string)
 	dom2 := args[3].(string)
-	return dom1 == dom2 && (bool)(util.KeyMatch2(name1, name2)), nil
+	return dom1 == dom2 && util.KeyMatch2(name1, name2), nil
 }
 
 // MyRegexMatchFunc 定义域RegexMatch
@@ -95,5 +95,5 @@ func MyRegexMatchFunc(args ...interface{}) (interface{}, error) {
 	name2 := args[1].(string)
 	dom1 := args[2].(string)
 	dom2 := args[3].(string)
-	return dom1 == dom2 && (bool)(util.RegexMatch(name1, name2)), nil
+	return dom1 == dom2 && util.RegexMatch(name1, name2), nil
 }

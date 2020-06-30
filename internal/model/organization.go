@@ -5,6 +5,7 @@ type Organization struct {
 	Model
 	Name        string `json:"name" gorm:"column:name"`
 	Description string `json:"description" gorm:"column:description"`
+	Code        string `json:"code" gorm:"column:code"`
 }
 
 // OrganizationRole 组织权限
