@@ -49,35 +49,24 @@ func (ctl *PermissionService) checkReSource(resource *proto.Resource) (err error
 		return
 	}
 	if convert.ToString(rs.ID) != resource.Id || rs.Secret != resource.Secret {
-		err = status.Error(codes.Unavailable, oauth2.ErrUnauthorizedClient.Error())
+		err = status.Error(codes.Unavailable, "resource id or secret is not correct")
 	}
 	return
 }
 
-// VerificationHttpRouter 验证Http路由
-func (ctl *PermissionService) VerificationHttpRouter(ctx context.Context, req *proto.VerificationHttpRouterRequest) (res *proto.VerificationHttpRouterResponse, err error) {
-	var resToken *proto.VerificationTokenResponse
-	resToken, err = ctl.VerificationToken(ctx, &proto.VerificationTokenRequest{
-		Resource:       req.Resource,
-		Token:          req.Token,
-		ReturnUserInfo: false,
-	})
+// VerifyHttpRoute 验证Http路由
+func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.VerifyHttpRouteRequest) (res *proto.VerifyHttpRouteResponse, err error) {
+	err = ctl.checkReSource(req.Resource)
 	if err != nil {
 		return
 	}
-	res = new(proto.VerificationHttpRouterResponse)
-	if !resToken.Allow {
-		res.Allow = false
+	var openID string
+	openID, err = ctl.verifyToken(req.Token, req.Oauth2ClientId)
+	if err != nil {
+		return
 	}
-	res.UserInfo = &proto.VerificationHttpRouterResponse_UserInfo{
-		OpenId:    res.UserInfo.OpenId,
-		Username:  res.UserInfo.Username,
-		NickName:  res.UserInfo.NickName,
-		AvatarUrl: res.UserInfo.AvatarUrl,
-		Gender:    res.UserInfo.Gender,
-	}
-
-	roles, _ := service.Role.GetAllRoleByUserID(convert.ToUint64(res.UserInfo.OpenId))
+	res = new(proto.VerifyHttpRouteResponse)
+	roles, _ := service.Role.GetAllRoleByUserID(convert.ToUint64(openID))
 	for _, role := range roles {
 		sub := fmt.Sprintf("role:%s", role.RoleCode)                 // 希望访问资源的用户
 		dom := fmt.Sprintf("resource:%s:web_route", req.Resource.Id) // 域/域租户,这里以资源为单位
@@ -87,42 +76,73 @@ func (ctl *PermissionService) VerificationHttpRouter(ctx context.Context, req *p
 			res.Allow = true
 		}
 	}
+	// 返回用户信息
+	if res.Allow && req.ReturnUserInfo {
+		user, userErr := service.User.GetOneByID(openID)
+		if userErr != nil {
+			err = status.Error(codes.Unavailable, userErr.Error())
+			return
+		}
+		res.UserInfo = &proto.VerifyHttpRouteResponse_UserInfo{
+			OpenId:   convert.ToString(user.ID),
+			Username: user.Username,
+		}
+		userInfo, userInfoErr := service.User.GetInfoOneByUserID(convert.ToUint64(res.UserInfo.OpenId))
+		if userInfoErr == nil && userInfo != nil {
+			res.UserInfo.NickName = userInfo.Nickname
+			res.UserInfo.AvatarUrl = userInfo.Picture
+			res.UserInfo.Gender = uint32(userInfo.Gender)
+		}
+	}
 	return
 }
 
-// VerificationToken 验证Token
-func (ctl *PermissionService) VerificationToken(_ context.Context, req *proto.VerificationTokenRequest) (res *proto.VerificationTokenResponse, err error) {
-	res = new(proto.VerificationTokenResponse)
-	if req.GetToken() == "" {
+// verifyToken 验证Token
+func (ctl *PermissionService) verifyToken(token, oauth2ClientID string) (openID string, err error) {
+	if token == "" {
 		err = status.Error(codes.InvalidArgument, "request token is empty")
 		return
 	}
-	err = ctl.checkReSource(req.Resource)
-	if err != nil {
+	if oauth2ClientID == "" {
+		err = status.Error(codes.InvalidArgument, "request oauth2_client_id is empty")
 		return
 	}
 	var (
 		claims    *oauth2.JwtClaims
 		claimsErr error
 	)
-	claims, claimsErr = oauth2.ParseJwtClaimsToken(req.GetToken(), []byte(viper.GetString("jwt.secret")))
+	claims, claimsErr = oauth2.ParseJwtClaimsToken(token, []byte(viper.GetString("jwt.secret")))
 	if claimsErr != nil {
 		err = status.Error(codes.Internal, fmt.Sprintf("token is denied error: %s", claimsErr))
 		return
 	}
-	if claims.VerifyAudience([]string{req.Resource.Id}, false) {
-		err = status.Error(codes.PermissionDenied, fmt.Sprintf("token claims audience not equal to %s", req.Resource.Id))
+	if claims.VerifyAudience([]string{oauth2ClientID}, false) {
+		err = status.Error(codes.PermissionDenied, fmt.Sprintf("token claims audience not equal to %s", oauth2ClientID))
 		return
 	}
-	openID := claims.Subject
+	openID = claims.Subject
+	return
+}
 
-	if req.GetReturnUserInfo() {
+// VerificationToken 验证Token
+func (ctl *PermissionService) VerifyToken(_ context.Context, req *proto.VerifyTokenRequest) (res *proto.VerifyTokenResponse, err error) {
+	err = ctl.checkReSource(req.Resource)
+	if err != nil {
+		return
+	}
+	var openID string
+	openID, err = ctl.verifyToken(req.Token, req.Oauth2ClientId)
+	if err != nil {
+		return
+	}
+	res = new(proto.VerifyTokenResponse)
+	if req.ReturnUserInfo {
 		user, userErr := service.User.GetOneByID(openID)
 		if userErr != nil {
 			err = status.Error(codes.Unavailable, userErr.Error())
 			return
 		}
-		res.UserInfo = &proto.VerificationTokenResponse_UserInfo{
+		res.UserInfo = &proto.VerifyTokenResponse_UserInfo{
 			OpenId:   convert.ToString(user.ID),
 			Username: user.Username,
 		}

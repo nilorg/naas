@@ -7,15 +7,15 @@ import "google/api/annotations.proto";
 
 // Permission 许可
 service Permission {
-    // VerificationToken 验证Token
-    rpc VerificationToken(VerificationTokenRequest) returns (VerificationTokenResponse){
+    // VerifyToken 验证Token
+    rpc VerifyToken (VerifyTokenRequest) returns (VerifyTokenResponse) {
         option (google.api.http) = {
             post: "/permission/verification_token",
             body: "*"
         };
     }
-    // VerificationHttpRouter 验证Http路由权限
-    rpc VerificationHttpRouter(VerificationHttpRouterRequest) returns (VerificationHttpRouterResponse){
+    // VerifyHttpRoute 验证Http路由权限
+    rpc VerifyHttpRoute (VerifyHttpRouteRequest) returns (VerifyHttpRouteResponse) {
         option (google.api.http) = {
             post: "/permission/verification_http_router",
             body: "*"
@@ -28,22 +28,24 @@ message Resource {
     string secret = 2;
 }
 
-// VerificationHttpRouterRequest 验证HTTP路由权限请求参数
-message VerificationHttpRouterRequest {
+// VerifyHttpRouteRequest 验证HTTP路由权限请求参数
+message VerifyHttpRouteRequest {
+    // oauth2 client id
+    string oauth2_client_id = 1;
     // 资源
-    Resource resource = 1;
+    Resource resource = 2;
     // token
-    string token = 2;
+    string token = 3;
     // 路由
-    string path = 3;
+    string path = 4;
     // 请求方法
-    string method = 4;
+    string method = 5;
     // 是否返回用户信息,token验证通过的情况下
-    bool return_user_info = 5;
+    bool return_user_info = 6;
 }
 
 // VerificationHttpRouterResponse 验证HTTP路由权限响应参数
-message VerificationHttpRouterResponse {
+message VerifyHttpRouteResponse {
     // 用户信息
     message UserInfo {
         string open_id = 1;
@@ -61,17 +63,19 @@ message VerificationHttpRouterResponse {
 
 
 // VerificationTokenRequest 验证Token请求参数
-message VerificationTokenRequest {
+message VerifyTokenRequest {
+    // oauth2 client id
+    string oauth2_client_id = 1;
     // 资源
-    Resource resource = 1;
+    Resource resource = 2;
     // token
-    string token = 2;
+    string token = 3;
     // 是否返回用户信息,token验证通过的情况下
-    bool return_user_info = 3;
+    bool return_user_info = 4;
 }
 
 // VerificationTokenResponse 验证Token响应参数
-message VerificationTokenResponse {
+message VerifyTokenResponse {
     // 用户信息
     message UserInfo {
         string open_id = 1;
