@@ -37,7 +37,7 @@ func init() {
 }
 
 func main() {
-	// server.RunGRpc()
-	// server.RunGRpcGateway()
+	server.RunGRpc()
+	server.RunGRpcGateway()
 	server.RunHTTP()
 }

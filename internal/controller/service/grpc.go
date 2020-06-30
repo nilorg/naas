@@ -14,9 +14,6 @@ func RegisterGrpcGateway(mux *runtime.ServeMux) (err error) {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	if err = proto.RegisterAccountHandlerServer(ctx, mux, new(AccountService)); err != nil {
-		return
-	}
 	if err = proto.RegisterPermissionHandlerServer(ctx, mux, new(PermissionService)); err != nil {
 		return
 	}
@@ -25,6 +22,5 @@ func RegisterGrpcGateway(mux *runtime.ServeMux) (err error) {
 
 // RegisterGrpc 注册Grpc
 func RegisterGrpc(server *grpc.Server) {
-	proto.RegisterAccountServer(server, new(AccountService))
 	proto.RegisterPermissionServer(server, new(PermissionService))
 }
