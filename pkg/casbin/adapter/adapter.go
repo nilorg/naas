@@ -13,7 +13,7 @@ import (
 )
 
 // Adapter is the file adapter for Casbin.
-// It can load policy from file or save policy to file.
+// It can load policy from naas grpc.
 type Adapter struct {
 	ctx            context.Context
 	client         proto.CasbinAdapterClient
