@@ -3,11 +3,13 @@ package casbin
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/util"
 	gormadapter "github.com/casbin/gorm-adapter/v2"
+	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/spf13/viper"
 )
@@ -96,4 +98,13 @@ func MyRegexMatchFunc(args ...interface{}) (interface{}, error) {
 	dom1 := args[2].(string)
 	dom2 := args[3].(string)
 	return dom1 == dom2 && util.RegexMatch(name1, name2), nil
+}
+
+// EnforceWebRoute 验证web路由
+func EnforceWebRoute(role *model.UserRole, resourceID string, req *http.Request, enforcer casbin.IEnforcer) (bool, error) {
+	sub := fmt.Sprintf("role:%s", role.RoleCode)            // 希望访问资源的用户
+	dom := fmt.Sprintf("resource:%s:web_route", resourceID) // 域/域租户,这里以资源为单位
+	obj := req.URL.Path                                     // 要访问的资源
+	act := req.Method                                       // 用户对资源执行的操作
+	return enforcer.Enforce(sub, dom, obj, act)
 }

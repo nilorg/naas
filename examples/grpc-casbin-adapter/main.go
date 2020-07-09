@@ -11,6 +11,8 @@ import (
 	"github.com/casbin/casbin/v2/util"
 	naasAdapter "github.com/nilorg/naas/pkg/casbin/adapter"
 	"github.com/nilorg/ngrpc"
+	"github.com/nilorg/pkg/logger"
+	"github.com/nilorg/sdk/signal"
 )
 
 var (
@@ -18,14 +20,15 @@ var (
 	Enforcer *casbin.SyncedEnforcer
 )
 
-// Init 初始化casbin
-// https://github.com/casbin/gorm-adapter
+func init() {
+	logger.Init()
+}
 func main() {
 	ctx := context.Background()
 	var (
 		err error
 	)
-	grpcClient := ngrpc.NewClient("naas:9000")
+	grpcClient := ngrpc.NewClient("localhost:9000")
 	adapter := naasAdapter.NewAdapter(ctx, grpcClient.GetConn())
 	adapter.ResourceID = "1"
 	adapter.ResourceSecret = "test"
@@ -33,15 +36,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// Load the policy from DB.
+	// Load the policy from naas.
 	Enforcer.LoadPolicy()
 	Enforcer.StartAutoLoadPolicy(time.Minute)
 
 	Enforcer.AddFunction("MyDomKeyMatch2", MyDomKeyMatch2Func)
 	Enforcer.AddFunction("MyRegexMatch", MyRegexMatchFunc)
 	// 验证
-	aaa, ww := Enforcer.Enforce("role:1", "resource:1:web_route", "/alice_data/111", "POST")
+	aaa, ww := Enforcer.Enforce("role:root", "resource:1:web_route", "/alice_data/111", "POST")
 	log.Println(aaa, ww)
+	signal.AwaitExit()
 }
 
 // validate the variadic parameter size and type as string

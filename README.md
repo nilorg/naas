@@ -23,6 +23,7 @@ Authentication authorization server（认证授权服务器）
 4. ♻️ [Casbin](https://github.com/casbin/casbin)
    * ♻️ [RBAC](https://casbin.org/docs/zh-CN/rbac-api)
    * ♻️ [多租户](https://casbin.org/docs/zh-CN/rbac-with-domains)
+   * ✅ [自定义naas-casbin-adapter](./pkg/casbin/adapter/adapter.go)
 5. ♻️ [NAAS后台管理系统](https://github.com/nilorg/naas-web)
    * ✅ 集成OAuth2认证
    * ✅ 用户管理

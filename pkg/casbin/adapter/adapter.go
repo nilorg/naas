@@ -16,7 +16,6 @@ import (
 // Adapter is the file adapter for Casbin.
 // It can load policy from file or save policy to file.
 type Adapter struct {
-	filePath       string
 	ctx            context.Context
 	client         proto.CasbinAdapterClient
 	ResourceID     string
@@ -52,10 +51,6 @@ func loadPolicyLine(line string, model model.Model) {
 
 // LoadPolicy loads all policy rules from the storage.
 func (a *Adapter) LoadPolicy(model model.Model) error {
-	if a.filePath == "" {
-		return errors.New("invalid file path, file path cannot be empty")
-	}
-
 	return a.loadPolicyGrpc(model, loadPolicyLine)
 }
 

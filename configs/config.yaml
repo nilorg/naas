@@ -123,3 +123,7 @@ storage:
     base_path: ./web/storage
   picture:
     public_path: https://accounts.dianfeng58.com/storage/picture
+
+naas:
+  resource:
+    id: 1
