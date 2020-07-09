@@ -112,8 +112,12 @@ func (o *oauth2) GetClientInfo(id uint64) (client *model.OAuth2ClientInfo, err e
 
 // ResultClientInfo ...
 type ResultClientInfo struct {
-	*model.OAuth2Client
-	*model.OAuth2ClientInfo
+	ClientID    uint64 `json:"client_id"`
+	Name        string `json:"name"`
+	Website     string `json:"website"`
+	Profile     string `json:"profile"`
+	Description string `json:"description"`
+	RedirectURI string `json:"redirect_uri"`
 }
 
 // ClientListPaged ...
@@ -130,11 +134,14 @@ func (o *oauth2) ClientListPaged(start, limit int) (result []*ResultClientInfo, 
 	}
 	for _, client := range clientList {
 		clientInfo, clientInfoErr := o.GetClientInfo(client.ClientID)
-		resultInfo := &ResultClientInfo{
-			OAuth2Client: client,
-		}
+		resultInfo := &ResultClientInfo{}
 		if clientInfoErr == nil {
-			resultInfo.OAuth2ClientInfo = clientInfo
+			resultInfo.ClientID = clientInfo.ClientID
+			resultInfo.Name = clientInfo.Name
+			resultInfo.Website = clientInfo.Website
+			resultInfo.Profile = clientInfo.Profile
+			resultInfo.Description = clientInfo.Description
+			resultInfo.RedirectURI = client.RedirectURI
 		}
 		result = append(result, resultInfo)
 	}
@@ -147,6 +154,7 @@ func (o *oauth2) GetClientAllScope(clientID uint64) (scopes []*model.OAuth2Clien
 	return
 }
 
+// OAuth2ClientScopeInfo ...
 type OAuth2ClientScopeInfo struct {
 	Code        string `json:"code"`
 	Name        string `json:"name"`

@@ -10,6 +10,15 @@ import (
 type oauth2 struct {
 }
 
+// GetScopes 查询所有scope
+// @Tags 		OAuth2
+// @Summary		scope
+// @Description	查询所有scope
+// @Accept  json
+// @Produce	json
+// @Success 200	{object}	Result{data=model.OAuth2Scope}
+// @Router /oauth2/scopes [GET]
+// @Security OAuth2AccessCode
 func (*oauth2) GetScopes(ctx *gin.Context) {
 	var (
 		scopes []*model.OAuth2Scope
@@ -23,6 +32,16 @@ func (*oauth2) GetScopes(ctx *gin.Context) {
 	writeData(ctx, scopes)
 }
 
+// GetClientScopes 查询客户端scope
+// @Tags 		OAuth2
+// @Summary		scope
+// @Description	查询客户端scope
+// @Accept  json
+// @Produce	json
+// @Param	client_id		query	string	true	"客户端ID"
+// @Success 200	{object}	Result{data=model.OAuth2ClientScope}
+// @Router /oauth2/clients/{client_id}/scopes [GET]
+// @Security OAuth2AccessCode
 func (*oauth2) GetClientScopes(ctx *gin.Context) {
 	var (
 		scopes []*model.OAuth2ClientScope
@@ -37,6 +56,16 @@ func (*oauth2) GetClientScopes(ctx *gin.Context) {
 	writeData(ctx, scopes)
 }
 
+// CreateClient 创建客户端
+// @Tags 		OAuth2
+// @Summary		client
+// @Description	创建客户端
+// @Accept  json
+// @Produce	json
+// @Param 	body	body	service.OAuth2ClientEditModel	true	"body"
+// @Success 200	{object}	Result
+// @Router /oauth2/clients [POST]
+// @Security OAuth2AccessCode
 func (*oauth2) CreateClient(ctx *gin.Context) {
 	var (
 		create service.OAuth2ClientEditModel
@@ -55,6 +84,17 @@ func (*oauth2) CreateClient(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// UpdateClient 修改一个客户端
+// @Tags 		OAuth2
+// @Summary		client
+// @Description	根据客户端ID,修改客户端信息
+// @Accept  json
+// @Produce	json
+// @Param 	client_id	path	string	true	"client id"
+// @Param 	body	body	service.OAuth2ClientEditModel	true	"客户端信息"
+// @Success 200	{object}	Result
+// @Router /oauth2/clients/{client_id} [PUT]
+// @Security OAuth2AccessCode
 func (*oauth2) UpdateClient(ctx *gin.Context) {
 	var (
 		update service.OAuth2ClientEditModel
@@ -74,6 +114,17 @@ func (*oauth2) UpdateClient(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// ClientListByPaged 查询客户端翻页
+// @Tags 		OAuth2
+// @Summary		client
+// @Description	查询客户端翻页
+// @Accept  json
+// @Produce	json
+// @Param	current		query	int	true	"当前页"
+// @Param	pageSize	query	int	true	"页大小"
+// @Success 200	{object}	Result{data=model.TableListData{list=service.ResultClientInfo}}
+// @Router /oauth2/clients [GET]
+// @Security OAuth2AccessCode
 func (*oauth2) ClientListByPaged(ctx *gin.Context) {
 	var (
 		result []*service.ResultClientInfo

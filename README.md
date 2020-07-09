@@ -265,6 +265,8 @@ telepresence --namespace nilorg --swap-deployment naas --expose 8080 \
 # 创建新的
 telepresence --namespace nilorg --new-deployment naas --expose 8080 \
 --run go run cmd/main.go --port=8080
+
+swag init -g internal/server/server.go
 ```
 一个域对应多个角色
 一个用户对应多个域

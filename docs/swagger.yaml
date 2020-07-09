@@ -26,6 +26,39 @@ definitions:
         example: test
         type: string
     type: object
+  model.OAuth2ClientScope:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      oauth2_client_id:
+        type: integer
+      scope_code:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.OAuth2Scope:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      type:
+        description: basic,
+        type: string
+      updated_at:
+        type: string
+    type: object
   model.Pagination:
     properties:
       current:
@@ -55,10 +88,6 @@ definitions:
         type: string
       updated_at:
         type: string
-      web_functions:
-        items:
-          $ref: '#/definitions/model.WebFunction'
-        type: array
     type: object
   model.TableListData:
     properties:
@@ -68,48 +97,32 @@ definitions:
         $ref: '#/definitions/model.Pagination'
         type: object
     type: object
-  model.WebComponent:
+  service.OAuth2ClientEditModel:
     properties:
-      created_at:
-        type: string
-      deleted_at:
-        type: string
       description:
         type: string
-      extension:
-        type: string
-      id:
-        type: integer
       name:
         type: string
-      type:
+      profile:
         type: string
-      type_value:
+      redirect_uri:
         type: string
-      updated_at:
+      website:
         type: string
     type: object
-  model.WebFunction:
+  service.ResultClientInfo:
     properties:
-      components:
-        items:
-          $ref: '#/definitions/model.WebComponent'
-        type: array
-      created_at:
-        type: string
-      deleted_at:
-        type: string
+      client_id:
+        type: integer
       description:
         type: string
-      extension:
-        type: string
-      id:
-        type: integer
       name:
         type: string
-      type:
+      profile:
         type: string
-      updated_at:
+      redirect_uri:
+        type: string
+      website:
         type: string
     type: object
   service.UserUpdateModel:
@@ -163,6 +176,146 @@ paths:
       summary: 管理员登录
       tags:
       - 管理员（已弃用）
+  /oauth2/clients:
+    get:
+      consumes:
+      - application/json
+      description: 查询客户端翻页
+      parameters:
+      - description: 当前页
+        in: query
+        name: current
+        required: true
+        type: integer
+      - description: 页大小
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/model.TableListData'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/service.ResultClientInfo'
+                    type: object
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: client
+      tags:
+      - OAuth2
+    post:
+      consumes:
+      - application/json
+      description: 创建客户端
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.OAuth2ClientEditModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: client
+      tags:
+      - OAuth2
+  /oauth2/clients/{client_id}:
+    put:
+      consumes:
+      - application/json
+      description: 根据客户端ID,修改客户端信息
+      parameters:
+      - description: client id
+        in: path
+        name: client_id
+        required: true
+        type: string
+      - description: 客户端信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.OAuth2ClientEditModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: client
+      tags:
+      - OAuth2
+  /oauth2/clients/{client_id}/scopes:
+    get:
+      consumes:
+      - application/json
+      description: 查询客户端scope
+      parameters:
+      - description: 客户端ID
+        in: query
+        name: client_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.OAuth2ClientScope'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: scope
+      tags:
+      - OAuth2
+  /oauth2/scopes:
+    get:
+      consumes:
+      - application/json
+      description: 查询所有scope
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.OAuth2Scope'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: scope
+      tags:
+      - OAuth2
   /roles:
     get:
       consumes:

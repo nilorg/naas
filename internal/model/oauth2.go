@@ -23,7 +23,7 @@ func (c *OAuth2Client) GetClientID() string {
 
 // OAuth2ClientInfo ...
 type OAuth2ClientInfo struct {
-	ClientID    uint64 `gorm:"primary_key;column:client_id"`
+	ClientID    uint64 `json:"client_id" gorm:"primary_key;column:client_id"`
 	Name        string `json:"name" gorm:"column:name"`
 	Website     string `json:"website" gorm:"column:website"`
 	Profile     string `json:"profile" gorm:"column:profile"`
