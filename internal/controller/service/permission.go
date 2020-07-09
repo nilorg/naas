@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+
 	"github.com/nilorg/naas/internal/module/casbin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -22,7 +23,7 @@ import (
 type PermissionService struct {
 }
 
-func (ctl *PermissionService) checkReSource(resource *proto.Resource) (err error) {
+func checkReSource(resource *proto.Resource) (err error) {
 	if resource == nil {
 		err = status.Error(codes.InvalidArgument, "request resource is nil")
 		return
@@ -56,7 +57,7 @@ func (ctl *PermissionService) checkReSource(resource *proto.Resource) (err error
 
 // VerifyHttpRoute 验证Http路由
 func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.VerifyHttpRouteRequest) (res *proto.VerifyHttpRouteResponse, err error) {
-	err = ctl.checkReSource(req.Resource)
+	err = checkReSource(req.Resource)
 	if err != nil {
 		return
 	}
@@ -124,9 +125,9 @@ func (ctl *PermissionService) verifyToken(token, oauth2ClientID string) (openID 
 	return
 }
 
-// VerificationToken 验证Token
+// VerifyToken 验证Token
 func (ctl *PermissionService) VerifyToken(_ context.Context, req *proto.VerifyTokenRequest) (res *proto.VerifyTokenResponse, err error) {
-	err = ctl.checkReSource(req.Resource)
+	err = checkReSource(req.Resource)
 	if err != nil {
 		return
 	}

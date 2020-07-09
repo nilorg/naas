@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package nilorg.naas.pkg.proto;
+option go_package = "github.com/nilorg/naas/pkg/proto";
+
+import "google/api/annotations.proto";
+
+// CasbinAdapter casbin适配器
+service CasbinAdapter {
+    // LoadPolicy 加载策略
+    rpc LoadPolicy (LoadPolicyRequest) returns (LoadPolicyResponse) {
+        option (google.api.http) = {
+            get: "/casbin-adapter/load_policy",
+        };
+    }
+}
+
+// LoadPolicyRequest 加载策略请求
+message LoadPolicyRequest {
+    string resource_id = 1;
+    string resource_secret = 2;
+}
+
+// LoadPolicyResponse 加载策略响应
+message LoadPolicyResponse {
+    repeated string policys = 1;
+}

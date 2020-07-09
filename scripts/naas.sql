@@ -12,3 +12,6 @@ INSERT INTO `oauth2_client_scope` (`id`, `created_at`, `updated_at`, `oauth2_cli
 INSERT INTO `oauth2_client_scope` (`id`, `created_at`, `updated_at`, `oauth2_client_id`, `scope_code`) VALUES ('2', '2020-06-29 14:35:49', '2020-06-29 14:35:49', '1000', 'profile');
 INSERT INTO `oauth2_client_scope` (`id`, `created_at`, `updated_at`, `oauth2_client_id`, `scope_code`) VALUES ('3', '2020-06-29 14:35:49', '2020-06-29 14:35:49', '1000', 'email');
 INSERT INTO `oauth2_client_scope` (`id`, `created_at`, `updated_at`, `oauth2_client_id`, `scope_code`) VALUES ('4', '2020-06-29 14:35:49', '2020-06-29 14:35:49', '1000', 'phone');
+
+-- 创建casbin_rule索引
+CREATE INDEX `idx_casbin_rule_v1` `casbin_rule` (v1) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT
