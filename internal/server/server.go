@@ -15,6 +15,7 @@ import (
 	"github.com/nilorg/naas/internal/controller/oidc"
 	"github.com/nilorg/naas/internal/controller/service"
 	"github.com/nilorg/naas/internal/controller/wellknown"
+	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/global"
 	"github.com/nilorg/pkg/logger"
 	"google.golang.org/grpc"
@@ -25,6 +26,7 @@ import (
 	"github.com/nilorg/naas/internal/server/middleware"
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
+
 	//ginSwagger "github.com/swaggo/gin-swagger"
 	ginSwagger "github.com/nilorg/naas/internal/pkg/gin-swagger"
 )
@@ -133,7 +135,7 @@ func RunHTTP() {
 		}
 	}
 	if viper.GetBool("server.admin.enabled") {
-		apiGroup := r.Group("api/v1", middleware.AdminAuthRequired(global.JwtPublicKey), middleware.AdminAuthSuperUserRequired())
+		apiGroup := r.Group("api/v1", middleware.JWTAuthRequired(global.JwtPublicKey), middleware.CasbinAuthRequired(casbin.Enforcer))
 		{
 			apiGroup.GET("/users", api.User.ListByPaged)
 			apiGroup.GET("/users/:user_id", api.User.GetOne)

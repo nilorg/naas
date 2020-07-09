@@ -21,7 +21,17 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 		openID := convert.ToUint64(tokenClaims.Subject)
 
 		roles, _ := service.Role.GetAllRoleByUserID(openID)
+		if len(roles) > 0 {
+			ctx.Set("current_role", roles)
+		} else {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "permission denied",
+			})
+			return
+		}
+		allow := false
 		for _, role := range roles {
+			logger.Debugf("openid: %d, role code: %s", openID, role.RoleCode)
 			check, checkErr := naasCasbin.EnforceWebRoute(role, viper.GetString("naas.resource.id"), ctx.Request, enforcer)
 			if checkErr != nil {
 				logger.Errorf("casbin enforce web route:", checkErr)
@@ -30,16 +40,18 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 				})
 				return
 			}
-			if !check {
-				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-					"error": "permission denied",
-				})
-				return
+			if check {
+				allow = true
+				break
 			}
 		}
-		if len(roles) > 0 {
-			ctx.Set("current_role", roles)
+		if !allow {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "permission denied",
+			})
+			return
 		}
+
 		usr, userInfo, err := service.User.GetInfoOneByCache(openID)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{

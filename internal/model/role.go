@@ -11,6 +11,7 @@ type Role struct {
 
 // RoleResourceWebFunction ...
 type RoleResourceWebFunction struct {
+	Model
 	RoleCode              string `json:"role_code" gorm:"column:role_code"`
 	ResourceWebFunctionID uint64 `json:"resource_web_function_id" gorm:"column:resource_web_function_id"`
 }
@@ -24,6 +25,7 @@ type UserRole struct {
 
 // RoleResourceWebRoute 角色资源web路由
 type RoleResourceWebRoute struct {
+	Model
 	RoleCode           string `json:"role_code" gorm:"column:role_code"`
 	ResourceWebRouteID uint64 `json:"resource_web_route_id" gorm:"column:resource_web_route_id"`
 }

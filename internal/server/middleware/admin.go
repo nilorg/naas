@@ -50,8 +50,8 @@ func NewJwtMiddleware() (*jwt.GinJWTMiddleware, error) {
 	})
 }
 
-// AdminAuthRequired 身份验证
-func AdminAuthRequired(key interface{}) gin.HandlerFunc {
+// JWTAuthRequired 身份验证
+func JWTAuthRequired(key interface{}) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tok, ok := parseAuth(ctx.GetHeader("Authorization"))
 		if !ok {
