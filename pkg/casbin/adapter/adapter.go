@@ -9,7 +9,6 @@ import (
 
 	"github.com/casbin/casbin/v2/model"
 	"github.com/nilorg/naas/pkg/proto"
-	"github.com/nilorg/pkg/logger"
 	"google.golang.org/grpc"
 )
 
@@ -38,7 +37,6 @@ func loadPolicyLine(line string, model model.Model) {
 	if line == "" || strings.HasPrefix(line, "#") {
 		return
 	}
-	logger.Debugf("line: %s", line)
 	tokens := strings.Split(line, ",")
 	for i := 0; i < len(tokens); i++ {
 		tokens[i] = strings.TrimSpace(tokens[i])
