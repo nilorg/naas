@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/nilorg/naas/internal/service"
+	"log"
 	"os"
 	"runtime"
+
+	"github.com/nilorg/naas/internal/service"
 
 	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/nilorg/naas/internal/module"
@@ -15,7 +17,6 @@ import (
 func init() {
 	// 初始化线程数量
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	logger.Init()
 	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
 	configFilename := "configs/config.yaml"
 	if v := os.Getenv("NAAS_CONFIG"); v != "" {
@@ -24,10 +25,12 @@ func init() {
 	viper.SetConfigFile(configFilename)
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
-		logger.Fatalf("Fatal error config file: %s ", err)
+		log.Fatalf("Fatal error config file: %s\n", err)
 	}
 	viper.WatchConfig()
 
+	logger.Level = viper.GetString("log.level")
+	logger.Init()
 	module.Init()
 	oauth2.Init()
 
