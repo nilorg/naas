@@ -1,6 +1,7 @@
 package oauth2
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -87,7 +88,7 @@ func Init() {
 			RedirectURI: redirectURI,
 			Scope:       RemoveRepeat(scope),
 		}
-		err = store.RedisClient.Set(key.WrapOAuth2Code(code), value, time.Minute).Err()
+		err = store.RedisClient.Set(context.Background(), key.WrapOAuth2Code(code), value, time.Minute).Err()
 		if err != nil {
 			logger.Errorf("store.RedisClient.Set Error: %s", err)
 			err = oauth2.ErrServerError
@@ -97,14 +98,15 @@ func Init() {
 	oauth2Server.VerifyCode = func(code, clientID, redirectURI string) (value *oauth2.CodeValue, err error) {
 		value = &oauth2.CodeValue{}
 		redisKey := key.WrapOAuth2Code(code)
-		err = store.RedisClient.Get(redisKey).Scan(value)
+		ctx := context.Background()
+		err = store.RedisClient.Get(ctx, redisKey).Scan(value)
 		if err != nil {
 			logger.Errorf("store.RedisClient.Get Error: %s", err)
 			err = oauth2.ErrAccessDenied
 			return
 		}
 		// 删除Key
-		_ = store.RedisClient.Del(redisKey)
+		_ = store.RedisClient.Del(ctx, redisKey)
 		if value.ClientID != clientID || (strings.HasPrefix(redirectURI, value.RedirectURI) && redirectURI != value.RedirectURI) {
 			err = oauth2.ErrAccessDenied
 		}

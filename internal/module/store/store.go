@@ -4,7 +4,7 @@ import (
 	"context"
 	"path/filepath"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/pkg/logger"
@@ -38,8 +38,7 @@ func initRedis() {
 		Password: viper.GetString("redis.password"),
 		DB:       viper.GetInt("redis.db"),
 	})
-
-	pong, err := RedisClient.Ping().Result()
+	pong, err := RedisClient.Ping(context.Background()).Result()
 	if err != nil {
 		panic(err)
 	}

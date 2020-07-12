@@ -1,5 +1,10 @@
 package dao
 
+import (
+	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/pkg/cache"
+)
+
 var (
 	OAuth2Client         OAuth2Clienter        = &oauth2Client{}
 	OAuth2ClientInfo     OAuth2ClientInfoer    = &oauth2ClientInfo{}
@@ -13,6 +18,6 @@ var (
 	Organization         Organizationer        = &organization{}
 	OrganizationRole     OrganizationRoleer    = &organizationRole{}
 	Role                 Roleer                = &role{}
-	UserRole             UserRoleer            = &userRole{}
+	UserRole             UserRoleer            = &userRole{cache: cache.NewRedisCache(store.RedisClient, "naas_user_role:")}
 	RoleResourceWebRoute RoleResourceWebRouter = &roleResourceWebRoute{}
 )

@@ -17,3 +17,13 @@ type CodeModel struct {
 	UpdatedAt time.Time  `json:"updated_at" gorm:"column:updated_at"`
 	DeletedAt *time.Time `json:"deleted_at" sql:"index" gorm:"column:deleted_at"`
 }
+
+// CacheIDPrimaryKey ...
+type CacheIDPrimaryKey struct {
+	ID uint64 `json:"id"`
+}
+
+// CacheCodePrimaryKey ...
+type CacheCodePrimaryKey struct {
+	Code string `json:"code"`
+}
