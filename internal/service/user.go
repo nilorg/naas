@@ -143,9 +143,8 @@ func (u *user) GetOneByID(id string) (usr *model.User, err error) {
 }
 
 // GetOneCachedByID 根据ID获取用户
-// TODO: 后期需要添加缓存
 func (u *user) GetOneCachedByID(id uint64) (usr *model.User, err error) {
-	return dao.User.Select(store.NewDBContext(), id)
+	return dao.User.SelectFromCache(store.NewDBContext(), id)
 }
 
 // GetInfoOneByUserID 根据用户ID获取信息
