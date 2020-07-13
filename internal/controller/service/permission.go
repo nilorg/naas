@@ -67,7 +67,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 		return
 	}
 	res = new(proto.VerifyHttpRouteResponse)
-	roles, _ := service.Role.GetAllRoleByUserID(convert.ToUint64(openID))
+	roles, _ := service.Role.GetAllByUserIDFromCache(convert.ToUint64(openID))
 	for _, role := range roles {
 		sub := fmt.Sprintf("role:%s", role.RoleCode)                 // 希望访问资源的用户
 		dom := fmt.Sprintf("resource:%s:web_route", req.Resource.Id) // 域/域租户,这里以资源为单位

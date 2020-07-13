@@ -27,8 +27,12 @@ type userRole struct {
 	cache cache.Cacher
 }
 
-func (u *userRole) formatOneKey(id uint64) string {
+func (*userRole) formatOneKey(id uint64) string {
 	return fmt.Sprintf("id:%d", id)
+}
+
+func (*userRole) formatUserListKey(userID uint64) string {
+	return fmt.Sprintf("list:user:%d", userID)
 }
 
 func (u *userRole) Insert(ctx context.Context, m *model.UserRole) (err error) {
@@ -81,12 +85,11 @@ func (u *userRole) SelectFromCache(ctx context.Context, id uint64) (m *model.Use
 	if err != nil {
 		m = nil
 		if err == redis.Nil {
-			err = nil
 			m, err = u.Select(ctx, id)
 			if err != nil {
 				return
 			}
-			err = u.cache.Set(ctx, key, m, random.TimeDuration(60, 180))
+			err = u.cache.Set(ctx, key, m, random.TimeDuration(300, 600))
 		}
 	}
 	return
@@ -134,10 +137,20 @@ func (u *userRole) SelectAllByUserIDFromCache(ctx context.Context, userID uint64
 	if err != nil {
 		return
 	}
+	key := u.formatUserListKey(userID)
 	var items []*model.CacheIDPrimaryKey
-	err = gdb.Model(model.UserRole{}).Where("user_id = ?", userID).Find(&items).Error
+	err = u.cache.Get(ctx, key, &items)
 	if err != nil {
-		return
+		if err == redis.Nil {
+			if err = gdb.Model(model.UserRole{}).Where("user_id = ?", userID).Find(&items).Error; err != nil {
+				return
+			}
+			if err = u.cache.Set(ctx, key, items, random.TimeDuration(300, 600)); err != nil {
+				return
+			}
+		} else {
+			return
+		}
 	}
 	return u.scanCacheID(ctx, items)
 }

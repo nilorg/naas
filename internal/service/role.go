@@ -51,8 +51,8 @@ func (r *role) GetAllRoleByUserID(userID uint64) (roles []*model.UserRole, err e
 	return
 }
 
-// SelectAllByUserIDFromCache ...
-func (r *role) SelectAllByUserIDFromCache(userID uint64) (roles []*model.UserRole, err error) {
+// GetAllByUserIDFromCache ...
+func (r *role) GetAllByUserIDFromCache(userID uint64) (roles []*model.UserRole, err error) {
 	ctx := store.NewDBContext()
 	roles, err = dao.UserRole.SelectAllByUserIDFromCache(ctx, userID)
 	return

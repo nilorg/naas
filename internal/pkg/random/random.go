@@ -8,7 +8,7 @@ import (
 // TimeDuration 随机时间
 func TimeDuration(min, max int64) time.Duration {
 	n := randInt64(min, max)
-	return time.Duration(n) * time.Millisecond
+	return time.Duration(n) * time.Second
 }
 
 func randInt64(min, max int64) int64 {

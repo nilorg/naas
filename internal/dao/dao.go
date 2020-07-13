@@ -10,7 +10,7 @@ var (
 	OAuth2ClientInfo     OAuth2ClientInfoer    = &oauth2ClientInfo{}
 	OAuth2ClientScope    OAuth2ClientScoper    = &oauth2ClientScope{}
 	OAuth2Scope          OAuth2Scoper          = &oauth2Scope{}
-	Resource             Resourcer             = &resource{}
+	Resource             Resourcer             = &resource{cache: cache.NewRedisCache(store.RedisClient, "naas_resource:")}
 	ResourceWebRoute     ResourceWebRouter     = &resourceWebRoute{}
 	Admin                Adminer               = &admin{}
 	User                 Userer                = &user{}
