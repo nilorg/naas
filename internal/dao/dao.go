@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	OAuth2Client         OAuth2Clienter        = &oauth2Client{}
+	OAuth2Client         OAuth2Clienter        = &oauth2Client{cache: cache.NewRedisCache(store.RedisClient, "naas_oauth2_client:")}
 	OAuth2ClientInfo     OAuth2ClientInfoer    = &oauth2ClientInfo{}
 	OAuth2ClientScope    OAuth2ClientScoper    = &oauth2ClientScope{}
 	OAuth2Scope          OAuth2Scoper          = &oauth2Scope{}

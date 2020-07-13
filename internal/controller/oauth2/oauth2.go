@@ -45,7 +45,7 @@ func Init() {
 	)
 	oauth2Server.VerifyClient = func(basic *oauth2.ClientBasic) (err error) {
 		var client *model.OAuth2Client
-		client, err = service.OAuth2.GetClient(convert.ToUint64(basic.ID))
+		client, err = service.OAuth2.GetClientFromCache(convert.ToUint64(basic.ID))
 		if err != nil {
 			err = oauth2.ErrUnauthorizedClient
 			return
@@ -70,7 +70,7 @@ func Init() {
 	}
 	oauth2Server.VerifyRedirectURI = func(clientID, redirectURI string) (err error) {
 		var client *model.OAuth2Client
-		client, err = service.OAuth2.GetClient(convert.ToUint64(clientID))
+		client, err = service.OAuth2.GetClientFromCache(convert.ToUint64(clientID))
 		if err != nil {
 			err = oauth2.ErrAccessDenied
 			return

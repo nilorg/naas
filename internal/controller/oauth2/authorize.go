@@ -34,7 +34,7 @@ func AuthorizePage(ctx *gin.Context) {
 		client     *model.OAuth2Client
 		clientInfo *model.OAuth2ClientInfo
 	)
-	client, err = service.OAuth2.GetClient(convert.ToUint64(clientID))
+	client, err = service.OAuth2.GetClientFromCache(convert.ToUint64(clientID))
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {

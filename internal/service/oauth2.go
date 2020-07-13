@@ -104,6 +104,12 @@ func (o *oauth2) GetClient(id uint64) (client *model.OAuth2Client, err error) {
 	return
 }
 
+// GetClient get oauth2 client.
+func (o *oauth2) GetClientFromCache(id uint64) (client *model.OAuth2Client, err error) {
+	client, err = dao.OAuth2Client.SelectByIDFromCache(store.NewDBContext(), id)
+	return
+}
+
 // GetClient get oauth2 client info.
 func (o *oauth2) GetClientInfo(id uint64) (client *model.OAuth2ClientInfo, err error) {
 	client, err = dao.OAuth2ClientInfo.SelectByClientID(store.NewDBContext(), id)
