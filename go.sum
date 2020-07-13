@@ -381,6 +381,8 @@ github.com/nilorg/sdk v0.0.0-20200619071328-568bec6cd6d2 h1:aBfhBPFGDeeDDbQcCFso
 github.com/nilorg/sdk v0.0.0-20200619071328-568bec6cd6d2/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
 github.com/nilorg/sdk v0.0.0-20200712142122-57fb15a5c12e h1:ZUBhmiLfz7Sb8EPZmdQQFQB5knvZQ7n81wgICYf91jk=
 github.com/nilorg/sdk v0.0.0-20200712142122-57fb15a5c12e/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
+github.com/nilorg/sdk v0.0.0-20200713082824-84a259bcf4f5 h1:Tx3AmOJUywYW0uzNr+13e72etggEqTmdCrmhAC4mHBU=
+github.com/nilorg/sdk v0.0.0-20200713082824-84a259bcf4f5/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
 github.com/o1egl/govatar v0.3.0 h1:hGDsiJJs6qgQ6Ea4JiaukRsUKTY2Ai4dgMEdsYvlUa0=
 github.com/o1egl/govatar v0.3.0/go.mod h1:YeDGDII+2Ji1RcBKvb1KqaPhk4PmuZyBq+rPYc6b+cQ=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
