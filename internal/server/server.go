@@ -135,7 +135,7 @@ func RunHTTP() {
 		}
 	}
 	if viper.GetBool("server.admin.enabled") {
-		apiGroup := r.Group("api/v1", middleware.JWTAuthRequired(global.JwtPublicKey), middleware.CasbinAuthRequired(casbin.Enforcer))
+		apiGroup := r.Group("api/v1", middleware.JWTAuthRequired(global.JwtPublicKey, viper.GetString("server.admin.oauth2.client_id")), middleware.CasbinAuthRequired(casbin.Enforcer))
 		{
 			apiGroup.GET("/users", api.User.ListByPaged)
 			apiGroup.GET("/users/:user_id", api.User.GetOne)

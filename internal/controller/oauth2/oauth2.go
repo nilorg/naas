@@ -2,6 +2,7 @@ package oauth2
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -136,6 +137,18 @@ func Init() {
 	}
 	oauth2Server.VerifyIntrospectionToken = func(token, clientID string, tokenTypeHint ...string) (resp *oauth2.IntrospectionResponse, err error) {
 		logger.Debugf("oauth2Server.VerifyIntrospectionToken....")
+		key := tokenRevocationKey(token, clientID, tokenTypeHint...)
+		var exsit bool
+		exsit, err = store.RedisClient.HExists(context.Background(), key, token).Result()
+		if err != nil {
+			logger.Errorf("store.RedisClient.HExists: %s", err)
+			err = oauth2.ErrServerError
+			return
+		}
+		if exsit {
+			err = oauth2.ErrExpiredToken
+			return
+		}
 		var tokenClaims *oauth2.JwtClaims
 		tokenClaims, err = oauth2.ParseJwtClaimsToken(token, global.JwtPrivateKey.Public())
 		if err != nil {
@@ -168,7 +181,18 @@ func Init() {
 		return
 	}
 	oauth2Server.TokenRevocation = func(token, clientID string, tokenTypeHint ...string) {
-
+		key := tokenRevocationKey(token, clientID, tokenTypeHint...)
+		tokenClaims, err := oauth2.ParseJwtClaimsToken(token, global.JwtPrivateKey.Public())
+		if err != nil {
+			logger.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
+			return
+		}
+		exp := time.Unix(tokenClaims.ExpiresAt, 0)
+		err = store.RedisClient.HSet(context.Background(), key, token, time.Now().Sub(exp)).Err()
+		if err != nil {
+			logger.Errorf("store.RedisClient.Set: %s", err)
+			return
+		}
 	}
 	oauth2Server.GenerateAccessToken = token.NewGenerateAccessToken(global.JwtPrivateKey, viper.GetBool("server.oidc.enabled") && viper.GetBool("server.oidc.userinfo_endpoint_enabled"))
 	oauth2Server.RefreshAccessToken = token.NewRefreshAccessToken(global.JwtPrivateKey)
@@ -226,4 +250,11 @@ func RemoveRepeat(slc []string) (result []string) {
 		}
 	}
 	return result
+}
+
+func tokenRevocationKey(token, clientID string, tokenTypeHint ...string) string {
+	if len(tokenTypeHint) > 0 {
+		return fmt.Sprintf("oauth2_token_revocation:%s:%s", clientID, tokenTypeHint[0])
+	}
+	return fmt.Sprintf("oauth2_token_revocation:%s:access_token", clientID)
 }

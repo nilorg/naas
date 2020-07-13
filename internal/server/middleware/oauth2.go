@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"github.com/nilorg/naas/internal/model"
 	"net/http"
 	"net/url"
+
+	"github.com/nilorg/naas/internal/model"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/nilorg/naas/pkg/tools/key"

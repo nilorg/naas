@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nilorg/naas/internal/module/casbin"
+	"github.com/nilorg/naas/internal/module/store"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -114,9 +115,20 @@ func (ctl *PermissionService) verifyToken(token, oauth2ClientID string) (openID 
 		return
 	}
 	var (
+		exsit     bool
 		claims    *oauth2.JwtClaims
 		claimsErr error
 	)
+	rdsKey := fmt.Sprintf("oauth2_token_revocation:%s:access_token", oauth2ClientID)
+	exsit, err = store.RedisClient.HExists(context.Background(), rdsKey, token).Result()
+	if err != nil {
+		err = status.Error(codes.Internal, fmt.Sprintf("check token revocation error: %s", err))
+		return
+	}
+	if exsit {
+		err = status.Error(codes.PermissionDenied, "token revocation")
+		return
+	}
 	claims, claimsErr = oauth2.ParseJwtClaimsToken(token, []byte(viper.GetString("jwt.secret")))
 	if claimsErr != nil {
 		err = status.Error(codes.Internal, fmt.Sprintf("token is denied error: %s", claimsErr))
