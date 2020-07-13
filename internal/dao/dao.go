@@ -25,7 +25,7 @@ var (
 // Init 初始化...
 func Init() {
 	OAuth2Client = &oauth2Client{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_client:")}
-	OAuth2ClientInfo = &oauth2ClientInfo{}
+	OAuth2ClientInfo = &oauth2ClientInfo{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_client_info:")}
 	OAuth2ClientScope = &oauth2ClientScope{}
 	OAuth2Scope = &oauth2Scope{}
 	ResourceWebRoute = &resourceWebRoute{}

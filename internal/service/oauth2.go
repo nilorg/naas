@@ -116,6 +116,12 @@ func (o *oauth2) GetClientInfo(id uint64) (client *model.OAuth2ClientInfo, err e
 	return
 }
 
+// GetClientInfoFromCache get oauth2 client info.
+func (o *oauth2) GetClientInfoFromCache(id uint64) (client *model.OAuth2ClientInfo, err error) {
+	client, err = dao.OAuth2ClientInfo.SelectByClientIDFromCache(store.NewDBContext(), id)
+	return
+}
+
 // ResultClientInfo ...
 type ResultClientInfo struct {
 	ClientID    uint64 `json:"client_id"`
@@ -139,7 +145,7 @@ func (o *oauth2) ClientListPaged(start, limit int) (result []*ResultClientInfo, 
 		return
 	}
 	for _, client := range clientList {
-		clientInfo, clientInfoErr := o.GetClientInfo(client.ClientID)
+		clientInfo, clientInfoErr := o.GetClientInfoFromCache(client.ClientID)
 		resultInfo := &ResultClientInfo{}
 		if clientInfoErr == nil {
 			resultInfo.ClientID = clientInfo.ClientID
