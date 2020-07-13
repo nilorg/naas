@@ -154,19 +154,17 @@ func (u *user) GetInfoOneByUserID(userID uint64) (usr *model.UserInfo, err error
 }
 
 // GetInfoOneCachedByUserID 根据用户ID获取信息
-// TODO: 后期需要添加缓存
 func (u *user) GetInfoOneCachedByUserID(userID uint64) (usr *model.UserInfo, err error) {
-	return dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
+	return dao.UserInfo.SelectByUserIDFromCache(store.NewDBContext(), userID)
 }
 
 // GetInfoOneByCache 根据用户ID获取信息
-// TODO: 后期需要添加缓存
 func (u *user) GetInfoOneByCache(userID uint64) (usr *model.User, usrInfo *model.UserInfo, err error) {
-	usr, err = dao.User.Select(store.NewDBContext(), userID)
+	usr, err = dao.User.SelectFromCache(store.NewDBContext(), userID)
 	if err != nil {
 		return
 	}
-	usrInfo, err = dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
+	usrInfo, err = dao.UserInfo.SelectByUserIDFromCache(store.NewDBContext(), userID)
 	return
 }
 

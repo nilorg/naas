@@ -30,8 +30,8 @@ func Init() {
 	OAuth2Scope = &oauth2Scope{}
 	ResourceWebRoute = &resourceWebRoute{}
 	Admin = &admin{}
-	User = &user{}
-	UserInfo = &userInfo{}
+	User = &user{cache: cache.NewRedisCache(store.RedisClient, "naas:user:")}
+	UserInfo = &userInfo{cache: cache.NewRedisCache(store.RedisClient, "naas:user_info:")}
 	Organization = &organization{}
 	OrganizationRole = &organizationRole{}
 	Role = &role{}

@@ -2,10 +2,14 @@ package dao
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/sdk/cache"
 )
 
 // Userer ...
@@ -15,6 +19,7 @@ type Userer interface {
 	Delete(ctx context.Context, id uint64) (err error)
 	DeleteInIDs(ctx context.Context, ids []uint64) (err error)
 	Select(ctx context.Context, id uint64) (mu *model.User, err error)
+	SelectFromCache(ctx context.Context, id uint64) (mu *model.User, err error)
 	Update(ctx context.Context, mu *model.User) (err error)
 	ListPaged(ctx context.Context, start, limit int) (user []*model.User, total uint64, err error)
 	ExistByUsername(ctx context.Context, username string) (exist bool, err error)
@@ -22,6 +27,18 @@ type Userer interface {
 }
 
 type user struct {
+	cache cache.Cacher
+}
+
+func (*user) formatOneKey(id uint64) string {
+	return fmt.Sprintf("id:%d", id)
+}
+
+func (u *user) formatOneKeys(ids ...uint64) (keys []string) {
+	for _, id := range ids {
+		keys = append(keys, u.formatOneKey(id))
+	}
+	return
 }
 
 func (*user) SelectByUsername(ctx context.Context, username string) (mu *model.User, err error) {
@@ -49,23 +66,31 @@ func (*user) Insert(ctx context.Context, mu *model.User) (err error) {
 	return
 }
 
-func (*user) Delete(ctx context.Context, id uint64) (err error) {
+func (u *user) Delete(ctx context.Context, id uint64) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
 		return
 	}
 	err = gdb.Delete(&model.User{}, id).Error
+	if err != nil {
+		return
+	}
+	err = u.cache.Remove(ctx, u.formatOneKey(id))
 	return
 }
 
-func (*user) DeleteInIDs(ctx context.Context, ids []uint64) (err error) {
+func (u *user) DeleteInIDs(ctx context.Context, ids []uint64) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
 		return
 	}
 	err = gdb.Where("id in (?)", ids).Delete(model.User{}).Error
+	if err != nil {
+		return
+	}
+	err = u.cache.Remove(ctx, u.formatOneKeys(ids...)...)
 	return
 }
 
@@ -81,6 +106,23 @@ func (*user) Select(ctx context.Context, id uint64) (mu *model.User, err error) 
 		return
 	}
 	mu = &dbResult
+	return
+}
+
+func (u *user) SelectFromCache(ctx context.Context, id uint64) (m *model.User, err error) {
+	m = new(model.User)
+	key := u.formatOneKey(id)
+	err = u.cache.Get(ctx, key, m)
+	if err != nil {
+		m = nil
+		if err == redis.Nil {
+			m, err = u.Select(ctx, id)
+			if err != nil {
+				return
+			}
+			err = u.cache.Set(ctx, key, m, random.TimeDuration(300, 600))
+		}
+	}
 	return
 }
 
