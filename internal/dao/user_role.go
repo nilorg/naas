@@ -142,7 +142,7 @@ func (u *userRole) SelectAllByUserIDFromCache(ctx context.Context, userID uint64
 	err = u.cache.Get(ctx, key, &items)
 	if err != nil {
 		if err == redis.Nil {
-			if err = gdb.Model(model.UserRole{}).Where("user_id = ?", userID).Find(&items).Error; err != nil {
+			if err = gdb.Model(model.UserRole{}).Where("user_id = ?", userID).Scan(&items).Error; err != nil {
 				return
 			}
 			if err = u.cache.Set(ctx, key, items, random.TimeDuration(300, 600)); err != nil {

@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/service"
 
 	"github.com/nilorg/naas/internal/controller/oauth2"
@@ -32,6 +33,7 @@ func init() {
 	logger.Level = viper.GetString("log.level")
 	logger.Init()
 	module.Init()
+	dao.Init()
 	oauth2.Init()
 
 	if viper.GetBool("casbin.init.enabled") {
