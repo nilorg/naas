@@ -144,6 +144,9 @@ func RunHTTP() {
 			apiGroup.DELETE("/users/:user_id", api.User.Delete)
 
 			apiGroup.GET("/roles", api.Role.QueryChildren())
+			apiGroup.POST("/roles/:role_code/resource_web_route/:resource_web_route_id", api.Role.AddResourceWebRoute)
+
+			apiGroup.POST("/resources/:resource_id/web_routes", api.Resource.AddWebRoute)
 
 			apiGroup.GET("/oauth2/scopes", api.OAuth2.GetScopes)
 			apiGroup.GET("/oauth2/clients", api.OAuth2.ClientListByPaged)

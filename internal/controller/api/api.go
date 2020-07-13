@@ -1,10 +1,11 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	sdkErrors "github.com/nilorg/sdk/errors"
 	grpcStatus "google.golang.org/grpc/status"
-	"net/http"
 )
 
 var (
@@ -16,6 +17,8 @@ var (
 	OAuth2 = &oauth2{}
 	// Role ...
 	Role = &role{}
+	// Resource ...
+	Resource = &resource{}
 )
 
 // Result example...

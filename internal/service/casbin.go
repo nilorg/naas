@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/casbin"
@@ -35,10 +36,7 @@ func (*casbinService) initRoleResourceWebRoute() {
 			logger.Errorf("dao.ResourceWebRoute.Select: %s", err)
 			return
 		}
-		sub := fmt.Sprintf("role:%s", roleResourceWebRoute.RoleCode)             // 希望访问资源的用户
-		dom := fmt.Sprintf("resource:%d:web_route", resourceWebRoute.ResourceID) // 域/域租户,这里以资源为单位
-		obj := resourceWebRoute.Path                                             // 要访问的资源
-		act := resourceWebRoute.Method                                           // 用户对资源执行的操作
+		sub, dom, obj, act := formatPolicy(roleResourceWebRoute.RoleCode, resourceWebRoute)
 		flag, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
 		if err != nil {
 			logger.Errorf("casbin.Enforcer.AddPolicy: %s", err)
@@ -50,4 +48,12 @@ func (*casbinService) initRoleResourceWebRoute() {
 	if err != nil {
 		logger.Errorf("casbin.Enforcer.SavePolicy: %s", err)
 	}
+}
+
+func formatPolicy(roleCode string, roleResourceWebRoute *model.ResourceWebRoute) (sub, dom, obj, act string) {
+	sub = fmt.Sprintf("role:%s", roleCode)                                      // 希望访问资源的用户
+	dom = fmt.Sprintf("resource:%d:web_route", roleResourceWebRoute.ResourceID) // 域/域租户,这里以资源为单位
+	obj = roleResourceWebRoute.Path                                             // 要访问的资源
+	act = roleResourceWebRoute.Method                                           // 用户对资源执行的操作
+	return
 }

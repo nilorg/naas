@@ -110,6 +110,15 @@ definitions:
       website:
         type: string
     type: object
+  service.ResourceAddWebRouteRequest:
+    properties:
+      method:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+    type: object
   service.ResultClientInfo:
     properties:
       client_id:
@@ -316,6 +325,34 @@ paths:
       summary: scope
       tags:
       - OAuth2
+  /resources/{resource_id}/web_routes:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 资源ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceAddWebRouteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加web路由
+      tags:
+      - Resource（资源）
   /roles:
     get:
       consumes:
@@ -350,7 +387,40 @@ paths:
       - OAuth2AccessCode: []
       summary: 查询角色
       tags:
-      - 角色
+      - Role（角色）
+  /roles/{role_code}/resource_web_route/{resource_web_route_id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 角色Code
+        in: path
+        name: role_code
+        required: true
+        type: string
+      - description: 资源web路由ID
+        in: path
+        name: resource_web_route_id
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceAddWebRouteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加资源web路由
+      tags:
+      - Role（角色）
   /users:
     get:
       consumes:
@@ -383,7 +453,7 @@ paths:
       - OAuth2AccessCode: []
       summary: 查询用户
       tags:
-      - 用户
+      - User（用户）
     post:
       consumes:
       - application/json
@@ -406,7 +476,7 @@ paths:
       - OAuth2AccessCode: []
       summary: 创建用户
       tags:
-      - 用户
+      - User（用户）
   /users/{user_id}:
     delete:
       consumes:
@@ -429,7 +499,7 @@ paths:
       - OAuth2AccessCode: []
       summary: 删除一个用户
       tags:
-      - 用户
+      - User（用户）
     get:
       consumes:
       - application/json
@@ -451,7 +521,7 @@ paths:
       - OAuth2AccessCode: []
       summary: 获取一个用户
       tags:
-      - 用户
+      - User（用户）
     put:
       consumes:
       - application/json
@@ -479,7 +549,7 @@ paths:
       - OAuth2AccessCode: []
       summary: 修改一个用户
       tags:
-      - 用户
+      - User（用户）
 securityDefinitions:
   OAuth2AccessCode:
     authorizationUrl: http://localhost:8080/oauth2/authorize

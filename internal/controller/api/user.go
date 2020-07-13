@@ -18,7 +18,7 @@ type userCreateModel struct {
 }
 
 // Create 创建用户
-// @Tags 		用户
+// @Tags 		User（用户）
 // @Summary		创建用户
 // @Description	创建用户
 // @Accept  json
@@ -46,7 +46,7 @@ func (*user) Create(ctx *gin.Context) {
 }
 
 // GetOne 获取一个用户
-// @Tags 		用户
+// @Tags 		User（用户）
 // @Summary		获取一个用户
 // @Description	根据用户ID,获取一个用户
 // @Accept  json
@@ -70,7 +70,7 @@ func (*user) GetOne(ctx *gin.Context) {
 }
 
 // Delete 删除一个用户
-// @Tags 		用户
+// @Tags 		User（用户）
 // @Summary		删除一个用户
 // @Description	根据用户ID,删除一个用户
 // @Accept  json
@@ -97,7 +97,7 @@ func (*user) Delete(ctx *gin.Context) {
 }
 
 // Update 修改一个用户
-// @Tags 		用户
+// @Tags 		User（用户）
 // @Summary		修改一个用户
 // @Description	根据用户ID,修改一个用户
 // @Accept  json
@@ -127,7 +127,7 @@ func (*user) Update(ctx *gin.Context) {
 }
 
 // ListByPaged 查询用户
-// @Tags 		用户
+// @Tags 		User（用户）
 // @Summary		查询用户
 // @Description	查询用户翻页数据
 // @Accept  json

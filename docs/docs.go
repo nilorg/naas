@@ -318,6 +318,51 @@ var doc = `{
                 }
             }
         },
+        "/resources/{resource_id}/web_routes": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource（资源）"
+                ],
+                "summary": "添加web路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "资源ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceAddWebRouteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
         "/roles": {
             "get": {
                 "security": [
@@ -333,7 +378,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "角色"
+                    "Role（角色）"
                 ],
                 "summary": "查询角色",
                 "parameters": [
@@ -374,6 +419,58 @@ var doc = `{
                 }
             }
         },
+        "/roles/{role_code}/resource_web_route/{resource_web_route_id}": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role（角色）"
+                ],
+                "summary": "添加资源web路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色Code",
+                        "name": "role_code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "资源web路由ID",
+                        "name": "resource_web_route_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceAddWebRouteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -389,7 +486,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "User（用户）"
                 ],
                 "summary": "查询用户",
                 "parameters": [
@@ -443,7 +540,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "User（用户）"
                 ],
                 "summary": "创建用户",
                 "parameters": [
@@ -482,7 +579,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "User（用户）"
                 ],
                 "summary": "获取一个用户",
                 "parameters": [
@@ -517,7 +614,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "User（用户）"
                 ],
                 "summary": "修改一个用户",
                 "parameters": [
@@ -561,7 +658,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "User（用户）"
                 ],
                 "summary": "删除一个用户",
                 "parameters": [
@@ -748,6 +845,20 @@ var doc = `{
                     "type": "string"
                 },
                 "website": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ResourceAddWebRouteRequest": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
                     "type": "string"
                 }
             }
