@@ -122,12 +122,16 @@ func (o *oauth2ClientInfo) DeleteInClientIDs(ctx context.Context, clientIDs []ui
 	return
 }
 
-func (*oauth2ClientInfo) Update(ctx context.Context, mc *model.OAuth2ClientInfo) (err error) {
+func (o *oauth2ClientInfo) Update(ctx context.Context, mc *model.OAuth2ClientInfo) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
 		return
 	}
 	err = gdb.Model(mc).Update(mc).Error
+	if err != nil {
+		return
+	}
+	err = o.cache.Remove(ctx, o.formatOneKey(mc.ClientID))
 	return
 }
