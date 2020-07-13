@@ -174,7 +174,7 @@ func Init() {
 		resp.Exp = tokenClaims.ExpiresAt
 		resp.Iss = tokenClaims.IssuedAt
 		var user *model.User
-		user, err = service.User.GetOneByID(tokenClaims.Subject)
+		user, err = service.User.GetOneByID(convert.ToUint64(tokenClaims.Subject))
 		if err == nil && user != nil {
 			resp.Username = user.Username
 		}

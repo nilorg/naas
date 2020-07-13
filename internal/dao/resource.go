@@ -8,6 +8,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
@@ -18,7 +19,6 @@ type Resourcer interface {
 	Insert(ctx context.Context, resource *model.Resource) (err error)
 	Delete(ctx context.Context, id uint64) (err error)
 	Select(ctx context.Context, id uint64) (resource *model.Resource, err error)
-	SelectFromCache(ctx context.Context, id uint64) (resource *model.Resource, err error)
 	Update(ctx context.Context, resource *model.Resource) (err error)
 	LoadPolicy(ctx context.Context, resourceID uint64) (results []*gormadapter.CasbinRule, err error)
 }
@@ -53,7 +53,8 @@ func (r *resource) Delete(ctx context.Context, id uint64) (err error) {
 	err = r.cache.Remove(ctx, r.formatOneKey(id))
 	return
 }
-func (*resource) Select(ctx context.Context, id uint64) (resource *model.Resource, err error) {
+
+func (*resource) selectOne(ctx context.Context, id uint64) (resource *model.Resource, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -68,14 +69,21 @@ func (*resource) Select(ctx context.Context, id uint64) (resource *model.Resourc
 	return
 }
 
-func (r *resource) SelectFromCache(ctx context.Context, id uint64) (resource *model.Resource, err error) {
+func (r *resource) Select(ctx context.Context, id uint64) (resource *model.Resource, err error) {
+	if store.FromSkipCacheContext(ctx) {
+		return r.selectOne(ctx, id)
+	}
+	return r.selectFromCache(ctx, id)
+}
+
+func (r *resource) selectFromCache(ctx context.Context, id uint64) (resource *model.Resource, err error) {
 	resource = new(model.Resource)
 	key := r.formatOneKey(id)
 	err = r.cache.Get(ctx, key, resource)
 	if err != nil {
 		resource = nil
 		if err == redis.Nil {
-			resource, err = r.Select(ctx, id)
+			resource, err = r.selectOne(ctx, id)
 			if err != nil {
 				return
 			}

@@ -95,18 +95,39 @@ func NewDBContext(dbs ...*gorm.DB) context.Context {
 	return db.NewContext(context.Background(), DB)
 }
 
-// NewCacheContext ...
+// NewCacheContext 创建缓存对象到上下文中
 func NewCacheContext(ctx context.Context, cache sdkCache.Cacher) context.Context {
 	return sdkCache.NewCacheContext(ctx, cache)
 }
 
-// FromCacheContext ...
+// FromCacheContext 从缓存上下文中获取缓存对象
 func FromCacheContext(ctx context.Context) (sdkCache.Cacher, error) {
 	cache, ok := sdkCache.FromCacheContext(ctx)
 	if !ok {
 		return nil, ErrContextNotFoundCache
 	}
 	return cache, nil
+}
+
+type skipCache struct{}
+
+// NewSkipCacheContext 创建跳过缓存到上下文
+func NewSkipCacheContext(ctx context.Context, skip ...bool) context.Context {
+	s := true
+	if len(skip) > 0 {
+		s = skip[0]
+	}
+	return context.WithValue(ctx, skipCache{}, s)
+}
+
+// FromSkipCacheContext 从上下文中获取跳过缓存变量
+func FromSkipCacheContext(ctx context.Context) (skip bool) {
+	var ok bool
+	skip, ok = ctx.Value(skipCache{}).(bool)
+	if !ok {
+		skip = false
+	}
+	return
 }
 
 func initPicture() {

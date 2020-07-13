@@ -61,7 +61,7 @@ func (*user) GetOne(ctx *gin.Context) {
 		err  error
 	)
 	userID := convert.ToUint64(ctx.Param("user_id"))
-	user, err = service.User.GetOneCachedByID(userID)
+	user, err = service.User.GetOneByID(userID)
 	if err != nil {
 		writeError(ctx, err)
 		return

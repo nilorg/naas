@@ -20,7 +20,7 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 		tokenClaims := ctx.MustGet("token").(*oauth2.JwtClaims)
 		openID := convert.ToUint64(tokenClaims.Subject)
 
-		roles, _ := service.Role.GetAllByUserIDFromCache(openID)
+		roles, _ := service.Role.GetAllRoleByUserID(openID)
 		if len(roles) > 0 {
 			ctx.Set("current_role", roles)
 		} else {

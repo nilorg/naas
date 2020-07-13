@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
@@ -15,13 +16,11 @@ import (
 // UserInfoer ...
 type UserInfoer interface {
 	SelectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error)
-	SelectByUserIDFromCache(ctx context.Context, userID uint64) (mu *model.UserInfo, err error)
 	Insert(ctx context.Context, mu *model.UserInfo) (err error)
 	Delete(ctx context.Context, id uint64) (err error)
 	DeleteByUserID(ctx context.Context, userID uint64) (err error)
 	DeleteInUserIDs(ctx context.Context, userIDs []uint64) (err error)
 	Select(ctx context.Context, id uint64) (mu *model.UserInfo, err error)
-	SelectFromCache(ctx context.Context, id uint64) (mu *model.UserInfo, err error)
 	Update(ctx context.Context, mu *model.UserInfo) (err error)
 }
 
@@ -43,7 +42,7 @@ func (u *userInfo) formatOneUserIDKeys(ids ...uint64) (keys []string) {
 	return
 }
 
-func (*userInfo) SelectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
+func (*userInfo) selectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -58,14 +57,21 @@ func (*userInfo) SelectByUserID(ctx context.Context, userID uint64) (mu *model.U
 	return
 }
 
-func (u *userInfo) SelectByUserIDFromCache(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
+func (u *userInfo) SelectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
+	if store.FromSkipCacheContext(ctx) {
+		return u.selectByUserID(ctx, userID)
+	}
+	return u.selectByUserIDFromCache(ctx, userID)
+}
+
+func (u *userInfo) selectByUserIDFromCache(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
 	mu = new(model.UserInfo)
 	key := u.formatOneUserIDKey(userID)
 	err = u.cache.Get(ctx, key, mu)
 	if err != nil {
 		mu = nil
 		if err == redis.Nil {
-			mu, err = u.SelectByUserID(ctx, userID)
+			mu, err = u.selectByUserID(ctx, userID)
 			if err != nil {
 				return
 			}
@@ -127,7 +133,7 @@ func (u *userInfo) DeleteInUserIDs(ctx context.Context, userIDs []uint64) (err e
 	return
 }
 
-func (*userInfo) Select(ctx context.Context, id uint64) (mu *model.UserInfo, err error) {
+func (*userInfo) selectOne(ctx context.Context, id uint64) (mu *model.UserInfo, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -142,14 +148,21 @@ func (*userInfo) Select(ctx context.Context, id uint64) (mu *model.UserInfo, err
 	return
 }
 
-func (u *userInfo) SelectFromCache(ctx context.Context, id uint64) (m *model.UserInfo, err error) {
+func (u *userInfo) Select(ctx context.Context, id uint64) (mu *model.UserInfo, err error) {
+	if store.FromSkipCacheContext(ctx) {
+		return u.selectOne(ctx, id)
+	}
+	return u.selectFromCache(ctx, id)
+}
+
+func (u *userInfo) selectFromCache(ctx context.Context, id uint64) (m *model.UserInfo, err error) {
 	m = new(model.UserInfo)
 	key := u.formatOneKey(id)
 	err = u.cache.Get(ctx, key, m)
 	if err != nil {
 		m = nil
 		if err == redis.Nil {
-			m, err = u.Select(ctx, id)
+			m, err = u.selectOne(ctx, id)
 			if err != nil {
 				return
 			}

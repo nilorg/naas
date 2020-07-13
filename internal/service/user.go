@@ -138,13 +138,8 @@ func (u *user) GetUserByUsername(username string) (usr *model.User, err error) {
 }
 
 // GetOneByID 根据ID获取用户
-func (u *user) GetOneByID(id string) (usr *model.User, err error) {
-	return dao.User.Select(store.NewDBContext(), convert.ToUint64(id))
-}
-
-// GetOneCachedByID 根据ID获取用户
-func (u *user) GetOneCachedByID(id uint64) (usr *model.User, err error) {
-	return dao.User.SelectFromCache(store.NewDBContext(), id)
+func (u *user) GetOneByID(id uint64) (usr *model.User, err error) {
+	return dao.User.Select(store.NewDBContext(), id)
 }
 
 // GetInfoOneByUserID 根据用户ID获取信息
@@ -152,18 +147,13 @@ func (u *user) GetInfoOneByUserID(userID uint64) (usr *model.UserInfo, err error
 	return dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
 }
 
-// GetInfoOneCachedByUserID 根据用户ID获取信息
-func (u *user) GetInfoOneCachedByUserID(userID uint64) (usr *model.UserInfo, err error) {
-	return dao.UserInfo.SelectByUserIDFromCache(store.NewDBContext(), userID)
-}
-
 // GetInfoOneByCache 根据用户ID获取信息
 func (u *user) GetInfoOneByCache(userID uint64) (usr *model.User, usrInfo *model.UserInfo, err error) {
-	usr, err = dao.User.SelectFromCache(store.NewDBContext(), userID)
+	usr, err = dao.User.Select(store.NewDBContext(), userID)
 	if err != nil {
 		return
 	}
-	usrInfo, err = dao.UserInfo.SelectByUserIDFromCache(store.NewDBContext(), userID)
+	usrInfo, err = dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
 	return
 }
 
@@ -181,7 +171,7 @@ func (u *user) Login(username, password string) (su *model.SessionAccount, err e
 			UserName: usr.Username,
 		}
 		var userInfo *model.UserInfo
-		userInfo, err = u.GetInfoOneCachedByUserID(usr.ID)
+		userInfo, err = u.GetInfoOneByUserID(usr.ID)
 		if err == nil {
 			su.Nickname = userInfo.Nickname
 			su.Picture = userInfo.Picture
@@ -204,7 +194,7 @@ func (u *user) ListPaged(start, limit int) (result []*model.ResultUserInfo, tota
 		return
 	}
 	for _, user := range userList {
-		userInfo, userInfoErr := u.GetInfoOneCachedByUserID(user.ID)
+		userInfo, userInfoErr := u.GetInfoOneByUserID(user.ID)
 		resultInfo := &model.ResultUserInfo{
 			User: user,
 		}

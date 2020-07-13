@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
@@ -19,7 +20,6 @@ type Userer interface {
 	Delete(ctx context.Context, id uint64) (err error)
 	DeleteInIDs(ctx context.Context, ids []uint64) (err error)
 	Select(ctx context.Context, id uint64) (mu *model.User, err error)
-	SelectFromCache(ctx context.Context, id uint64) (mu *model.User, err error)
 	Update(ctx context.Context, mu *model.User) (err error)
 	ListPaged(ctx context.Context, start, limit int) (user []*model.User, total uint64, err error)
 	ExistByUsername(ctx context.Context, username string) (exist bool, err error)
@@ -94,7 +94,7 @@ func (u *user) DeleteInIDs(ctx context.Context, ids []uint64) (err error) {
 	return
 }
 
-func (*user) Select(ctx context.Context, id uint64) (mu *model.User, err error) {
+func (*user) selectOne(ctx context.Context, id uint64) (mu *model.User, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -109,14 +109,21 @@ func (*user) Select(ctx context.Context, id uint64) (mu *model.User, err error) 
 	return
 }
 
-func (u *user) SelectFromCache(ctx context.Context, id uint64) (m *model.User, err error) {
+func (u *user) Select(ctx context.Context, id uint64) (mu *model.User, err error) {
+	if store.FromSkipCacheContext(ctx) {
+		return u.selectOne(ctx, id)
+	}
+	return u.selectFromCache(ctx, id)
+}
+
+func (u *user) selectFromCache(ctx context.Context, id uint64) (m *model.User, err error) {
 	m = new(model.User)
 	key := u.formatOneKey(id)
 	err = u.cache.Get(ctx, key, m)
 	if err != nil {
 		m = nil
 		if err == redis.Nil {
-			m, err = u.Select(ctx, id)
+			m, err = u.selectOne(ctx, id)
 			if err != nil {
 				return
 			}

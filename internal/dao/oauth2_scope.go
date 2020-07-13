@@ -18,11 +18,8 @@ type OAuth2Scoper interface {
 	Insert(ctx context.Context, m *model.OAuth2Scope) (err error)
 	Delete(ctx context.Context, code string) (err error)
 	Select(ctx context.Context, code string) (m *model.OAuth2Scope, err error)
-	SelectFromCache(ctx context.Context, code string) (m *model.OAuth2Scope, err error)
 	SelectAll(ctx context.Context) (m []*model.OAuth2Scope, err error)
-	SelectAllFromCache(ctx context.Context) (m []*model.OAuth2Scope, err error)
 	SelectByAllBasic(ctx context.Context) (m []*model.OAuth2Scope, err error)
-	SelectByAllBasicFromCache(ctx context.Context) (m []*model.OAuth2Scope, err error)
 	Update(ctx context.Context, m *model.OAuth2Scope) (err error)
 }
 
@@ -69,7 +66,7 @@ func (s *oauth2Scope) Delete(ctx context.Context, code string) (err error) {
 	return
 }
 
-func (s *oauth2Scope) SelectAll(ctx context.Context) (m []*model.OAuth2Scope, err error) {
+func (s *oauth2Scope) selectAll(ctx context.Context) (m []*model.OAuth2Scope, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -79,7 +76,14 @@ func (s *oauth2Scope) SelectAll(ctx context.Context) (m []*model.OAuth2Scope, er
 	return
 }
 
-func (s *oauth2Scope) SelectAllFromCache(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
+func (s *oauth2Scope) SelectAll(ctx context.Context) (m []*model.OAuth2Scope, err error) {
+	if store.FromSkipCacheContext(ctx) {
+		return s.SelectAll(ctx)
+	}
+	return s.selectAllFromCache(ctx)
+}
+
+func (s *oauth2Scope) selectAllFromCache(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
 	key := s.formatAllListKey()
 	var items []*model.CacheCodePrimaryKey
 	items, err = store.ScanByCacheCode(store.NewCacheContext(ctx, s.cache), key, model.OAuth2Scope{}, "1 = 1")
@@ -90,6 +94,13 @@ func (s *oauth2Scope) SelectAllFromCache(ctx context.Context) (scopes []*model.O
 }
 
 func (s *oauth2Scope) SelectByAllBasic(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
+	if store.FromSkipCacheContext(ctx) {
+		return s.selectByAllBasic(ctx)
+	}
+	return s.selectByAllBasicFromCache(ctx)
+}
+
+func (s *oauth2Scope) selectByAllBasic(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -99,7 +110,7 @@ func (s *oauth2Scope) SelectByAllBasic(ctx context.Context) (scopes []*model.OAu
 	return
 }
 
-func (s *oauth2Scope) SelectByAllBasicFromCache(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
+func (s *oauth2Scope) selectByAllBasicFromCache(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
 	key := s.formatAllListKey()
 	var items []*model.CacheCodePrimaryKey
 	items, err = store.ScanByCacheCode(store.NewCacheContext(ctx, s.cache), key, model.OAuth2Scope{}, "type = ?", model.OAuth2ScopeTypeBasic)
@@ -109,7 +120,7 @@ func (s *oauth2Scope) SelectByAllBasicFromCache(ctx context.Context) (scopes []*
 	return s.scanCacheCode(ctx, items)
 }
 
-func (s *oauth2Scope) Select(ctx context.Context, code string) (m *model.OAuth2Scope, err error) {
+func (s *oauth2Scope) selectOne(ctx context.Context, code string) (m *model.OAuth2Scope, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -124,14 +135,21 @@ func (s *oauth2Scope) Select(ctx context.Context, code string) (m *model.OAuth2S
 	return
 }
 
-func (s *oauth2Scope) SelectFromCache(ctx context.Context, code string) (m *model.OAuth2Scope, err error) {
+func (s *oauth2Scope) Select(ctx context.Context, code string) (m *model.OAuth2Scope, err error) {
+	if store.FromSkipCacheContext(ctx) {
+		return s.selectOne(ctx, code)
+	}
+	return s.selectFromCache(ctx, code)
+}
+
+func (s *oauth2Scope) selectFromCache(ctx context.Context, code string) (m *model.OAuth2Scope, err error) {
 	m = new(model.OAuth2Scope)
 	key := s.formatOneKey(code)
 	err = s.cache.Get(ctx, key, m)
 	if err != nil {
 		m = nil
 		if err == redis.Nil {
-			m, err = s.Select(ctx, code)
+			m, err = s.selectOne(ctx, code)
 			if err != nil {
 				return
 			}
@@ -157,7 +175,7 @@ func (s *oauth2Scope) Update(ctx context.Context, m *model.OAuth2Scope) (err err
 
 func (s *oauth2Scope) scanCacheCode(ctx context.Context, items []*model.CacheCodePrimaryKey) (scopes []*model.OAuth2Scope, err error) {
 	for _, item := range items {
-		i, ierr := s.SelectFromCache(ctx, item.Code)
+		i, ierr := s.selectFromCache(ctx, item.Code)
 		if ierr != nil {
 			err = ierr
 			return

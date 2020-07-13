@@ -168,7 +168,7 @@ func (o *oauth2) GetClientAllScope(clientID uint64) (scopes []*model.OAuth2Clien
 
 // GetClientAllScopeFromCache 获取客户端的范围
 func (o *oauth2) GetClientAllScopeFromCache(clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
-	scopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientIDFromCache(store.NewDBContext(), clientID)
+	scopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(store.NewDBContext(), clientID)
 	return
 }
 
@@ -183,13 +183,13 @@ type OAuth2ClientScopeInfo struct {
 func (o *oauth2) GetClientAllScopeInfo(clientID uint64) (scopeInfos []*OAuth2ClientScopeInfo, err error) {
 	ctx := store.NewDBContext()
 	var clientScopes []*model.OAuth2ClientScope
-	clientScopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientIDFromCache(ctx, clientID)
+	clientScopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(ctx, clientID)
 	if err != nil {
 		return
 	}
 	var scope *model.OAuth2Scope
 	for _, clientScope := range clientScopes {
-		scope, err = dao.OAuth2Scope.SelectFromCache(ctx, clientScope.ScopeCode)
+		scope, err = dao.OAuth2Scope.Select(ctx, clientScope.ScopeCode)
 		if err != nil {
 			return
 		}
@@ -222,15 +222,9 @@ func (o *oauth2) AllScope() (scopes []*model.OAuth2Scope, err error) {
 	return
 }
 
-// AllScopeFromCache 获取所有的范围
-func (o *oauth2) AllScopeFromCache() (scopes []*model.OAuth2Scope, err error) {
-	scopes, err = dao.OAuth2Scope.SelectAllFromCache(store.NewDBContext())
-	return
-}
-
 func (o *oauth2) AllScopeCode() (scopeCodes []string, err error) {
 	var scopes []*model.OAuth2Scope
-	scopes, err = dao.OAuth2Scope.SelectAllFromCache(store.NewDBContext())
+	scopes, err = dao.OAuth2Scope.SelectAll(store.NewDBContext())
 	if err != nil {
 		return
 	}

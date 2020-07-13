@@ -27,9 +27,9 @@ func OAuth2AuthRequired(ctx *gin.Context) {
 		redirectURIQuery.Set("login_redirect_uri", uri.String())
 		redirectURI.RawQuery = redirectURIQuery.Encode()
 		ctx.Redirect(302, redirectURI.String())
-		return
+	} else {
+		ctx.Next()
 	}
-	ctx.Next()
 }
 
 // OAuth2AuthUserinfoRequired 身份验证

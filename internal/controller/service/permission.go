@@ -68,7 +68,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 		return
 	}
 	res = new(proto.VerifyHttpRouteResponse)
-	roles, _ := service.Role.GetAllByUserIDFromCache(convert.ToUint64(openID))
+	roles, _ := service.Role.GetAllRoleByUserID(convert.ToUint64(openID))
 	for _, role := range roles {
 		sub := fmt.Sprintf("role:%s", role.RoleCode)                 // 希望访问资源的用户
 		dom := fmt.Sprintf("resource:%s:web_route", req.Resource.Id) // 域/域租户,这里以资源为单位
@@ -85,7 +85,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 	}
 	// 返回用户信息
 	if res.Allow && req.ReturnUserInfo {
-		user, userErr := service.User.GetOneByID(openID)
+		user, userErr := service.User.GetOneByID(convert.ToUint64(openID))
 		if userErr != nil {
 			err = status.Error(codes.Unavailable, userErr.Error())
 			return
@@ -94,7 +94,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 			OpenId:   convert.ToString(user.ID),
 			Username: user.Username,
 		}
-		userInfo, userInfoErr := service.User.GetInfoOneCachedByUserID(convert.ToUint64(res.UserInfo.OpenId))
+		userInfo, userInfoErr := service.User.GetInfoOneByUserID(convert.ToUint64(res.UserInfo.OpenId))
 		if userInfoErr == nil && userInfo != nil {
 			res.UserInfo.NickName = userInfo.Nickname
 			res.UserInfo.AvatarUrl = userInfo.Picture
@@ -155,7 +155,7 @@ func (ctl *PermissionService) VerifyToken(_ context.Context, req *proto.VerifyTo
 	}
 	res = new(proto.VerifyTokenResponse)
 	if req.ReturnUserInfo {
-		user, userErr := service.User.GetOneByID(openID)
+		user, userErr := service.User.GetOneByID(convert.ToUint64(openID))
 		if userErr != nil {
 			err = status.Error(codes.Unavailable, userErr.Error())
 			return
@@ -164,7 +164,7 @@ func (ctl *PermissionService) VerifyToken(_ context.Context, req *proto.VerifyTo
 			OpenId:   convert.ToString(user.ID),
 			Username: user.Username,
 		}
-		userInfo, userInfoErr := service.User.GetInfoOneCachedByUserID(convert.ToUint64(res.UserInfo.OpenId))
+		userInfo, userInfoErr := service.User.GetInfoOneByUserID(convert.ToUint64(res.UserInfo.OpenId))
 		if userInfoErr == nil && userInfo != nil {
 			res.UserInfo.NickName = userInfo.Nickname
 			res.UserInfo.AvatarUrl = userInfo.Picture

@@ -53,13 +53,6 @@ func (r *role) GetAllRoleByUserID(userID uint64) (roles []*model.UserRole, err e
 	return
 }
 
-// GetAllByUserIDFromCache ...
-func (r *role) GetAllByUserIDFromCache(userID uint64) (roles []*model.UserRole, err error) {
-	ctx := store.NewDBContext()
-	roles, err = dao.UserRole.SelectAllByUserIDFromCache(ctx, userID)
-	return
-}
-
 // AddResourceWebRoute 添加web路由资源角色
 func (r *role) AddResourceWebRoute(roleCode string, resourceWebRouteID uint64) (err error) {
 	ctx := store.NewDBContext()
