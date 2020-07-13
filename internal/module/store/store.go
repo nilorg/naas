@@ -2,20 +2,28 @@ package store
 
 import (
 	"context"
+	"errors"
 	"path/filepath"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/pkg/logger"
+	"github.com/nilorg/sdk/cache"
+	sdkCache "github.com/nilorg/sdk/cache"
 	"github.com/nilorg/sdk/storage"
 
 	// use db mysql
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/spf13/viper"
 )
 
+var (
+	// ErrContextNotFoundCache 上下文不存在Cache错误
+	ErrContextNotFoundCache = errors.New("上下文中没有获取到Cache")
+)
 var (
 	// RedisClient redis 客户端
 	RedisClient *redis.Client
@@ -87,10 +95,66 @@ func NewDBContext(dbs ...*gorm.DB) context.Context {
 	return db.NewContext(context.Background(), DB)
 }
 
+// NewCacheContext ...
+func NewCacheContext(ctx context.Context, cache sdkCache.Cacher) context.Context {
+	return sdkCache.NewCacheContext(ctx, cache)
+}
+
+// FromCacheContext ...
+func FromCacheContext(ctx context.Context) (sdkCache.Cacher, error) {
+	cache, ok := sdkCache.FromCacheContext(ctx)
+	if !ok {
+		return nil, ErrContextNotFoundCache
+	}
+	return cache, nil
+}
+
 func initPicture() {
 	if viper.GetString("storage.type") == "default" {
 		Picture = &storage.DefaultStorage{
 			BasePath: filepath.Join(viper.GetString("storage.default.base_path"), "picture"),
 		}
 	}
+}
+
+// ScanByCacheID ...
+func ScanByCacheID(ctx context.Context, cacheKey string, table interface{}, query interface{}, args ...interface{}) (items []*model.CacheIDPrimaryKey, err error) {
+	err = scanByCache(ctx, cacheKey, table, &items, query, args...)
+	return
+}
+
+// ScanByCacheCode ...
+func ScanByCacheCode(ctx context.Context, cacheKey string, table interface{}, query interface{}, args ...interface{}) (items []*model.CacheCodePrimaryKey, err error) {
+	err = scanByCache(ctx, cacheKey, table, &items, query, args...)
+	return
+}
+
+// scanByCache ...
+func scanByCache(ctx context.Context, cacheKey string, table interface{}, values interface{}, query interface{}, args ...interface{}) (err error) {
+	var (
+		gdb   *gorm.DB
+		cache cache.Cacher
+	)
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	cache, err = FromCacheContext(ctx)
+	if err != nil {
+		return
+	}
+	err = cache.Get(ctx, cacheKey, values)
+	if err != nil {
+		if err == redis.Nil {
+			if err = gdb.Model(table).Where(query, args...).Scan(values).Error; err != nil {
+				return
+			}
+			if err = cache.Set(ctx, cacheKey, values, random.TimeDuration(300, 600)); err != nil {
+				return
+			}
+		} else {
+			return
+		}
+	}
+	return
 }

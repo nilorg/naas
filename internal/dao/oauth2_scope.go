@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
@@ -79,25 +80,11 @@ func (s *oauth2Scope) SelectAll(ctx context.Context) (m []*model.OAuth2Scope, er
 }
 
 func (s *oauth2Scope) SelectAllFromCache(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
-	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
-	if err != nil {
-		return
-	}
 	key := s.formatAllListKey()
 	var items []*model.CacheCodePrimaryKey
-	err = s.cache.Get(ctx, key, &items)
+	items, err = store.ScanByCacheCode(store.NewCacheContext(ctx, s.cache), key, model.OAuth2Scope{}, "1 = 1")
 	if err != nil {
-		if err == redis.Nil {
-			if err = gdb.Model(model.OAuth2Scope{}).Scan(&items).Error; err != nil {
-				return
-			}
-			if err = s.cache.Set(ctx, key, items, random.TimeDuration(300, 600)); err != nil {
-				return
-			}
-		} else {
-			return
-		}
+		return
 	}
 	return s.scanCacheCode(ctx, items)
 }
@@ -113,25 +100,11 @@ func (s *oauth2Scope) SelectByAllBasic(ctx context.Context) (scopes []*model.OAu
 }
 
 func (s *oauth2Scope) SelectByAllBasicFromCache(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
-	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
-	if err != nil {
-		return
-	}
 	key := s.formatAllListKey()
 	var items []*model.CacheCodePrimaryKey
-	err = s.cache.Get(ctx, key, &items)
+	items, err = store.ScanByCacheCode(store.NewCacheContext(ctx, s.cache), key, model.OAuth2Scope{}, "type = ?", model.OAuth2ScopeTypeBasic)
 	if err != nil {
-		if err == redis.Nil {
-			if err = gdb.Model(model.OAuth2Scope{}).Where("type = ?", model.OAuth2ScopeTypeBasic).Scan(&items).Error; err != nil {
-				return
-			}
-			if err = s.cache.Set(ctx, key, items, random.TimeDuration(300, 600)); err != nil {
-				return
-			}
-		} else {
-			return
-		}
+		return
 	}
 	return s.scanCacheCode(ctx, items)
 }

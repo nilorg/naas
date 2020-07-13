@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
@@ -132,25 +133,11 @@ func (u *userRole) scanCacheID(ctx context.Context, items []*model.CacheIDPrimar
 }
 
 func (u *userRole) SelectAllByUserIDFromCache(ctx context.Context, userID uint64) (roles []*model.UserRole, err error) {
-	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
-	if err != nil {
-		return
-	}
 	key := u.formatUserListKey(userID)
 	var items []*model.CacheIDPrimaryKey
-	err = u.cache.Get(ctx, key, &items)
+	items, err = store.ScanByCacheID(store.NewCacheContext(ctx, u.cache), key, model.UserRole{}, "user_id = ?", userID)
 	if err != nil {
-		if err == redis.Nil {
-			if err = gdb.Model(model.UserRole{}).Where("user_id = ?", userID).Scan(&items).Error; err != nil {
-				return
-			}
-			if err = u.cache.Set(ctx, key, items, random.TimeDuration(300, 600)); err != nil {
-				return
-			}
-		} else {
-			return
-		}
+		return
 	}
 	return u.scanCacheID(ctx, items)
 }

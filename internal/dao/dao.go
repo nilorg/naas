@@ -26,8 +26,8 @@ var (
 func Init() {
 	OAuth2Client = &oauth2Client{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_client:")}
 	OAuth2ClientInfo = &oauth2ClientInfo{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_client_info:")}
-	OAuth2ClientScope = &oauth2ClientScope{}
-	OAuth2Scope = &oauth2Scope{}
+	OAuth2ClientScope = &oauth2ClientScope{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_client_scope:")}
+	OAuth2Scope = &oauth2Scope{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_scope:")}
 	ResourceWebRoute = &resourceWebRoute{}
 	Admin = &admin{}
 	User = &user{cache: cache.NewRedisCache(store.RedisClient, "naas:user:")}
