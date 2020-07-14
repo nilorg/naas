@@ -184,6 +184,52 @@ var doc = `{
             }
         },
         "/oauth2/clients/{client_id}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "获取一个客户端",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "client id",
+                        "name": "client_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.OAuth2ClientDetailInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -826,6 +872,29 @@ var doc = `{
                 "pagination": {
                     "type": "object",
                     "$ref": "#/definitions/model.Pagination"
+                }
+            }
+        },
+        "service.OAuth2ClientDetailInfo": {
+            "type": "object",
+            "properties": {
+                "client_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "profile": {
+                    "type": "string"
+                },
+                "redirect_uri": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
                 }
             }
         },

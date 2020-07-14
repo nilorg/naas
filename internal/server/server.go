@@ -148,11 +148,15 @@ func RunHTTP() {
 
 			apiGroup.POST("/resources/:resource_id/web_routes", api.Resource.AddWebRoute)
 
-			apiGroup.GET("/oauth2/scopes", api.OAuth2.GetScopes)
+			apiGroup.POST("/files", api.File.Upload)
+
 			apiGroup.GET("/oauth2/clients", api.OAuth2.ClientListByPaged)
+			apiGroup.GET("/oauth2/clients/:client_id", api.OAuth2.GetClient)
 			apiGroup.POST("/oauth2/clients", api.OAuth2.CreateClient)
 			apiGroup.PUT("/oauth2/clients/:client_id", api.OAuth2.UpdateClient)
+
 			apiGroup.GET("/oauth2/clients/:client_id/scopes", api.OAuth2.GetClientScopes)
+			apiGroup.GET("/oauth2/scopes", api.OAuth2.GetScopes)
 		}
 	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080

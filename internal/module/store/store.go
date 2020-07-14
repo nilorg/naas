@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/pkg/logger"
@@ -24,13 +25,35 @@ var (
 	// ErrContextNotFoundCache 上下文不存在Cache错误
 	ErrContextNotFoundCache = errors.New("上下文中没有获取到Cache")
 )
+
+// DefaultStorage 默认存储
+type DefaultStorage struct {
+	storage.Storager
+}
+
+// NewDefaultStorage 创建默认存储
+func NewDefaultStorage(storage storage.Storager) *DefaultStorage {
+	return &DefaultStorage{
+		Storager: storage,
+	}
+}
+
+// MaxMemory 最大上传大小
+func (*DefaultStorage) MaxMemory() int64 {
+	maxMemory := viper.GetInt64("storage.max_memory")
+	if maxMemory <= 0 {
+		maxMemory = 20 // 20 MB
+	}
+	return maxMemory << 20
+}
+
 var (
 	// RedisClient redis 客户端
 	RedisClient *redis.Client
 	// DB ...
 	DB *gorm.DB
 	// Picture 头像
-	Picture storage.Storager
+	Picture *DefaultStorage
 )
 
 // Init 初始化
@@ -132,10 +155,18 @@ func FromSkipCacheContext(ctx context.Context) (skip bool) {
 
 func initPicture() {
 	if viper.GetString("storage.type") == "default" {
-		Picture = &storage.DefaultStorage{
-			BasePath: filepath.Join(viper.GetString("storage.default.base_path"), "picture"),
-		}
+		Picture = NewDefaultStorage(
+			&storage.DefaultStorage{
+				BasePath: filepath.Join(viper.GetString("storage.default.base_path"), "picture"),
+			},
+		)
 	}
+}
+
+// FileRename 重命名文件名
+func FileRename(filename string) string {
+	suffix := filepath.Ext(filename)
+	return uuid.New().String() + suffix
 }
 
 // ScanByCacheID ...

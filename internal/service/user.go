@@ -44,11 +44,11 @@ func createPicture(typ, id string) (bs string, err error) {
 		return
 	}
 	var u *url.URL
-	u, err = url.Parse(viper.GetString("storage.picture.public_path"))
+	u, err = url.Parse(viper.GetString("storage.public_path"))
 	if err != nil {
 		return
 	}
-	u.Path = path.Join(u.Path, filename)
+	u.Path = path.Join(u.Path, "/picture/", filename)
 	bs = u.String()
 	return
 }

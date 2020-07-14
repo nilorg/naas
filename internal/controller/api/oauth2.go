@@ -84,6 +84,29 @@ func (*oauth2) CreateClient(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// GetClient 获取一个客户端
+// @Tags 		OAuth2
+// @Summary		获取一个客户端
+// @Accept  json
+// @Produce	json
+// @Param 	client_id	path	string	true	"client id"
+// @Success 200	{object}	Result{data=service.OAuth2ClientDetailInfo}
+// @Router /oauth2/clients/{client_id} [GET]
+// @Security OAuth2AccessCode
+func (*oauth2) GetClient(ctx *gin.Context) {
+	var (
+		clientDetailInfo *service.OAuth2ClientDetailInfo
+		err              error
+	)
+	clientID := convert.ToUint64(ctx.Param("client_id"))
+	clientDetailInfo, err = service.OAuth2.GetClientDetailInfo(clientID)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, clientDetailInfo)
+}
+
 // UpdateClient 修改一个客户端
 // @Tags 		OAuth2
 // @Summary		client

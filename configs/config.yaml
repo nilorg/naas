@@ -123,8 +123,8 @@ storage:
   type: default
   default: 
     base_path: ./web/storage
-  picture:
-    public_path: https://accounts.dianfeng58.com/storage/picture
+  public_path: http://localhost:8080/storage
+  max_memory: 20 # 20MB
 
 naas:
   resource:

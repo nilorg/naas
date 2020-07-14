@@ -97,6 +97,21 @@ definitions:
         $ref: '#/definitions/model.Pagination'
         type: object
     type: object
+  service.OAuth2ClientDetailInfo:
+    properties:
+      client_id:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+      profile:
+        type: string
+      redirect_uri:
+        type: string
+      website:
+        type: string
+    type: object
   service.OAuth2ClientEditModel:
     properties:
       description:
@@ -247,6 +262,32 @@ paths:
       tags:
       - OAuth2
   /oauth2/clients/{client_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: client id
+        in: path
+        name: client_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.OAuth2ClientDetailInfo'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个客户端
+      tags:
+      - OAuth2
     put:
       consumes:
       - application/json

@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
@@ -20,7 +21,6 @@ type OAuth2Clienter interface {
 	Update(ctx context.Context, mc *model.OAuth2Client) (err error)
 	UpdateRedirectURI(ctx context.Context, id uint64, redirectURI string) (err error)
 	SelectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error)
-	SelectByIDFromCache(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error)
 	ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total uint64, err error)
 }
 
@@ -104,7 +104,7 @@ func (o *oauth2Client) UpdateRedirectURI(ctx context.Context, id uint64, redirec
 	return
 }
 
-func (*oauth2Client) SelectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error) {
+func (*oauth2Client) selectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -119,14 +119,21 @@ func (*oauth2Client) SelectByID(ctx context.Context, clientID uint64) (mc *model
 	return
 }
 
-func (o *oauth2Client) SelectByIDFromCache(ctx context.Context, id uint64) (m *model.OAuth2Client, err error) {
+func (o *oauth2Client) SelectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error) {
+	if store.FromSkipCacheContext(ctx) {
+		return o.selectByID(ctx, clientID)
+	}
+	return o.selectByIDFromCache(ctx, clientID)
+}
+
+func (o *oauth2Client) selectByIDFromCache(ctx context.Context, id uint64) (m *model.OAuth2Client, err error) {
 	m = new(model.OAuth2Client)
 	key := o.formatOneKey(id)
 	err = o.cache.Get(ctx, key, m)
 	if err != nil {
 		m = nil
 		if err == redis.Nil {
-			m, err = o.SelectByID(ctx, id)
+			m, err = o.selectByID(ctx, id)
 			if err != nil {
 				return
 			}

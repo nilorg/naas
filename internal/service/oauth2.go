@@ -104,21 +104,44 @@ func (o *oauth2) GetClient(id uint64) (client *model.OAuth2Client, err error) {
 	return
 }
 
-// GetClient get oauth2 client.
-func (o *oauth2) GetClientFromCache(id uint64) (client *model.OAuth2Client, err error) {
-	client, err = dao.OAuth2Client.SelectByIDFromCache(store.NewDBContext(), id)
-	return
-}
-
 // GetClient get oauth2 client info.
 func (o *oauth2) GetClientInfo(id uint64) (client *model.OAuth2ClientInfo, err error) {
 	client, err = dao.OAuth2ClientInfo.SelectByClientID(store.NewDBContext(), id)
 	return
 }
 
-// GetClientInfoFromCache get oauth2 client info.
-func (o *oauth2) GetClientInfoFromCache(id uint64) (client *model.OAuth2ClientInfo, err error) {
-	client, err = dao.OAuth2ClientInfo.SelectByClientIDFromCache(store.NewDBContext(), id)
+// OAuth2ClientDetailInfo ...
+type OAuth2ClientDetailInfo struct {
+	ClientID    uint64 `json:"client_id"`
+	Name        string `json:"name"`
+	Website     string `json:"website"`
+	Profile     string `json:"profile"`
+	Description string `json:"description"`
+	RedirectURI string `json:"redirect_uri"`
+}
+
+// GetClientDetailInfo get oauth2 client info.
+func (o *oauth2) GetClientDetailInfo(id uint64) (clientDetail *OAuth2ClientDetailInfo, err error) {
+	var (
+		client     *model.OAuth2Client
+		clientInfo *model.OAuth2ClientInfo
+	)
+	client, err = dao.OAuth2Client.SelectByID(store.NewDBContext(), id)
+	if err != nil {
+		return
+	}
+	clientInfo, err = dao.OAuth2ClientInfo.SelectByClientID(store.NewDBContext(), id)
+	if err != nil {
+		return
+	}
+	clientDetail = &OAuth2ClientDetailInfo{
+		ClientID:    client.ClientID,
+		Name:        clientInfo.Name,
+		Website:     clientInfo.Website,
+		Profile:     clientInfo.Profile,
+		Description: clientInfo.Description,
+		RedirectURI: client.RedirectURI,
+	}
 	return
 }
 
@@ -145,7 +168,7 @@ func (o *oauth2) ClientListPaged(start, limit int) (result []*ResultClientInfo, 
 		return
 	}
 	for _, client := range clientList {
-		clientInfo, clientInfoErr := o.GetClientInfoFromCache(client.ClientID)
+		clientInfo, clientInfoErr := o.GetClientInfo(client.ClientID)
 		resultInfo := &ResultClientInfo{}
 		if clientInfoErr == nil {
 			resultInfo.ClientID = clientInfo.ClientID

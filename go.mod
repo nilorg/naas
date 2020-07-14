@@ -22,7 +22,7 @@ require (
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/nilorg/oauth2 v0.2.8
 	github.com/nilorg/pkg v0.0.0-20200712142249-ace26e0c9ddc
-	github.com/nilorg/sdk v0.0.0-20200713082824-84a259bcf4f5
+	github.com/nilorg/sdk v0.0.0-20200714040149-dd648ff9a2db
 	github.com/o1egl/govatar v0.3.0
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1
