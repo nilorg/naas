@@ -10,16 +10,28 @@ import (
 type oauth2 struct {
 }
 
-// GetScopes 查询所有scope
+// QueryChildren 查询方法
 // @Tags 		OAuth2
-// @Summary		scope
-// @Description	查询所有scope
+// @Summary		查询scope
+// @Description	paged:查询翻页列表
+// @Description	all:查询所有
 // @Accept  json
 // @Produce	json
-// @Success 200	{object}	Result{data=model.OAuth2Scope}
+// @Param q query string true "查询参数" Enums(paged,all)
+// @Param	current		query	int	false	"当前页"
+// @Param	pageSize	query	int	false	"页大小"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Success 200	{object}	Result{data=[]model.OAuth2Scope}
 // @Router /oauth2/scopes [GET]
 // @Security OAuth2AccessCode
-func (*oauth2) GetScopes(ctx *gin.Context) {
+func (o *oauth2) QueryChildren() gin.HandlerFunc {
+	return QueryChildren(map[string]gin.HandlerFunc{
+		"paged": o.listByPaged,
+		"all":   o.allScope,
+	})
+}
+
+func (*oauth2) allScope(ctx *gin.Context) {
 	var (
 		scopes []*model.OAuth2Scope
 		err    error
@@ -30,6 +42,20 @@ func (*oauth2) GetScopes(ctx *gin.Context) {
 		return
 	}
 	writeData(ctx, scopes)
+}
+
+func (*oauth2) listByPaged(ctx *gin.Context) {
+	var (
+		scopes []*model.OAuth2Scope
+		err    error
+	)
+	pagination := model.NewPagination(ctx)
+	scopes, pagination.Total, err = service.OAuth2.ScopeListPaged(pagination.GetSkip(), pagination.GetLimit())
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, model.NewTableListData(*pagination, scopes))
 }
 
 // GetClientScopes 查询客户端scope

@@ -348,7 +348,26 @@ paths:
     get:
       consumes:
       - application/json
-      description: 查询所有scope
+      description: |-
+        paged:查询翻页列表
+        all:查询所有
+      parameters:
+      - description: 查询参数
+        enum:
+        - paged
+        - all
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: 当前页
+        in: query
+        name: current
+        type: integer
+      - description: 页大小
+        in: query
+        name: pageSize
+        type: integer
       produces:
       - application/json
       responses:
@@ -359,11 +378,13 @@ paths:
             - $ref: '#/definitions/api.Result'
             - properties:
                 data:
-                  $ref: '#/definitions/model.OAuth2Scope'
+                  items:
+                    $ref: '#/definitions/model.OAuth2Scope'
+                  type: array
               type: object
       security:
       - OAuth2AccessCode: []
-      summary: scope
+      summary: 查询scope
       tags:
       - OAuth2
   /resources/{resource_id}/web_routes:

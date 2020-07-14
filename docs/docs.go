@@ -331,7 +331,7 @@ var doc = `{
                         "OAuth2AccessCode": []
                     }
                 ],
-                "description": "查询所有scope",
+                "description": "paged:查询翻页列表\nall:查询所有",
                 "consumes": [
                     "application/json"
                 ],
@@ -341,7 +341,32 @@ var doc = `{
                 "tags": [
                     "OAuth2"
                 ],
-                "summary": "scope",
+                "summary": "查询scope",
+                "parameters": [
+                    {
+                        "enum": [
+                            "paged",
+                            "all"
+                        ],
+                        "type": "string",
+                        "description": "查询参数",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "当前页",
+                        "name": "current",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -354,7 +379,10 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.OAuth2Scope"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.OAuth2Scope"
+                                            }
                                         }
                                     }
                                 }

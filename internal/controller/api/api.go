@@ -30,6 +30,7 @@ type Result struct {
 	Error  *ResultError `json:"error,omitempty"`
 }
 
+// ResultError ...
 type ResultError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -85,6 +86,7 @@ func writeData(ctx *gin.Context, data interface{}) {
 	})
 }
 
+// QueryChildren ...
 func QueryChildren(v map[string]gin.HandlerFunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		q := ctx.Query("q")

@@ -245,6 +245,17 @@ func (o *oauth2) AllScope() (scopes []*model.OAuth2Scope, err error) {
 	return
 }
 
+func (o *oauth2) ScopeListPaged(start, limit int) (scopes []*model.OAuth2Scope, total uint64, err error) {
+	scopes, total, err = dao.OAuth2Scope.ListPaged(store.NewDBContext(), start, limit)
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = nil
+		}
+		return
+	}
+	return
+}
+
 func (o *oauth2) AllScopeCode() (scopeCodes []string, err error) {
 	var scopes []*model.OAuth2Scope
 	scopes, err = dao.OAuth2Scope.SelectAll(store.NewDBContext())

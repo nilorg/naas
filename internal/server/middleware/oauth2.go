@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/nilorg/naas/internal/model"
-
 	"github.com/gin-contrib/sessions"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
@@ -19,7 +17,7 @@ func OAuth2AuthRequired(ctx *gin.Context) {
 	clientID := ctx.Query("client_id")
 	session := sessions.Default(ctx)
 	currentAccount := session.Get(key.SessionAccount)
-	if currentAccount == nil || currentAccount.(*model.SessionAccount) == nil {
+	if currentAccount == nil {
 		uri := *ctx.Request.URL
 		redirectURI, _ := url.Parse("/oauth2/login")
 		redirectURIQuery := url.Values{}
@@ -27,6 +25,7 @@ func OAuth2AuthRequired(ctx *gin.Context) {
 		redirectURIQuery.Set("login_redirect_uri", uri.String())
 		redirectURI.RawQuery = redirectURIQuery.Encode()
 		ctx.Redirect(302, redirectURI.String())
+		ctx.Abort()
 	} else {
 		ctx.Next()
 	}

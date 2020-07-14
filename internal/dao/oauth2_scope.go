@@ -20,6 +20,7 @@ type OAuth2Scoper interface {
 	Select(ctx context.Context, code string) (m *model.OAuth2Scope, err error)
 	SelectAll(ctx context.Context) (m []*model.OAuth2Scope, err error)
 	SelectByAllBasic(ctx context.Context) (m []*model.OAuth2Scope, err error)
+	ListPaged(ctx context.Context, start, limit int) (scopes []*model.OAuth2Scope, total uint64, err error)
 	Update(ctx context.Context, m *model.OAuth2Scope) (err error)
 }
 
@@ -182,5 +183,17 @@ func (s *oauth2Scope) scanCacheCode(ctx context.Context, items []*model.CacheCod
 		}
 		scopes = append(scopes, i)
 	}
+	return
+}
+
+func (s *oauth2Scope) ListPaged(ctx context.Context, start, limit int) (scopes []*model.OAuth2Scope, total uint64, err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	expression := gdb.Model(&model.OAuth2Scope{})
+	expression.Count(&total)
+	err = expression.Offset(start).Limit(limit).Find(&scopes).Error
 	return
 }
