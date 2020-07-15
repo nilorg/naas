@@ -125,6 +125,26 @@ definitions:
       website:
         type: string
     type: object
+  service.OAuth2CreateScopeModel:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  service.OAuth2UpdateScopeModel:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
   service.ResourceAddWebRouteRequest:
     properties:
       method:
@@ -385,6 +405,77 @@ paths:
       security:
       - OAuth2AccessCode: []
       summary: 查询scope
+      tags:
+      - OAuth2
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.OAuth2CreateScopeModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 创建scope
+      tags:
+      - OAuth2
+  /oauth2/scopes/{scop_code}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: scop code
+        in: path
+        name: scop_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个scope
+      tags:
+      - OAuth2
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: scop code
+        in: path
+        name: scop_code
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.OAuth2UpdateScopeModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改scope
       tags:
       - OAuth2
   /resources/{resource_id}/web_routes:

@@ -375,6 +375,121 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "创建scope",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.OAuth2CreateScopeModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth2/scopes/{scop_code}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "获取一个scope",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "scop code",
+                        "name": "scop_code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "修改scope",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "scop code",
+                        "name": "scop_code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.OAuth2UpdateScopeModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
             }
         },
         "/resources/{resource_id}/web_routes": {
@@ -927,6 +1042,37 @@
                     "type": "string"
                 },
                 "website": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.OAuth2CreateScopeModel": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.OAuth2UpdateScopeModel": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }

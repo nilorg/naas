@@ -16,3 +16,4 @@
 configs/example_config.yaml
 configs/example_openid-configuration.json
 telepresence.log
+web/storage

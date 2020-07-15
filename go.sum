@@ -381,8 +381,6 @@ github.com/nilorg/sdk v0.0.0-20200619071328-568bec6cd6d2 h1:aBfhBPFGDeeDDbQcCFso
 github.com/nilorg/sdk v0.0.0-20200619071328-568bec6cd6d2/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
 github.com/nilorg/sdk v0.0.0-20200712142122-57fb15a5c12e h1:ZUBhmiLfz7Sb8EPZmdQQFQB5knvZQ7n81wgICYf91jk=
 github.com/nilorg/sdk v0.0.0-20200712142122-57fb15a5c12e/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
-github.com/nilorg/sdk v0.0.0-20200713154637-34efc2ef1462 h1:2wNm6GV4pU0jviK0HQzelC+GMOaYS5mt/X6k8Asbwys=
-github.com/nilorg/sdk v0.0.0-20200713154637-34efc2ef1462/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
 github.com/nilorg/sdk v0.0.0-20200714040149-dd648ff9a2db h1:JhABz++wcBXW+dvloJR67wo4TPTzJFT41ngn0owa7zs=
 github.com/nilorg/sdk v0.0.0-20200714040149-dd648ff9a2db/go.mod h1:X1swpPdqguAZaBDoEPyEWHSsJii0YQ1o+3piMv6W3JU=
 github.com/o1egl/govatar v0.3.0 h1:hGDsiJJs6qgQ6Ea4JiaukRsUKTY2Ai4dgMEdsYvlUa0=

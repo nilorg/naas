@@ -10,7 +10,7 @@ import (
 type oauth2 struct {
 }
 
-// QueryChildren 查询方法
+// ScopeQueryChildren 查询方法
 // @Tags 		OAuth2
 // @Summary		查询scope
 // @Description	paged:查询翻页列表
@@ -24,14 +24,14 @@ type oauth2 struct {
 // @Success 200	{object}	Result{data=[]model.OAuth2Scope}
 // @Router /oauth2/scopes [GET]
 // @Security OAuth2AccessCode
-func (o *oauth2) QueryChildren() gin.HandlerFunc {
+func (o *oauth2) ScopeQueryChildren() gin.HandlerFunc {
 	return QueryChildren(map[string]gin.HandlerFunc{
-		"paged": o.listByPaged,
-		"all":   o.allScope,
+		"paged": o.scopeListByPaged,
+		"all":   o.scopeAll,
 	})
 }
 
-func (*oauth2) allScope(ctx *gin.Context) {
+func (*oauth2) scopeAll(ctx *gin.Context) {
 	var (
 		scopes []*model.OAuth2Scope
 		err    error
@@ -44,7 +44,7 @@ func (*oauth2) allScope(ctx *gin.Context) {
 	writeData(ctx, scopes)
 }
 
-func (*oauth2) listByPaged(ctx *gin.Context) {
+func (*oauth2) scopeListByPaged(ctx *gin.Context) {
 	var (
 		scopes []*model.OAuth2Scope
 		err    error
@@ -56,6 +56,85 @@ func (*oauth2) listByPaged(ctx *gin.Context) {
 		return
 	}
 	writeData(ctx, model.NewTableListData(*pagination, scopes))
+}
+
+// GetScopeOne 获取一个scope
+// @Tags 		OAuth2
+// @Summary		获取一个scope
+// @Accept  json
+// @Produce	json
+// @Param 	scop_code	path	string	true	"scop code"
+// @Success 200	{object}	Result
+// @Router /oauth2/scopes/{scop_code} [GET]
+// @Security OAuth2AccessCode
+func (*oauth2) GetScopeOne(ctx *gin.Context) {
+	var (
+		scope *model.OAuth2Scope
+		err   error
+	)
+	scopCode := ctx.Param("scop_code")
+	scope, err = service.OAuth2.GetScopeOne(scopCode)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, scope)
+}
+
+// UpdateScope 修改scope
+// @Tags 		OAuth2
+// @Summary		修改scope
+// @Accept  json
+// @Produce	json
+// @Param 	scop_code	path	string	true	"scop code"
+// @Param 	body	body	service.OAuth2UpdateScopeModel	true	"body"
+// @Success 200	{object}	Result
+// @Router /oauth2/scopes/{scop_code} [PUT]
+// @Security OAuth2AccessCode
+func (*oauth2) UpdateScope(ctx *gin.Context) {
+	var (
+		scope service.OAuth2UpdateScopeModel
+		err   error
+	)
+	scopCode := ctx.Param("scop_code")
+	err = ctx.ShouldBindJSON(&scope)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.OAuth2.UpdateScope(scopCode, &scope)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// CreateScope 创建scope
+// @Tags 		OAuth2
+// @Summary		创建scope
+// @Accept  json
+// @Produce	json
+// @Param 	body	body	service.OAuth2CreateScopeModel	true	"body"
+// @Success 200	{object}	Result
+// @Router /oauth2/scopes [POST]
+// @Security OAuth2AccessCode
+func (*oauth2) CreateScope(ctx *gin.Context) {
+	var (
+		scope service.OAuth2CreateScopeModel
+		err   error
+	)
+	err = ctx.ShouldBindJSON(&scope)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.OAuth2.CreateScope(&scope)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
 }
 
 // GetClientScopes 查询客户端scope

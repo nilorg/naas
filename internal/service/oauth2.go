@@ -245,6 +245,59 @@ func (o *oauth2) AllScope() (scopes []*model.OAuth2Scope, err error) {
 	return
 }
 
+// GetScopeOne 根据code获取scope
+func (o *oauth2) GetScopeOne(code string) (scope *model.OAuth2Scope, err error) {
+	return dao.OAuth2Scope.Select(store.NewDBContext(), code)
+}
+
+// OAuth2CreateScopeModel ...
+type OAuth2CreateScopeModel struct {
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+}
+
+// Update 修改用户
+func (o *oauth2) CreateScope(create *OAuth2CreateScopeModel) (err error) {
+	ctx := store.NewDBContext()
+	var (
+		scope *model.OAuth2Scope
+	)
+	scope = &model.OAuth2Scope{
+		Name:        create.Name,
+		Description: create.Description,
+		Type:        create.Type,
+	}
+	scope.Code = create.Code
+	err = dao.OAuth2Scope.Insert(ctx, scope)
+	return
+}
+
+// OAuth2UpdateScopeModel ...
+type OAuth2UpdateScopeModel struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+}
+
+// Update 修改用户
+func (o *oauth2) UpdateScope(code string, update *OAuth2UpdateScopeModel) (err error) {
+	ctx := store.NewDBContext()
+	var (
+		scope *model.OAuth2Scope
+	)
+	scope, err = dao.OAuth2Scope.Select(ctx, code)
+	if err != nil {
+		return
+	}
+	scope.Name = update.Name
+	scope.Description = update.Description
+	scope.Type = update.Type
+	err = dao.OAuth2Scope.Update(ctx, scope)
+	return
+}
+
 func (o *oauth2) ScopeListPaged(start, limit int) (scopes []*model.OAuth2Scope, total uint64, err error) {
 	scopes, total, err = dao.OAuth2Scope.ListPaged(store.NewDBContext(), start, limit)
 	if err != nil {
