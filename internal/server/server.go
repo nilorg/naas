@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -9,15 +10,20 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/nilorg/naas/internal/controller/api"
 	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/nilorg/naas/internal/controller/oidc"
+	"github.com/nilorg/naas/internal/controller/open"
 	"github.com/nilorg/naas/internal/controller/service"
 	"github.com/nilorg/naas/internal/controller/wellknown"
 	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/global"
 	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -134,6 +140,12 @@ func RunHTTP() {
 			}
 		}
 	}
+	if viper.GetBool("server.open.enabled") {
+		oidcGroup := r.Group("/open")
+		{
+			oidcGroup.POST("/users/wx", middleware.OAuth2AuthScopeRequired("wx_create_user"), open.User.CreateUserFromWeixin)
+		}
+	}
 	if viper.GetBool("server.admin.enabled") {
 		apiGroup := r.Group("api/v1", middleware.JWTAuthRequired(global.JwtPublicKey, viper.GetString("server.admin.oauth2.client_id")), middleware.CasbinAuthRequired(casbin.Enforcer))
 		{
@@ -165,9 +177,39 @@ func RunHTTP() {
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
 }
 
+func grpcOAuth2(inCtx context.Context) (outCtx context.Context, err error) {
+	var clientID string
+	clientID, err = grpc_auth.AuthFromMD(inCtx, "client_id")
+	if err != nil {
+		return
+	}
+	var clientSecret string
+	clientSecret, err = grpc_auth.AuthFromMD(inCtx, "client_secret")
+	if err != nil {
+		return
+	}
+	logger.Debugf("clientID: %s, clientSecret: %s", clientID, clientSecret)
+	return
+}
+
 // RunGRpc 运行Grpc
 func RunGRpc() {
-	gRPCServer := grpc.NewServer()
+	logrusEntry := logrus.NewEntry(logger.Default())
+	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
+	gRPCServer := grpc.NewServer(
+		grpc.StreamInterceptor(
+			grpc_middleware.ChainStreamServer(
+				grpc_auth.StreamServerInterceptor(grpcOAuth2),
+				grpc_logrus.StreamServerInterceptor(logrusEntry),
+			),
+		),
+		grpc.UnaryInterceptor(
+			grpc_middleware.ChainUnaryServer(
+				grpc_auth.UnaryServerInterceptor(grpcOAuth2),
+				grpc_logrus.UnaryServerInterceptor(logrusEntry),
+			),
+		),
+	)
 	service.RegisterGrpc(gRPCServer)
 	// 在gRPC服务器上注册反射服务。
 	reflection.Register(gRPCServer)

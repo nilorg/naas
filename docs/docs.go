@@ -507,6 +507,40 @@ var doc = `{
                 }
             }
         },
+        "/open/users/wx": {
+            "post": {
+                "description": "从微信创建用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Open（开放接口）"
+                ],
+                "summary": "从微信创建用户",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/open.createUserFromWeixinModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
         "/resources/{resource_id}/web_routes": {
             "post": {
                 "security": [
@@ -1015,6 +1049,15 @@ var doc = `{
                 "pagination": {
                     "type": "object",
                     "$ref": "#/definitions/model.Pagination"
+                }
+            }
+        },
+        "open.createUserFromWeixinModel": {
+            "type": "object",
+            "properties": {
+                "wx_union_id": {
+                    "description": "微信unionid",
+                    "type": "string"
                 }
             }
         },

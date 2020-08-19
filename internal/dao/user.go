@@ -16,6 +16,7 @@ import (
 // Userer ...
 type Userer interface {
 	SelectByUsername(ctx context.Context, username string) (mu *model.User, err error)
+	SelectByWxUnionID(ctx context.Context, wxUnionID string) (mu *model.User, err error)
 	Insert(ctx context.Context, mu *model.User) (err error)
 	Delete(ctx context.Context, id uint64) (err error)
 	DeleteInIDs(ctx context.Context, ids []uint64) (err error)
@@ -23,6 +24,7 @@ type Userer interface {
 	Update(ctx context.Context, mu *model.User) (err error)
 	ListPaged(ctx context.Context, start, limit int) (user []*model.User, total uint64, err error)
 	ExistByUsername(ctx context.Context, username string) (exist bool, err error)
+	ExistByWxUnionID(ctx context.Context, wxUnionID string) (exist bool, err error)
 	ExistByID(ctx context.Context, id string) (exist bool, err error)
 }
 
@@ -53,6 +55,20 @@ func (*user) SelectByUsername(ctx context.Context, username string) (mu *model.U
 		return
 	}
 	mu = &dbResult
+	return
+}
+
+func (*user) SelectByWxUnionID(ctx context.Context, wxUnionID string) (mu *model.User, err error) {
+	var gdb *gorm.DB
+	gdb, err = db.FromContext(ctx)
+	if err != nil {
+		return
+	}
+	mu = new(model.User)
+	err = gdb.Where("wx_union_id = ?", wxUnionID).First(&mu).Error
+	if err != nil {
+		mu = nil
+	}
 	return
 }
 
@@ -178,6 +194,11 @@ func (*user) exist(ctx context.Context, query interface{}, args ...interface{}) 
 // ExistByPhone 判断用户名是否存在
 func (u *user) ExistByUsername(ctx context.Context, username string) (exist bool, err error) {
 	return u.exist(ctx, "username = ?", username)
+}
+
+// ExistByWxUnionID 判断微信UnionID是否存在
+func (u *user) ExistByWxUnionID(ctx context.Context, wxUnionID string) (exist bool, err error) {
+	return u.exist(ctx, "wx_union_id = ?", wxUnionID)
 }
 
 // ExistByID 判断ID是否存在

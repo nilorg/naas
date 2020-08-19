@@ -13,6 +13,8 @@ server:
   oidc:
     enabled: false
     userinfo_endpoint_enabled: false
+  open:
+    enabled: true
   admin:
     enabled: true
     external: true # 启用外部管理，需要配置外部URL

@@ -189,12 +189,6 @@ func (o *oauth2) GetClientAllScope(clientID uint64) (scopes []*model.OAuth2Clien
 	return
 }
 
-// GetClientAllScopeFromCache 获取客户端的范围
-func (o *oauth2) GetClientAllScopeFromCache(clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
-	scopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(store.NewDBContext(), clientID)
-	return
-}
-
 // OAuth2ClientScopeInfo ...
 type OAuth2ClientScopeInfo struct {
 	Code        string `json:"code"`

@@ -5,9 +5,12 @@ import (
 	"net/url"
 
 	"github.com/gin-contrib/sessions"
+	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
+	"github.com/nilorg/sdk/convert"
 
 	"github.com/gin-gonic/gin"
 )
@@ -73,6 +76,56 @@ func OAuth2AuthUserinfoRequired(key interface{}) gin.HandlerFunc {
 			return
 		}
 		ctx.Set("idToken", idTokenClaims)
+		ctx.Next()
+	}
+}
+
+// OAuth2AuthScopeRequired 验证scope
+func OAuth2AuthScopeRequired(scopes ...string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var (
+			client       *model.OAuth2Client
+			clientScopes []string
+			err          error
+		)
+		clientID := ctx.Query("client_id")
+		clientSecret := ctx.Query("client_secret")
+		if v := ctx.PostForm("client_id"); v != "" {
+			clientID = v
+		}
+		if v := ctx.PostForm("client_secret"); v != "" {
+			clientSecret = v
+		}
+		client, err = service.OAuth2.GetClient(convert.ToUint64(clientID))
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": oauth2.ErrUnauthorizedClient.Error(),
+			})
+			return
+		}
+		if convert.ToString(client.ClientID) != clientID || client.ClientSecret != clientSecret {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": oauth2.ErrUnauthorizedClient.Error(),
+			})
+			return
+		}
+		clientScopes, _ = service.OAuth2.GetClientAllScopeCode(convert.ToUint64(clientID))
+		pass := false
+		for i := 0; i < len(scopes); i++ {
+			for j := 0; j < len(clientScopes); j++ {
+				if scopes[i] == scopes[i] {
+					pass = true
+					goto PASS_LABEL // 跳出循环
+				}
+			}
+		}
+	PASS_LABEL:
+		if !pass {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": oauth2.ErrAccessDenied.Error(),
+			})
+			return
+		}
 		ctx.Next()
 	}
 }

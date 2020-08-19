@@ -97,6 +97,12 @@ definitions:
         $ref: '#/definitions/model.Pagination'
         type: object
     type: object
+  open.createUserFromWeixinModel:
+    properties:
+      wx_union_id:
+        description: 微信unionid
+        type: string
+    type: object
   service.OAuth2ClientDetailInfo:
     properties:
       client_id:
@@ -478,6 +484,28 @@ paths:
       summary: 修改scope
       tags:
       - OAuth2
+  /open/users/wx:
+    post:
+      consumes:
+      - application/json
+      description: 从微信创建用户
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/open.createUserFromWeixinModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      summary: 从微信创建用户
+      tags:
+      - Open（开放接口）
   /resources/{resource_id}/web_routes:
     post:
       consumes:

@@ -5,12 +5,11 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/nilorg/naas/internal/dao"
-	"github.com/nilorg/naas/internal/service"
-
 	"github.com/nilorg/naas/internal/controller/oauth2"
+	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/module"
 	"github.com/nilorg/naas/internal/server"
+	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/pkg/logger"
 	"github.com/spf13/viper"
 )

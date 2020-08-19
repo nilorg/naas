@@ -53,8 +53,12 @@ func createPicture(typ, id string) (bs string, err error) {
 	return
 }
 
-// Create 创建用户
-func (u *user) Create(username, password string) (err error) {
+const (
+	createUserTypePassword = "password"
+	createUserTypeWx       = "wx"
+)
+
+func (u *user) create(username, password, wxUnionID, typ string) (err error) {
 	tran := store.DB.Begin()
 	ctx := store.NewDBContext(tran)
 	var exist bool
@@ -71,6 +75,19 @@ func (u *user) Create(username, password string) (err error) {
 	user := &model.User{
 		Username: username,
 		Password: password, // TODO: 后期需要使用加密，或者前台加密
+	}
+	if typ == createUserTypeWx {
+		exist, err = dao.User.ExistByWxUnionID(ctx, wxUnionID)
+		if err != nil {
+			tran.Rollback()
+			return
+		}
+		if exist {
+			tran.Rollback()
+			err = errors.ErrWxUnionIDExist
+			return
+		}
+		user.WxUnionID = wxUnionID
 	}
 	err = dao.User.Insert(ctx, user)
 	if err != nil {
@@ -93,6 +110,16 @@ func (u *user) Create(username, password string) (err error) {
 	}
 	err = tran.Commit().Error
 	return
+}
+
+// Create 创建用户
+func (u *user) Create(username, password string) (err error) {
+	return u.create(username, password, "", createUserTypePassword)
+}
+
+// CreateFromWeixin 从微信角度创建用户
+func (u *user) CreateFromWeixin(wxUnionID string) (err error) {
+	return u.create(wxUnionID, wxUnionID, wxUnionID, createUserTypeWx)
 }
 
 // UserUpdateModel ...

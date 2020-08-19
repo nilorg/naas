@@ -68,7 +68,8 @@ func NewResult(v interface{}) (result Result) {
 	return
 }
 
-func writer(ctx *gin.Context, v interface{}) {
+// Writer ...
+func Writer(ctx *gin.Context, v interface{}) {
 	ctx.JSON(http.StatusOK, NewResult(v))
 }
 
