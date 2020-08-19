@@ -45,7 +45,7 @@ func checkReSource(ctx context.Context, resource *proto.Resource) (err error) {
 		rs    *model.Resource
 		rsErr error
 	)
-	rs, rsErr = service.Resource.Get(ctx, convert.ToUint64(resource.Id))
+	rs, rsErr = service.Resource.Get(ctx, model.ConvertStringToID(resource.Id))
 	if rsErr != nil {
 		logger.Errorf("service.Resource.GetClient Error: %s", rsErr)
 		err = status.Error(codes.Unavailable, oauth2.ErrUnauthorizedClient.Error())
@@ -64,13 +64,13 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 	if err != nil {
 		return
 	}
-	var openID string
+	var openID model.ID
 	openID, err = ctl.verifyToken(ctx, req.Token, req.Oauth2ClientId)
 	if err != nil {
 		return
 	}
 	res = new(proto.VerifyHttpRouteResponse)
-	roles, _ := service.Role.GetAllRoleByUserID(ctx, convert.ToUint64(openID))
+	roles, _ := service.Role.GetAllRoleByUserID(ctx, openID)
 	for _, role := range roles {
 		sub := fmt.Sprintf("role:%s", role.RoleCode)                 // 希望访问资源的用户
 		dom := fmt.Sprintf("resource:%s:web_route", req.Resource.Id) // 域/域租户,这里以资源为单位
@@ -87,7 +87,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 	}
 	// 返回用户信息
 	if res.Allow && req.ReturnUserInfo {
-		user, userErr := service.User.GetOneByID(ctx, convert.ToUint64(openID))
+		user, userErr := service.User.GetOneByID(ctx, openID)
 		if userErr != nil {
 			err = status.Error(codes.Unavailable, userErr.Error())
 			return
@@ -96,7 +96,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 			OpenId:   convert.ToString(user.ID),
 			Username: user.Username,
 		}
-		userInfo, userInfoErr := service.User.GetInfoOneByUserID(ctx, convert.ToUint64(res.UserInfo.OpenId))
+		userInfo, userInfoErr := service.User.GetInfoOneByUserID(ctx, model.ConvertStringToID(res.UserInfo.OpenId))
 		if userInfoErr == nil && userInfo != nil {
 			res.UserInfo.NickName = userInfo.Nickname
 			res.UserInfo.AvatarUrl = userInfo.Picture
@@ -107,7 +107,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 }
 
 // verifyToken 验证Token
-func (ctl *PermissionService) verifyToken(ctx context.Context, token, oauth2ClientID string) (openID string, err error) {
+func (ctl *PermissionService) verifyToken(ctx context.Context, token, oauth2ClientID string) (openID model.ID, err error) {
 	if token == "" {
 		err = status.Error(codes.InvalidArgument, "request token is empty")
 		return
@@ -140,7 +140,7 @@ func (ctl *PermissionService) verifyToken(ctx context.Context, token, oauth2Clie
 		err = status.Error(codes.PermissionDenied, fmt.Sprintf("token claims audience not equal to %s", oauth2ClientID))
 		return
 	}
-	openID = claims.Subject
+	openID = model.ConvertStringToID(claims.Subject)
 	return
 }
 
@@ -151,14 +151,14 @@ func (ctl *PermissionService) VerifyToken(ctx context.Context, req *proto.Verify
 	if err != nil {
 		return
 	}
-	var openID string
+	var openID model.ID
 	openID, err = ctl.verifyToken(ctx, req.Token, req.Oauth2ClientId)
 	if err != nil {
 		return
 	}
 	res = new(proto.VerifyTokenResponse)
 	if req.ReturnUserInfo {
-		user, userErr := service.User.GetOneByID(ctx, convert.ToUint64(openID))
+		user, userErr := service.User.GetOneByID(ctx, openID)
 		if userErr != nil {
 			err = status.Error(codes.Unavailable, userErr.Error())
 			return
@@ -167,7 +167,7 @@ func (ctl *PermissionService) VerifyToken(ctx context.Context, req *proto.Verify
 			OpenId:   convert.ToString(user.ID),
 			Username: user.Username,
 		}
-		userInfo, userInfoErr := service.User.GetInfoOneByUserID(ctx, convert.ToUint64(res.UserInfo.OpenId))
+		userInfo, userInfoErr := service.User.GetInfoOneByUserID(ctx, model.ConvertStringToID(res.UserInfo.OpenId))
 		if userInfoErr == nil && userInfo != nil {
 			res.UserInfo.NickName = userInfo.Nickname
 			res.UserInfo.AvatarUrl = userInfo.Picture

@@ -15,12 +15,12 @@ import (
 
 // UserInfoer ...
 type UserInfoer interface {
-	SelectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error)
+	SelectByUserID(ctx context.Context, userID model.ID) (mu *model.UserInfo, err error)
 	Insert(ctx context.Context, mu *model.UserInfo) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	DeleteByUserID(ctx context.Context, userID uint64) (err error)
-	DeleteInUserIDs(ctx context.Context, userIDs []uint64) (err error)
-	Select(ctx context.Context, id uint64) (mu *model.UserInfo, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteByUserID(ctx context.Context, userID model.ID) (err error)
+	DeleteInUserIDs(ctx context.Context, userIDs []model.ID) (err error)
+	Select(ctx context.Context, id model.ID) (mu *model.UserInfo, err error)
 	Update(ctx context.Context, mu *model.UserInfo) (err error)
 }
 
@@ -28,21 +28,21 @@ type userInfo struct {
 	cache cache.Cacher
 }
 
-func (*userInfo) formatOneKey(id uint64) string {
+func (*userInfo) formatOneKey(id model.ID) string {
 	return fmt.Sprintf("id:%d", id)
 }
 
-func (*userInfo) formatOneUserIDKey(id uint64) string {
+func (*userInfo) formatOneUserIDKey(id model.ID) string {
 	return fmt.Sprintf("user_id:%d", id)
 }
-func (u *userInfo) formatOneUserIDKeys(ids ...uint64) (keys []string) {
+func (u *userInfo) formatOneUserIDKeys(ids ...model.ID) (keys []string) {
 	for _, id := range ids {
 		keys = append(keys, u.formatOneUserIDKey(id))
 	}
 	return
 }
 
-func (*userInfo) selectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
+func (*userInfo) selectByUserID(ctx context.Context, userID model.ID) (mu *model.UserInfo, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -57,14 +57,14 @@ func (*userInfo) selectByUserID(ctx context.Context, userID uint64) (mu *model.U
 	return
 }
 
-func (u *userInfo) SelectByUserID(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
+func (u *userInfo) SelectByUserID(ctx context.Context, userID model.ID) (mu *model.UserInfo, err error) {
 	if store.FromSkipCacheContext(ctx) {
 		return u.selectByUserID(ctx, userID)
 	}
 	return u.selectByUserIDFromCache(ctx, userID)
 }
 
-func (u *userInfo) selectByUserIDFromCache(ctx context.Context, userID uint64) (mu *model.UserInfo, err error) {
+func (u *userInfo) selectByUserIDFromCache(ctx context.Context, userID model.ID) (mu *model.UserInfo, err error) {
 	mu = new(model.UserInfo)
 	key := u.formatOneUserIDKey(userID)
 	err = u.cache.Get(ctx, key, mu)
@@ -91,7 +91,7 @@ func (*userInfo) Insert(ctx context.Context, mu *model.UserInfo) (err error) {
 	return
 }
 
-func (u *userInfo) Delete(ctx context.Context, id uint64) (err error) {
+func (u *userInfo) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -105,7 +105,7 @@ func (u *userInfo) Delete(ctx context.Context, id uint64) (err error) {
 	return
 }
 
-func (u *userInfo) DeleteByUserID(ctx context.Context, userID uint64) (err error) {
+func (u *userInfo) DeleteByUserID(ctx context.Context, userID model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -119,7 +119,7 @@ func (u *userInfo) DeleteByUserID(ctx context.Context, userID uint64) (err error
 	return
 }
 
-func (u *userInfo) DeleteInUserIDs(ctx context.Context, userIDs []uint64) (err error) {
+func (u *userInfo) DeleteInUserIDs(ctx context.Context, userIDs []model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -133,7 +133,7 @@ func (u *userInfo) DeleteInUserIDs(ctx context.Context, userIDs []uint64) (err e
 	return
 }
 
-func (*userInfo) selectOne(ctx context.Context, id uint64) (mu *model.UserInfo, err error) {
+func (*userInfo) selectOne(ctx context.Context, id model.ID) (mu *model.UserInfo, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -148,14 +148,14 @@ func (*userInfo) selectOne(ctx context.Context, id uint64) (mu *model.UserInfo, 
 	return
 }
 
-func (u *userInfo) Select(ctx context.Context, id uint64) (mu *model.UserInfo, err error) {
+func (u *userInfo) Select(ctx context.Context, id model.ID) (mu *model.UserInfo, err error) {
 	if store.FromSkipCacheContext(ctx) {
 		return u.selectOne(ctx, id)
 	}
 	return u.selectFromCache(ctx, id)
 }
 
-func (u *userInfo) selectFromCache(ctx context.Context, id uint64) (m *model.UserInfo, err error) {
+func (u *userInfo) selectFromCache(ctx context.Context, id model.ID) (m *model.UserInfo, err error) {
 	m = new(model.UserInfo)
 	key := u.formatOneKey(id)
 	err = u.cache.Get(ctx, key, m)

@@ -15,7 +15,6 @@ import (
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
-	"github.com/nilorg/sdk/convert"
 	sdkStrings "github.com/nilorg/sdk/strings"
 )
 
@@ -35,7 +34,7 @@ func AuthorizePage(ctx *gin.Context) {
 		client     *model.OAuth2Client
 		clientInfo *model.OAuth2ClientInfo
 	)
-	client, err = service.OAuth2.GetClient(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
+	client, err = service.OAuth2.GetClient(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {
@@ -62,7 +61,7 @@ func AuthorizePage(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
-	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
+	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if err != nil {
 		ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
 			"error": err.Error(),
@@ -87,7 +86,7 @@ func AuthorizePage(ctx *gin.Context) {
 	for _, v := range scopeInfos {
 		scopes = append(scopes, map[string]interface{}{
 			"info":    v,
-			"checked": tools.InStringSplit(v.Code, scopeSplit),
+			"checked": tools.InStringSplit(string(v.Code), scopeSplit),
 		})
 	}
 	logBackInURI, _ := url.Parse("/oauth2/login")

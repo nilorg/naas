@@ -12,8 +12,8 @@ import (
 type Adminer interface {
 	SelectByUsername(ctx context.Context, username string) (ma *model.Admin, err error)
 	Insert(ctx context.Context, ma *model.Admin) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	Select(ctx context.Context, id uint64) (ma *model.Admin, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	Select(ctx context.Context, id model.ID) (ma *model.Admin, err error)
 	Update(ctx context.Context, ma *model.Admin) (err error)
 }
 
@@ -45,7 +45,7 @@ func (*admin) Insert(ctx context.Context, ma *model.Admin) (err error) {
 	return
 }
 
-func (*admin) Delete(ctx context.Context, id uint64) (err error) {
+func (*admin) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -55,7 +55,7 @@ func (*admin) Delete(ctx context.Context, id uint64) (err error) {
 	return
 }
 
-func (*admin) Select(ctx context.Context, id uint64) (ma *model.Admin, err error) {
+func (*admin) Select(ctx context.Context, id model.ID) (ma *model.Admin, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {

@@ -17,17 +17,17 @@ import (
 // Resourcer ...
 type Resourcer interface {
 	Insert(ctx context.Context, resource *model.Resource) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	Select(ctx context.Context, id uint64) (resource *model.Resource, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	Select(ctx context.Context, id model.ID) (resource *model.Resource, err error)
 	Update(ctx context.Context, resource *model.Resource) (err error)
-	LoadPolicy(ctx context.Context, resourceID uint64) (results []*gormadapter.CasbinRule, err error)
+	LoadPolicy(ctx context.Context, resourceID model.ID) (results []*gormadapter.CasbinRule, err error)
 }
 
 type resource struct {
 	cache cache.Cacher
 }
 
-func (*resource) formatOneKey(id uint64) string {
+func (*resource) formatOneKey(id model.ID) string {
 	return fmt.Sprintf("id:%d", id)
 }
 
@@ -40,7 +40,7 @@ func (*resource) Insert(ctx context.Context, resource *model.Resource) (err erro
 	err = gdb.Create(resource).Error
 	return
 }
-func (r *resource) Delete(ctx context.Context, id uint64) (err error) {
+func (r *resource) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -54,7 +54,7 @@ func (r *resource) Delete(ctx context.Context, id uint64) (err error) {
 	return
 }
 
-func (*resource) selectOne(ctx context.Context, id uint64) (resource *model.Resource, err error) {
+func (*resource) selectOne(ctx context.Context, id model.ID) (resource *model.Resource, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -69,14 +69,14 @@ func (*resource) selectOne(ctx context.Context, id uint64) (resource *model.Reso
 	return
 }
 
-func (r *resource) Select(ctx context.Context, id uint64) (resource *model.Resource, err error) {
+func (r *resource) Select(ctx context.Context, id model.ID) (resource *model.Resource, err error) {
 	if store.FromSkipCacheContext(ctx) {
 		return r.selectOne(ctx, id)
 	}
 	return r.selectFromCache(ctx, id)
 }
 
-func (r *resource) selectFromCache(ctx context.Context, id uint64) (resource *model.Resource, err error) {
+func (r *resource) selectFromCache(ctx context.Context, id model.ID) (resource *model.Resource, err error) {
 	resource = new(model.Resource)
 	key := r.formatOneKey(id)
 	err = r.cache.Get(ctx, key, resource)
@@ -108,7 +108,7 @@ func (r *resource) Update(ctx context.Context, resource *model.Resource) (err er
 }
 
 // LoadPolicy 加载规则
-func (*resource) LoadPolicy(ctx context.Context, resourceID uint64) (results []*gormadapter.CasbinRule, err error) {
+func (*resource) LoadPolicy(ctx context.Context, resourceID model.ID) (results []*gormadapter.CasbinRule, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {

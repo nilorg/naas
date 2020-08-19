@@ -12,13 +12,13 @@ type resource struct {
 }
 
 // Get resource
-func (*resource) Get(ctx context.Context, id uint64) (resource *model.Resource, err error) {
+func (*resource) Get(ctx context.Context, id model.ID) (resource *model.Resource, err error) {
 	resource, err = dao.Resource.Select(ctx, id)
 	return
 }
 
 // LoadPolicy 加载规则
-func (*resource) LoadPolicy(ctx context.Context, resourceID uint64) (results []*gormadapter.CasbinRule, err error) {
+func (*resource) LoadPolicy(ctx context.Context, resourceID model.ID) (results []*gormadapter.CasbinRule, err error) {
 	return dao.Resource.LoadPolicy(ctx, resourceID)
 }
 
@@ -30,7 +30,7 @@ type ResourceAddWebRouteRequest struct {
 }
 
 // AddWebRoute 添加web路由
-func (*resource) AddWebRoute(ctx context.Context, resourceID uint64, req *ResourceAddWebRouteRequest) (err error) {
+func (*resource) AddWebRoute(ctx context.Context, resourceID model.ID, req *ResourceAddWebRouteRequest) (err error) {
 	v := &model.ResourceWebRoute{
 		Name:       req.Name,
 		Path:       req.Path,

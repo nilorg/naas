@@ -3,6 +3,7 @@ package oidc
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/oidc"
@@ -18,7 +19,7 @@ func GetUserinfo(ctx *gin.Context) {
 		err            error
 	)
 	idTokenClaims = ctx.MustGet("idToken").(*oauth2.JwtClaims)
-	user, err := service.User.GetOneByID(contexts.WithGinContext(ctx), convert.ToUint64(idTokenClaims.Subject))
+	user, err := service.User.GetOneByID(contexts.WithGinContext(ctx), model.ConvertStringToID(idTokenClaims.Subject))
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			ctx.Status(404)
@@ -32,7 +33,7 @@ func GetUserinfo(ctx *gin.Context) {
 	resultUserinfo.Sub = convert.ToString(user.ID)
 	userInfoFlag := idTokenClaims.VerifyScope("profile", true) || idTokenClaims.VerifyScope("email", true)
 	if userInfoFlag {
-		userInfo, err := service.User.GetInfoOneByUserID(contexts.WithGinContext(ctx), convert.ToUint64(idTokenClaims.Subject))
+		userInfo, err := service.User.GetInfoOneByUserID(contexts.WithGinContext(ctx), model.ConvertStringToID(idTokenClaims.Subject))
 		if err == nil && userInfo == nil {
 			ctx.JSON(200, resultUserinfo)
 			return

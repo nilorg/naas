@@ -45,13 +45,13 @@ func (r *role) recursive(ctx context.Context, roles []*model.Role) {
 }
 
 // GetAllRoleByUserID ...
-func (r *role) GetAllRoleByUserID(ctx context.Context, userID uint64) (roles []*model.UserRole, err error) {
+func (r *role) GetAllRoleByUserID(ctx context.Context, userID model.ID) (roles []*model.UserRole, err error) {
 	roles, err = dao.UserRole.SelectAllByUserID(ctx, userID)
 	return
 }
 
 // AddResourceWebRoute 添加web路由资源角色
-func (r *role) AddResourceWebRoute(ctx context.Context, roleCode string, resourceWebRouteID uint64) (err error) {
+func (r *role) AddResourceWebRoute(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (err error) {
 	var exist bool
 	exist, err = dao.RoleResourceWebRoute.ExistByRoleCodeAndResourceWebRouteID(ctx, roleCode, resourceWebRouteID)
 	if err != nil {

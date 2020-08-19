@@ -11,6 +11,6 @@ type Organization struct {
 // OrganizationRole 组织权限
 type OrganizationRole struct {
 	Model
-	UserID uint64 `json:"user_id" gorm:"column:user_id"`
-	RoleID uint64 `json:"role_id" gorm:"column:role_id"`
+	UserID ID `json:"user_id" gorm:"column:user_id"`
+	RoleID ID `json:"role_id" gorm:"column:role_id"`
 }

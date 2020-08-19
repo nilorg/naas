@@ -129,7 +129,7 @@ type UserUpdateModel struct {
 }
 
 // Update 修改用户
-func (u *user) Update(ctx context.Context, id uint64, update *UserUpdateModel) (err error) {
+func (u *user) Update(ctx context.Context, id model.ID, update *UserUpdateModel) (err error) {
 	var (
 		user          *model.User
 		usernameExist bool
@@ -164,17 +164,17 @@ func (u *user) GetUserByUsername(ctx context.Context, username string) (usr *mod
 }
 
 // GetOneByID 根据ID获取用户
-func (u *user) GetOneByID(ctx context.Context, id uint64) (usr *model.User, err error) {
+func (u *user) GetOneByID(ctx context.Context, id model.ID) (usr *model.User, err error) {
 	return dao.User.Select(ctx, id)
 }
 
 // GetInfoOneByUserID 根据用户ID获取信息
-func (u *user) GetInfoOneByUserID(ctx context.Context, userID uint64) (usr *model.UserInfo, err error) {
+func (u *user) GetInfoOneByUserID(ctx context.Context, userID model.ID) (usr *model.UserInfo, err error) {
 	return dao.UserInfo.SelectByUserID(ctx, userID)
 }
 
 // GetInfoOneByCache 根据用户ID获取信息
-func (u *user) GetInfoOneByCache(ctx context.Context, userID uint64) (usr *model.User, usrInfo *model.UserInfo, err error) {
+func (u *user) GetInfoOneByCache(ctx context.Context, userID model.ID) (usr *model.User, usrInfo *model.UserInfo, err error) {
 	usr, err = dao.User.Select(ctx, userID)
 	if err != nil {
 		return
@@ -233,7 +233,7 @@ func (u *user) ListPaged(ctx context.Context, start, limit int) (result []*model
 }
 
 // DeleteByID 根据ID删除用户
-func (u *user) DeleteByIDs(ctx context.Context, ids ...uint64) (err error) {
+func (u *user) DeleteByIDs(ctx context.Context, ids ...model.ID) (err error) {
 	tran := store.DB.Begin()
 	ctx = store.NewDBContext(ctx, tran)
 	err = dao.User.DeleteInIDs(ctx, ids)

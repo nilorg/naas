@@ -18,9 +18,9 @@ type Userer interface {
 	SelectByUsername(ctx context.Context, username string) (mu *model.User, err error)
 	SelectByWxUnionID(ctx context.Context, wxUnionID string) (mu *model.User, err error)
 	Insert(ctx context.Context, mu *model.User) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	DeleteInIDs(ctx context.Context, ids []uint64) (err error)
-	Select(ctx context.Context, id uint64) (mu *model.User, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteInIDs(ctx context.Context, ids []model.ID) (err error)
+	Select(ctx context.Context, id model.ID) (mu *model.User, err error)
 	Update(ctx context.Context, mu *model.User) (err error)
 	ListPaged(ctx context.Context, start, limit int) (user []*model.User, total uint64, err error)
 	ExistByUsername(ctx context.Context, username string) (exist bool, err error)
@@ -32,11 +32,11 @@ type user struct {
 	cache cache.Cacher
 }
 
-func (*user) formatOneKey(id uint64) string {
+func (*user) formatOneKey(id model.ID) string {
 	return fmt.Sprintf("id:%d", id)
 }
 
-func (u *user) formatOneKeys(ids ...uint64) (keys []string) {
+func (u *user) formatOneKeys(ids ...model.ID) (keys []string) {
 	for _, id := range ids {
 		keys = append(keys, u.formatOneKey(id))
 	}
@@ -82,7 +82,7 @@ func (*user) Insert(ctx context.Context, mu *model.User) (err error) {
 	return
 }
 
-func (u *user) Delete(ctx context.Context, id uint64) (err error) {
+func (u *user) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -96,7 +96,7 @@ func (u *user) Delete(ctx context.Context, id uint64) (err error) {
 	return
 }
 
-func (u *user) DeleteInIDs(ctx context.Context, ids []uint64) (err error) {
+func (u *user) DeleteInIDs(ctx context.Context, ids []model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -110,7 +110,7 @@ func (u *user) DeleteInIDs(ctx context.Context, ids []uint64) (err error) {
 	return
 }
 
-func (*user) selectOne(ctx context.Context, id uint64) (mu *model.User, err error) {
+func (*user) selectOne(ctx context.Context, id model.ID) (mu *model.User, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -125,14 +125,14 @@ func (*user) selectOne(ctx context.Context, id uint64) (mu *model.User, err erro
 	return
 }
 
-func (u *user) Select(ctx context.Context, id uint64) (mu *model.User, err error) {
+func (u *user) Select(ctx context.Context, id model.ID) (mu *model.User, err error) {
 	if store.FromSkipCacheContext(ctx) {
 		return u.selectOne(ctx, id)
 	}
 	return u.selectFromCache(ctx, id)
 }
 
-func (u *user) selectFromCache(ctx context.Context, id uint64) (m *model.User, err error) {
+func (u *user) selectFromCache(ctx context.Context, id model.ID) (m *model.User, err error) {
 	m = new(model.User)
 	key := u.formatOneKey(id)
 	err = u.cache.Get(ctx, key, m)

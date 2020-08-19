@@ -47,7 +47,7 @@ func Init() {
 	)
 	oauth2Server.VerifyClient = func(basic *oauth2.ClientBasic) (err error) {
 		var client *model.OAuth2Client
-		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), convert.ToUint64(basic.ID))
+		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), model.ConvertStringToID(basic.ID))
 		if err != nil {
 			err = oauth2.ErrUnauthorizedClient
 			return
@@ -72,7 +72,7 @@ func Init() {
 	}
 	oauth2Server.VerifyRedirectURI = func(clientID, redirectURI string) (err error) {
 		var client *model.OAuth2Client
-		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), convert.ToUint64(clientID))
+		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), model.ConvertStringToID(clientID))
 		if err != nil {
 			err = oauth2.ErrAccessDenied
 			return
@@ -119,13 +119,13 @@ func Init() {
 		if len(scope) == 0 {
 			return
 		}
-		var scopes []string
-		scopes, err = service.OAuth2.GetClientAllScopeCode(contexts.WithContext(context.Background()), convert.ToUint64(clientID))
+		var scopes []model.Code
+		scopes, err = service.OAuth2.GetClientAllScopeCode(contexts.WithContext(context.Background()), model.ConvertStringToID(clientID))
 		if err != nil {
 			err = oauth2.ErrInvalidScope
 			return
 		}
-		if !slice.IsSubset(scope, scopes) {
+		if !slice.IsSubset(scope, model.ConvertCodeSliceToStringSlice(scopes)) {
 			err = oauth2.ErrInvalidScope
 		}
 		return
@@ -175,7 +175,7 @@ func Init() {
 		resp.Exp = tokenClaims.ExpiresAt
 		resp.Iss = tokenClaims.IssuedAt
 		var user *model.User
-		user, err = service.User.GetOneByID(contexts.WithContext(context.Background()), convert.ToUint64(tokenClaims.Subject))
+		user, err = service.User.GetOneByID(contexts.WithContext(context.Background()), model.ConvertStringToID(tokenClaims.Subject))
 		if err == nil && user != nil {
 			resp.Username = user.Username
 		}

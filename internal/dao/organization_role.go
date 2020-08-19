@@ -11,8 +11,8 @@ import (
 // OrganizationRoleer ...
 type OrganizationRoleer interface {
 	Insert(ctx context.Context, m *model.OrganizationRole) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	Select(ctx context.Context, id uint64) (m *model.OrganizationRole, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	Select(ctx context.Context, id model.ID) (m *model.OrganizationRole, err error)
 	Update(ctx context.Context, m *model.OrganizationRole) (err error)
 }
 
@@ -28,7 +28,7 @@ func (o *organizationRole) Insert(ctx context.Context, m *model.OrganizationRole
 	err = gdb.Create(m).Error
 	return
 }
-func (o *organizationRole) Delete(ctx context.Context, id uint64) (err error) {
+func (o *organizationRole) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -37,7 +37,7 @@ func (o *organizationRole) Delete(ctx context.Context, id uint64) (err error) {
 	err = gdb.Delete(&model.OrganizationRole{}, id).Error
 	return
 }
-func (o *organizationRole) Select(ctx context.Context, id uint64) (m *model.OrganizationRole, err error) {
+func (o *organizationRole) Select(ctx context.Context, id model.ID) (m *model.OrganizationRole, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {

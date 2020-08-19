@@ -6,7 +6,7 @@ import (
 
 // OAuth2Client ...
 type OAuth2Client struct {
-	ClientID     uint64 `json:"client_id" gorm:"primary_key;column:client_id"`
+	ClientID     ID     `json:"client_id" gorm:"primary_key;column:client_id"`
 	ClientSecret string `json:"client_secret" gorm:"column:client_secret"`
 	RedirectURI  string `json:"redirect_uri" gorm:"column:redirect_uri"`
 }
@@ -23,7 +23,7 @@ func (c *OAuth2Client) GetClientID() string {
 
 // OAuth2ClientInfo ...
 type OAuth2ClientInfo struct {
-	ClientID    uint64 `json:"client_id" gorm:"primary_key;column:client_id"`
+	ClientID    ID     `json:"client_id" gorm:"primary_key;column:client_id"`
 	Name        string `json:"name" gorm:"column:name"`
 	Website     string `json:"website" gorm:"column:website"`
 	Profile     string `json:"profile" gorm:"column:profile"`
@@ -56,8 +56,8 @@ func (*OAuth2Scope) TableName() string {
 // OAuth2ClientScope OAuth2客户端范围
 type OAuth2ClientScope struct {
 	Model
-	OAuth2ClientID uint64 `json:"oauth2_client_id" gorm:"column:oauth2_client_id"`
-	ScopeCode      string `json:"scope_code" gorm:"column:scope_code"`
+	OAuth2ClientID ID   `json:"oauth2_client_id" gorm:"column:oauth2_client_id"`
+	ScopeCode      Code `json:"scope_code" gorm:"column:scope_code"`
 }
 
 func (*OAuth2ClientScope) TableName() string {

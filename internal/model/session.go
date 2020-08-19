@@ -8,7 +8,7 @@ func init() {
 
 // SessionAccount ...
 type SessionAccount struct {
-	UserID   uint64
+	UserID   ID
 	UserName string
 	Nickname string
 	Picture  string

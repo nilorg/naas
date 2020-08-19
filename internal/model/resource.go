@@ -6,5 +6,5 @@ type Resource struct {
 	Name           string `json:"name"`
 	Secret         string `json:"secret"`
 	Description    string `json:"description"`
-	OrganizationID uint64 `json:"organization_id"`
+	OrganizationID ID     `json:"organization_id"`
 }

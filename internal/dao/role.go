@@ -11,10 +11,10 @@ import (
 // Roleer ...
 type Roleer interface {
 	Insert(ctx context.Context, m *model.Role) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	SelectByCode(ctx context.Context, code string) (m *model.Role, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	SelectByCode(ctx context.Context, code model.Code) (m *model.Role, err error)
 	SelectByRoot(ctx context.Context) (results []*model.Role, err error)
-	SelectByParentCode(ctx context.Context, parentCode string) (results []*model.Role, err error)
+	SelectByParentCode(ctx context.Context, parentCode model.Code) (results []*model.Role, err error)
 	Update(ctx context.Context, m *model.Role) (err error)
 }
 
@@ -31,7 +31,7 @@ func (r *role) Insert(ctx context.Context, m *model.Role) (err error) {
 	return
 }
 
-func (r *role) Delete(ctx context.Context, id uint64) (err error) {
+func (r *role) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -41,7 +41,7 @@ func (r *role) Delete(ctx context.Context, id uint64) (err error) {
 	return
 }
 
-func (r *role) SelectByCode(ctx context.Context, code string) (m *model.Role, err error) {
+func (r *role) SelectByCode(ctx context.Context, code model.Code) (m *model.Role, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -66,7 +66,7 @@ func (r *role) SelectByRoot(ctx context.Context) (results []*model.Role, err err
 	return
 }
 
-func (r *role) SelectByParentCode(ctx context.Context, parentCode string) (results []*model.Role, err error) {
+func (r *role) SelectByParentCode(ctx context.Context, parentCode model.Code) (results []*model.Role, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {

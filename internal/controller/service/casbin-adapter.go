@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	gormadapter "github.com/casbin/gorm-adapter/v2"
+	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/proto"
-	"github.com/nilorg/sdk/convert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -28,7 +28,7 @@ func (ctl *CasbinAdapterService) LoadPolicy(ctx context.Context, req *proto.Load
 		return
 	}
 	resp = new(proto.LoadPolicyResponse)
-	results, resultErr := service.Resource.LoadPolicy(ctx, convert.ToUint64(req.ResourceId))
+	results, resultErr := service.Resource.LoadPolicy(ctx, model.ConvertStringToID(req.ResourceId))
 	if resultErr != nil {
 		err = status.Error(codes.Unavailable, resultErr.Error())
 		return

@@ -10,7 +10,6 @@ import (
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/pkg/logger"
-	"github.com/nilorg/sdk/convert"
 )
 
 // LoginPage 登录页面
@@ -28,7 +27,7 @@ func LoginPage(ctx *gin.Context) {
 		clientInfo *model.OAuth2ClientInfo
 	)
 	clientID := ctx.Query("client_id")
-	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
+	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if err != nil {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
 			"error": err.Error(),

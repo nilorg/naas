@@ -16,11 +16,11 @@ import (
 // OAuth2Clienter oauth2 client 接口
 type OAuth2Clienter interface {
 	Insert(ctx context.Context, mc *model.OAuth2Client) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	DeleteInIDs(ctx context.Context, ids []uint64) (err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteInIDs(ctx context.Context, ids []model.ID) (err error)
 	Update(ctx context.Context, mc *model.OAuth2Client) (err error)
-	UpdateRedirectURI(ctx context.Context, id uint64, redirectURI string) (err error)
-	SelectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error)
+	UpdateRedirectURI(ctx context.Context, id model.ID, redirectURI string) (err error)
+	SelectByID(ctx context.Context, clientID model.ID) (mc *model.OAuth2Client, err error)
 	ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total uint64, err error)
 }
 
@@ -28,10 +28,10 @@ type oauth2Client struct {
 	cache cache.Cacher
 }
 
-func (*oauth2Client) formatOneKey(id uint64) string {
+func (*oauth2Client) formatOneKey(id model.ID) string {
 	return fmt.Sprintf("id:%d", id)
 }
-func (o *oauth2Client) formatOneKeys(ids ...uint64) (keys []string) {
+func (o *oauth2Client) formatOneKeys(ids ...model.ID) (keys []string) {
 	for _, id := range ids {
 		keys = append(keys, o.formatOneKey(id))
 	}
@@ -48,7 +48,7 @@ func (*oauth2Client) Insert(ctx context.Context, mc *model.OAuth2Client) (err er
 	return
 }
 
-func (o *oauth2Client) Delete(ctx context.Context, id uint64) (err error) {
+func (o *oauth2Client) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -62,7 +62,7 @@ func (o *oauth2Client) Delete(ctx context.Context, id uint64) (err error) {
 	return
 }
 
-func (o *oauth2Client) DeleteInIDs(ctx context.Context, ids []uint64) (err error) {
+func (o *oauth2Client) DeleteInIDs(ctx context.Context, ids []model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -90,7 +90,7 @@ func (o *oauth2Client) Update(ctx context.Context, mc *model.OAuth2Client) (err 
 	return
 }
 
-func (o *oauth2Client) UpdateRedirectURI(ctx context.Context, id uint64, redirectURI string) (err error) {
+func (o *oauth2Client) UpdateRedirectURI(ctx context.Context, id model.ID, redirectURI string) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -104,7 +104,7 @@ func (o *oauth2Client) UpdateRedirectURI(ctx context.Context, id uint64, redirec
 	return
 }
 
-func (*oauth2Client) selectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error) {
+func (*oauth2Client) selectByID(ctx context.Context, clientID model.ID) (mc *model.OAuth2Client, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -119,14 +119,14 @@ func (*oauth2Client) selectByID(ctx context.Context, clientID uint64) (mc *model
 	return
 }
 
-func (o *oauth2Client) SelectByID(ctx context.Context, clientID uint64) (mc *model.OAuth2Client, err error) {
+func (o *oauth2Client) SelectByID(ctx context.Context, clientID model.ID) (mc *model.OAuth2Client, err error) {
 	if store.FromSkipCacheContext(ctx) {
 		return o.selectByID(ctx, clientID)
 	}
 	return o.selectByIDFromCache(ctx, clientID)
 }
 
-func (o *oauth2Client) selectByIDFromCache(ctx context.Context, id uint64) (m *model.OAuth2Client, err error) {
+func (o *oauth2Client) selectByIDFromCache(ctx context.Context, id model.ID) (m *model.OAuth2Client, err error) {
 	m = new(model.OAuth2Client)
 	key := o.formatOneKey(id)
 	err = o.cache.Get(ctx, key, m)

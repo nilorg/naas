@@ -11,8 +11,8 @@ import (
 // Organizationer ...
 type Organizationer interface {
 	Insert(ctx context.Context, m *model.Organization) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	Select(ctx context.Context, id uint64) (m *model.Organization, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	Select(ctx context.Context, id model.ID) (m *model.Organization, err error)
 	Update(ctx context.Context, m *model.Organization) (err error)
 }
 
@@ -28,7 +28,7 @@ func (o *organization) Insert(ctx context.Context, m *model.Organization) (err e
 	err = gdb.Create(m).Error
 	return
 }
-func (o *organization) Delete(ctx context.Context, id uint64) (err error) {
+func (o *organization) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -37,7 +37,7 @@ func (o *organization) Delete(ctx context.Context, id uint64) (err error) {
 	err = gdb.Delete(&model.Organization{}, id).Error
 	return
 }
-func (o *organization) Select(ctx context.Context, id uint64) (m *model.Organization, err error) {
+func (o *organization) Select(ctx context.Context, id model.ID) (m *model.Organization, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {

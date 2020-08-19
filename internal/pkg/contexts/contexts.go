@@ -9,7 +9,6 @@ import (
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/pkg/storage"
-	"github.com/nilorg/sdk/convert"
 	"github.com/spf13/viper"
 )
 
@@ -50,7 +49,7 @@ func WithGinContext(ctx *gin.Context) context.Context {
 	parent = WithContext(parent)
 	claims := jwt.ExtractClaims(ctx)
 	if id, ok := claims["user_id"].(string); ok {
-		parent = NewUserIDContext(parent, model.ID(convert.ToUint64(id)))
+		parent = NewUserIDContext(parent, model.ConvertStringToID(id))
 	}
 	return parent
 }

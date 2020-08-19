@@ -5,7 +5,6 @@ import (
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
-	"github.com/nilorg/sdk/convert"
 )
 
 type oauth2 struct {
@@ -74,7 +73,7 @@ func (*oauth2) GetScopeOne(ctx *gin.Context) {
 		err   error
 	)
 	scopCode := ctx.Param("scop_code")
-	scope, err = service.OAuth2.GetScopeOne(contexts.WithGinContext(ctx), scopCode)
+	scope, err = service.OAuth2.GetScopeOne(contexts.WithGinContext(ctx), model.Code(scopCode))
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -103,7 +102,7 @@ func (*oauth2) UpdateScope(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.OAuth2.UpdateScope(contexts.WithGinContext(ctx), scopCode, &scope)
+	err = service.OAuth2.UpdateScope(contexts.WithGinContext(ctx), model.Code(scopCode), &scope)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -154,7 +153,7 @@ func (*oauth2) GetClientScopes(ctx *gin.Context) {
 		err    error
 	)
 	clientID := ctx.Param("client_id")
-	scopes, err = service.OAuth2.GetClientAllScope(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
+	scopes, err = service.OAuth2.GetClientAllScope(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -204,7 +203,7 @@ func (*oauth2) GetClient(ctx *gin.Context) {
 		clientDetailInfo *service.OAuth2ClientDetailInfo
 		err              error
 	)
-	clientID := convert.ToUint64(ctx.Param("client_id"))
+	clientID := model.ConvertStringToID(ctx.Param("client_id"))
 	clientDetailInfo, err = service.OAuth2.GetClientDetailInfo(contexts.WithGinContext(ctx), clientID)
 	if err != nil {
 		writeError(ctx, err)
@@ -229,7 +228,7 @@ func (*oauth2) UpdateClient(ctx *gin.Context) {
 		update service.OAuth2ClientEditModel
 		err    error
 	)
-	clientID := convert.ToUint64(ctx.Param("client_id"))
+	clientID := model.ConvertStringToID(ctx.Param("client_id"))
 	err = ctx.ShouldBindJSON(&update)
 	if err != nil {
 		writeError(ctx, err)

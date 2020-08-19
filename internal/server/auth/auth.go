@@ -7,6 +7,7 @@ import (
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/pkg/logger"
+	"github.com/nilorg/sdk/convert"
 	"github.com/pkg/errors"
 )
 
@@ -24,7 +25,7 @@ func PayloadFunc(data interface{}) jwt.MapClaims {
 	logger.Debugln("jwt PayloadFunc...")
 	if v, ok := data.(*model.SessionAccount); ok {
 		return jwt.MapClaims{
-			"user_id":   v.UserID,
+			"user_id":   convert.ToString(v.UserID),
 			"user_name": v.UserName,
 		}
 	}
@@ -36,7 +37,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 	logger.Debugln("jwt IdentityHandler...")
 	claims := jwt.ExtractClaims(c)
 	return &model.SessionAccount{
-		UserID:   claims["user_id"].(uint64),
+		UserID:   model.ConvertStringToID(claims["user_id"].(string)),
 		UserName: claims["user_name"].(string),
 	}
 }

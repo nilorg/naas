@@ -11,7 +11,7 @@ type User struct {
 //UserInfo 用户信息
 type UserInfo struct {
 	Model
-	UserID        uint64 `json:"user_id" gorm:"column:user_id"`
+	UserID        ID     `json:"user_id" gorm:"column:user_id"`
 	Nickname      string `json:"nickname" gorm:"column:nickname"`
 	Picture       string `json:"picture" gorm:"column:picture;type:MEDIUMTEXT"` // 支持存储base64头像
 	Gender        int    `json:"gender" gorm:"column:gender"`

@@ -11,7 +11,6 @@ import (
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
-	"github.com/nilorg/sdk/convert"
 	"github.com/spf13/viper"
 )
 
@@ -19,7 +18,7 @@ import (
 func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenClaims := ctx.MustGet("token").(*oauth2.JwtClaims)
-		openID := convert.ToUint64(tokenClaims.Subject)
+		openID := model.ConvertStringToID(tokenClaims.Subject)
 
 		roles, _ := service.Role.GetAllRoleByUserID(contexts.WithGinContext(ctx), openID)
 		if len(roles) > 0 {

@@ -60,7 +60,7 @@ func (*oauth2) CreateClient(ctx context.Context, create *OAuth2ClientEditModel) 
 }
 
 // UpdateClient 修改客户端
-func (*oauth2) UpdateClient(ctx context.Context, id uint64, update *OAuth2ClientEditModel) (err error) {
+func (*oauth2) UpdateClient(ctx context.Context, id model.ID, update *OAuth2ClientEditModel) (err error) {
 	tran := store.DB.Begin()
 	ctx = store.NewDBContext(ctx, tran)
 	var (
@@ -101,29 +101,29 @@ func (*oauth2) UpdateClient(ctx context.Context, id uint64, update *OAuth2Client
 }
 
 // GetClient get oauth2 client.
-func (o *oauth2) GetClient(ctx context.Context, id uint64) (client *model.OAuth2Client, err error) {
+func (o *oauth2) GetClient(ctx context.Context, id model.ID) (client *model.OAuth2Client, err error) {
 	client, err = dao.OAuth2Client.SelectByID(ctx, id)
 	return
 }
 
 // GetClient get oauth2 client info.
-func (o *oauth2) GetClientInfo(ctx context.Context, id uint64) (client *model.OAuth2ClientInfo, err error) {
+func (o *oauth2) GetClientInfo(ctx context.Context, id model.ID) (client *model.OAuth2ClientInfo, err error) {
 	client, err = dao.OAuth2ClientInfo.SelectByClientID(ctx, id)
 	return
 }
 
 // OAuth2ClientDetailInfo ...
 type OAuth2ClientDetailInfo struct {
-	ClientID    uint64 `json:"client_id"`
-	Name        string `json:"name"`
-	Website     string `json:"website"`
-	Profile     string `json:"profile"`
-	Description string `json:"description"`
-	RedirectURI string `json:"redirect_uri"`
+	ClientID    model.ID `json:"client_id"`
+	Name        string   `json:"name"`
+	Website     string   `json:"website"`
+	Profile     string   `json:"profile"`
+	Description string   `json:"description"`
+	RedirectURI string   `json:"redirect_uri"`
 }
 
 // GetClientDetailInfo get oauth2 client info.
-func (o *oauth2) GetClientDetailInfo(ctx context.Context, id uint64) (clientDetail *OAuth2ClientDetailInfo, err error) {
+func (o *oauth2) GetClientDetailInfo(ctx context.Context, id model.ID) (clientDetail *OAuth2ClientDetailInfo, err error) {
 	var (
 		client     *model.OAuth2Client
 		clientInfo *model.OAuth2ClientInfo
@@ -149,12 +149,12 @@ func (o *oauth2) GetClientDetailInfo(ctx context.Context, id uint64) (clientDeta
 
 // ResultClientInfo ...
 type ResultClientInfo struct {
-	ClientID    uint64 `json:"client_id"`
-	Name        string `json:"name"`
-	Website     string `json:"website"`
-	Profile     string `json:"profile"`
-	Description string `json:"description"`
-	RedirectURI string `json:"redirect_uri"`
+	ClientID    model.ID `json:"client_id"`
+	Name        string   `json:"name"`
+	Website     string   `json:"website"`
+	Profile     string   `json:"profile"`
+	Description string   `json:"description"`
+	RedirectURI string   `json:"redirect_uri"`
 }
 
 // ClientListPaged ...
@@ -186,20 +186,20 @@ func (o *oauth2) ClientListPaged(ctx context.Context, start, limit int) (result 
 }
 
 // GetClientScope 获取客户端的范围
-func (o *oauth2) GetClientAllScope(ctx context.Context, clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
+func (o *oauth2) GetClientAllScope(ctx context.Context, clientID model.ID) (scopes []*model.OAuth2ClientScope, err error) {
 	scopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(ctx, clientID)
 	return
 }
 
 // OAuth2ClientScopeInfo ...
 type OAuth2ClientScopeInfo struct {
-	Code        string `json:"code"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
+	Code        model.Code `json:"code"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Type        string     `json:"type"`
 }
 
-func (o *oauth2) GetClientAllScopeInfo(ctx context.Context, clientID uint64) (scopeInfos []*OAuth2ClientScopeInfo, err error) {
+func (o *oauth2) GetClientAllScopeInfo(ctx context.Context, clientID model.ID) (scopeInfos []*OAuth2ClientScopeInfo, err error) {
 	var clientScopes []*model.OAuth2ClientScope
 	clientScopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(ctx, clientID)
 	if err != nil {
@@ -222,7 +222,7 @@ func (o *oauth2) GetClientAllScopeInfo(ctx context.Context, clientID uint64) (sc
 }
 
 // GetClientAllScopeCode 获取客户端的范围code
-func (o *oauth2) GetClientAllScopeCode(ctx context.Context, clientID uint64) (scopes []string, err error) {
+func (o *oauth2) GetClientAllScopeCode(ctx context.Context, clientID model.ID) (scopes []model.Code, err error) {
 	var scopeArray []*model.OAuth2ClientScope
 	scopeArray, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(ctx, clientID)
 	if err != nil {
@@ -241,16 +241,16 @@ func (o *oauth2) AllScope(ctx context.Context) (scopes []*model.OAuth2Scope, err
 }
 
 // GetScopeOne 根据code获取scope
-func (o *oauth2) GetScopeOne(ctx context.Context, code string) (scope *model.OAuth2Scope, err error) {
+func (o *oauth2) GetScopeOne(ctx context.Context, code model.Code) (scope *model.OAuth2Scope, err error) {
 	return dao.OAuth2Scope.Select(ctx, code)
 }
 
 // OAuth2CreateScopeModel ...
 type OAuth2CreateScopeModel struct {
-	Code        string `json:"code"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
+	Code        model.Code `json:"code"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Type        string     `json:"type"`
 }
 
 // Update 修改用户
@@ -276,7 +276,7 @@ type OAuth2UpdateScopeModel struct {
 }
 
 // Update 修改用户
-func (o *oauth2) UpdateScope(ctx context.Context, code string, update *OAuth2UpdateScopeModel) (err error) {
+func (o *oauth2) UpdateScope(ctx context.Context, code model.Code, update *OAuth2UpdateScopeModel) (err error) {
 	var (
 		scope *model.OAuth2Scope
 	)
@@ -302,7 +302,7 @@ func (o *oauth2) ScopeListPaged(ctx context.Context, start, limit int) (scopes [
 	return
 }
 
-func (o *oauth2) AllScopeCode(ctx context.Context) (scopeCodes []string, err error) {
+func (o *oauth2) AllScopeCode(ctx context.Context) (scopeCodes []model.Code, err error) {
 	var scopes []*model.OAuth2Scope
 	scopes, err = dao.OAuth2Scope.SelectAll(ctx)
 	if err != nil {

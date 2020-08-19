@@ -15,11 +15,11 @@ import (
 
 // OAuth2ClientScoper oauth2 client 范围 接口
 type OAuth2ClientScoper interface {
-	Select(ctx context.Context, id uint64) (mc *model.OAuth2ClientScope, err error)
-	SelectFromCache(ctx context.Context, id uint64) (mc *model.OAuth2ClientScope, err error)
-	SelectByOAuth2ClientID(ctx context.Context, clientID uint64) (scopes []*model.OAuth2ClientScope, err error)
+	Select(ctx context.Context, id model.ID) (mc *model.OAuth2ClientScope, err error)
+	SelectFromCache(ctx context.Context, id model.ID) (mc *model.OAuth2ClientScope, err error)
+	SelectByOAuth2ClientID(ctx context.Context, clientID model.ID) (scopes []*model.OAuth2ClientScope, err error)
 	Insert(ctx context.Context, mc *model.OAuth2ClientScope) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
+	Delete(ctx context.Context, id model.ID) (err error)
 	Update(ctx context.Context, mc *model.OAuth2ClientScope) (err error)
 }
 
@@ -27,14 +27,14 @@ type oauth2ClientScope struct {
 	cache cache.Cacher
 }
 
-func (*oauth2ClientScope) formatOneKey(id uint64) string {
+func (*oauth2ClientScope) formatOneKey(id model.ID) string {
 	return fmt.Sprintf("id:%d", id)
 }
-func (*oauth2ClientScope) formatClientListKey(clientID uint64) string {
+func (*oauth2ClientScope) formatClientListKey(clientID model.ID) string {
 	return fmt.Sprintf("list:clientid:%d", clientID)
 }
 
-func (*oauth2ClientScope) Select(ctx context.Context, id uint64) (mc *model.OAuth2ClientScope, err error) {
+func (*oauth2ClientScope) Select(ctx context.Context, id model.ID) (mc *model.OAuth2ClientScope, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -49,7 +49,7 @@ func (*oauth2ClientScope) Select(ctx context.Context, id uint64) (mc *model.OAut
 	return
 }
 
-func (o *oauth2ClientScope) SelectFromCache(ctx context.Context, id uint64) (mc *model.OAuth2ClientScope, err error) {
+func (o *oauth2ClientScope) SelectFromCache(ctx context.Context, id model.ID) (mc *model.OAuth2ClientScope, err error) {
 	mc = new(model.OAuth2ClientScope)
 	key := o.formatOneKey(id)
 	err = o.cache.Get(ctx, key, mc)
@@ -66,7 +66,7 @@ func (o *oauth2ClientScope) SelectFromCache(ctx context.Context, id uint64) (mc 
 	return
 }
 
-func (*oauth2ClientScope) selectByOAuth2ClientID(ctx context.Context, clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
+func (*oauth2ClientScope) selectByOAuth2ClientID(ctx context.Context, clientID model.ID) (scopes []*model.OAuth2ClientScope, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -76,14 +76,14 @@ func (*oauth2ClientScope) selectByOAuth2ClientID(ctx context.Context, clientID u
 	return
 }
 
-func (o *oauth2ClientScope) SelectByOAuth2ClientID(ctx context.Context, clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
+func (o *oauth2ClientScope) SelectByOAuth2ClientID(ctx context.Context, clientID model.ID) (scopes []*model.OAuth2ClientScope, err error) {
 	if store.FromSkipCacheContext(ctx) {
 		return o.selectByOAuth2ClientID(ctx, clientID)
 	}
 	return o.selectByOAuth2ClientIDFromCache(ctx, clientID)
 }
 
-func (o *oauth2ClientScope) selectByOAuth2ClientIDFromCache(ctx context.Context, clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
+func (o *oauth2ClientScope) selectByOAuth2ClientIDFromCache(ctx context.Context, clientID model.ID) (scopes []*model.OAuth2ClientScope, err error) {
 	key := o.formatClientListKey(clientID)
 	var items []*model.CacheIDPrimaryKey
 	items, err = store.ScanByCacheID(store.NewCacheContext(ctx, o.cache), key, model.OAuth2ClientScope{}, "oauth2_client_id = ?", clientID)
@@ -107,7 +107,7 @@ func (o *oauth2ClientScope) Insert(ctx context.Context, mc *model.OAuth2ClientSc
 	return
 }
 
-func (o *oauth2ClientScope) Delete(ctx context.Context, id uint64) (err error) {
+func (o *oauth2ClientScope) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {

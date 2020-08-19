@@ -14,12 +14,12 @@ import (
 
 // OAuth2ClientInfoer oauth2 client 接口
 type OAuth2ClientInfoer interface {
-	SelectByClientID(ctx context.Context, clientID uint64) (mc *model.OAuth2ClientInfo, err error)
-	SelectByClientIDFromCache(ctx context.Context, clientID uint64) (mc *model.OAuth2ClientInfo, err error)
+	SelectByClientID(ctx context.Context, clientID model.ID) (mc *model.OAuth2ClientInfo, err error)
+	SelectByClientIDFromCache(ctx context.Context, clientID model.ID) (mc *model.OAuth2ClientInfo, err error)
 	Insert(ctx context.Context, mc *model.OAuth2ClientInfo) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	DeleteByClientID(ctx context.Context, clientID uint64) (err error)
-	DeleteInClientIDs(ctx context.Context, clientIDs []uint64) (err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteByClientID(ctx context.Context, clientID model.ID) (err error)
+	DeleteInClientIDs(ctx context.Context, clientIDs []model.ID) (err error)
 	Update(ctx context.Context, mc *model.OAuth2ClientInfo) (err error)
 }
 
@@ -27,18 +27,18 @@ type oauth2ClientInfo struct {
 	cache cache.Cacher
 }
 
-func (*oauth2ClientInfo) formatOneKey(id uint64) string {
+func (*oauth2ClientInfo) formatOneKey(id model.ID) string {
 	return fmt.Sprintf("id:%d", id)
 }
 
-func (o *oauth2ClientInfo) formatOneKeys(ids ...uint64) (keys []string) {
+func (o *oauth2ClientInfo) formatOneKeys(ids ...model.ID) (keys []string) {
 	for _, id := range ids {
 		keys = append(keys, o.formatOneKey(id))
 	}
 	return
 }
 
-func (*oauth2ClientInfo) SelectByClientID(ctx context.Context, clientID uint64) (mc *model.OAuth2ClientInfo, err error) {
+func (*oauth2ClientInfo) SelectByClientID(ctx context.Context, clientID model.ID) (mc *model.OAuth2ClientInfo, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -53,7 +53,7 @@ func (*oauth2ClientInfo) SelectByClientID(ctx context.Context, clientID uint64) 
 	return
 }
 
-func (o *oauth2ClientInfo) SelectByClientIDFromCache(ctx context.Context, clientID uint64) (mc *model.OAuth2ClientInfo, err error) {
+func (o *oauth2ClientInfo) SelectByClientIDFromCache(ctx context.Context, clientID model.ID) (mc *model.OAuth2ClientInfo, err error) {
 	mc = new(model.OAuth2ClientInfo)
 	key := o.formatOneKey(clientID)
 	err = o.cache.Get(ctx, key, mc)
@@ -80,7 +80,7 @@ func (*oauth2ClientInfo) Insert(ctx context.Context, mc *model.OAuth2ClientInfo)
 	return
 }
 
-func (o *oauth2ClientInfo) Delete(ctx context.Context, id uint64) (err error) {
+func (o *oauth2ClientInfo) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -94,7 +94,7 @@ func (o *oauth2ClientInfo) Delete(ctx context.Context, id uint64) (err error) {
 	return
 }
 
-func (o *oauth2ClientInfo) DeleteByClientID(ctx context.Context, clientID uint64) (err error) {
+func (o *oauth2ClientInfo) DeleteByClientID(ctx context.Context, clientID model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -108,7 +108,7 @@ func (o *oauth2ClientInfo) DeleteByClientID(ctx context.Context, clientID uint64
 	return
 }
 
-func (o *oauth2ClientInfo) DeleteInClientIDs(ctx context.Context, clientIDs []uint64) (err error) {
+func (o *oauth2ClientInfo) DeleteInClientIDs(ctx context.Context, clientIDs []model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {

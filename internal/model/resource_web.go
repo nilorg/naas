@@ -6,7 +6,7 @@ type ResourceWebRoute struct {
 	Name       string `json:"name"`
 	Path       string `json:"path"`
 	Method     string `json:"method"` // 可多选(POST,GET,PUT,DELETE)等
-	ResourceID uint64 `json:"resource_id"`
+	ResourceID ID     `json:"resource_id"`
 }
 
 const (
@@ -44,6 +44,6 @@ type ResourceWebFunction struct {
 // ResourceWebFunctionComponent web功能中的组件
 type ResourceWebFunctionComponent struct {
 	Model
-	FunctionID  uint64 `json:"function_id" gorm:"column:function_id"`
-	ComponentID uint64 `json:"component_id" gorm:"column:component_id"`
+	FunctionID  ID `json:"function_id" gorm:"column:function_id"`
+	ComponentID ID `json:"component_id" gorm:"column:component_id"`
 }

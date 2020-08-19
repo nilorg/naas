@@ -86,7 +86,7 @@ func OAuth2AuthScopeRequired(scopes ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var (
 			client       *model.OAuth2Client
-			clientScopes []string
+			clientScopes []model.Code
 			err          error
 		)
 		clientID := ctx.Query("client_id")
@@ -97,7 +97,7 @@ func OAuth2AuthScopeRequired(scopes ...string) gin.HandlerFunc {
 		if v := ctx.PostForm("client_secret"); v != "" {
 			clientSecret = v
 		}
-		client, err = service.OAuth2.GetClient(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
+		client, err = service.OAuth2.GetClient(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": oauth2.ErrUnauthorizedClient.Error(),
@@ -110,7 +110,7 @@ func OAuth2AuthScopeRequired(scopes ...string) gin.HandlerFunc {
 			})
 			return
 		}
-		clientScopes, _ = service.OAuth2.GetClientAllScopeCode(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
+		clientScopes, _ = service.OAuth2.GetClientAllScopeCode(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 		pass := false
 		for i := 0; i < len(scopes); i++ {
 			for j := 0; j < len(clientScopes); j++ {

@@ -51,7 +51,7 @@ func (*casbinService) initRoleResourceWebRoute(ctx context.Context) {
 	}
 }
 
-func formatPolicy(roleCode string, roleResourceWebRoute *model.ResourceWebRoute) (sub, dom, obj, act string) {
+func formatPolicy(roleCode model.Code, roleResourceWebRoute *model.ResourceWebRoute) (sub, dom, obj, act string) {
 	sub = fmt.Sprintf("role:%s", roleCode)                                      // 希望访问资源的用户
 	dom = fmt.Sprintf("resource:%d:web_route", roleResourceWebRoute.ResourceID) // 域/域租户,这里以资源为单位
 	obj = roleResourceWebRoute.Path                                             // 要访问的资源

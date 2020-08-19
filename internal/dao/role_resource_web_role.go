@@ -11,11 +11,11 @@ import (
 // RoleResourceWebRouter ...
 type RoleResourceWebRouter interface {
 	Insert(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	Select(ctx context.Context, id uint64) (roleResourceWebRoute *model.RoleResourceWebRoute, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	Select(ctx context.Context, id model.ID) (roleResourceWebRoute *model.RoleResourceWebRoute, err error)
 	SelectAll(ctx context.Context) (roleResourceWebRoutes []*model.RoleResourceWebRoute, err error)
 	Update(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error)
-	ExistByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode string, resourceWebRouteID uint64) (exist bool, err error)
+	ExistByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (exist bool, err error)
 }
 
 type roleResourceWebRoute struct {
@@ -30,7 +30,7 @@ func (*roleResourceWebRoute) Insert(ctx context.Context, roleResourceWebRoute *m
 	err = gdb.Create(roleResourceWebRoute).Error
 	return
 }
-func (*roleResourceWebRoute) Delete(ctx context.Context, id uint64) (err error) {
+func (*roleResourceWebRoute) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -39,7 +39,7 @@ func (*roleResourceWebRoute) Delete(ctx context.Context, id uint64) (err error) 
 	err = gdb.Delete(&model.RoleResourceWebRoute{}, id).Error
 	return
 }
-func (*roleResourceWebRoute) Select(ctx context.Context, id uint64) (roleResourceWebRoute *model.RoleResourceWebRoute, err error) {
+func (*roleResourceWebRoute) Select(ctx context.Context, id model.ID) (roleResourceWebRoute *model.RoleResourceWebRoute, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -91,6 +91,6 @@ func (*roleResourceWebRoute) exist(ctx context.Context, query interface{}, args 
 }
 
 // ExistByRoleCodeAndResourceWebRouteID 判断根据RoleCode和资源web路由ID
-func (r *roleResourceWebRoute) ExistByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode string, resourceWebRouteID uint64) (exist bool, err error) {
+func (r *roleResourceWebRoute) ExistByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (exist bool, err error) {
 	return r.exist(ctx, "role_code = ? and resource_web_route_id = ?", roleCode, resourceWebRouteID)
 }

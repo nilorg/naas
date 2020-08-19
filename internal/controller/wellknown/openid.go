@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 
@@ -49,7 +50,7 @@ func GetOpenIDProviderMetadata(ctx *gin.Context) {
 		"RS256",
 	)
 	if scopeCodes, err := service.OAuth2.AllScopeCode(contexts.WithGinContext(ctx)); err == nil {
-		metadata.ScopesSupported = append(metadata.ScopesSupported, scopeCodes...)
+		metadata.ScopesSupported = append(metadata.ScopesSupported, model.ConvertCodeSliceToStringSlice(scopeCodes)...)
 	}
 	metadata.TokenEndpointAuthMethodsSupported = append(metadata.TokenEndpointAuthMethodsSupported,
 		"client_secret_post",

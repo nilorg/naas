@@ -16,21 +16,21 @@ import (
 // UserRoleer ...
 type UserRoleer interface {
 	Insert(ctx context.Context, m *model.UserRole) (err error)
-	Delete(ctx context.Context, id uint64) (err error)
-	Select(ctx context.Context, id uint64) (m *model.UserRole, err error)
+	Delete(ctx context.Context, id model.ID) (err error)
+	Select(ctx context.Context, id model.ID) (m *model.UserRole, err error)
 	Update(ctx context.Context, m *model.UserRole) (err error)
-	SelectAllByUserID(ctx context.Context, userID uint64) (m []*model.UserRole, err error)
+	SelectAllByUserID(ctx context.Context, userID model.ID) (m []*model.UserRole, err error)
 }
 
 type userRole struct {
 	cache cache.Cacher
 }
 
-func (*userRole) formatOneKey(id uint64) string {
+func (*userRole) formatOneKey(id model.ID) string {
 	return fmt.Sprintf("id:%d", id)
 }
 
-func (*userRole) formatUserListKey(userID uint64) string {
+func (*userRole) formatUserListKey(userID model.ID) string {
 	return fmt.Sprintf("list:user:%d", userID)
 }
 
@@ -48,7 +48,7 @@ func (u *userRole) Insert(ctx context.Context, m *model.UserRole) (err error) {
 	return
 }
 
-func (u *userRole) Delete(ctx context.Context, id uint64) (err error) {
+func (u *userRole) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -62,7 +62,7 @@ func (u *userRole) Delete(ctx context.Context, id uint64) (err error) {
 	return
 }
 
-func (u *userRole) selectOne(ctx context.Context, id uint64) (m *model.UserRole, err error) {
+func (u *userRole) selectOne(ctx context.Context, id model.ID) (m *model.UserRole, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -77,14 +77,14 @@ func (u *userRole) selectOne(ctx context.Context, id uint64) (m *model.UserRole,
 	return
 }
 
-func (u *userRole) Select(ctx context.Context, id uint64) (m *model.UserRole, err error) {
+func (u *userRole) Select(ctx context.Context, id model.ID) (m *model.UserRole, err error) {
 	if store.FromSkipCacheContext(ctx) {
 		return u.selectOne(ctx, id)
 	}
 	return u.selectFromCache(ctx, id)
 }
 
-func (u *userRole) selectFromCache(ctx context.Context, id uint64) (m *model.UserRole, err error) {
+func (u *userRole) selectFromCache(ctx context.Context, id model.ID) (m *model.UserRole, err error) {
 	m = new(model.UserRole)
 	key := u.formatOneKey(id)
 	err = u.cache.Get(ctx, key, m)
@@ -115,7 +115,7 @@ func (u *userRole) Update(ctx context.Context, m *model.UserRole) (err error) {
 	return
 }
 
-func (u *userRole) selectAllByUserID(ctx context.Context, userID uint64) (roles []*model.UserRole, err error) {
+func (u *userRole) selectAllByUserID(ctx context.Context, userID model.ID) (roles []*model.UserRole, err error) {
 	var gdb *gorm.DB
 	gdb, err = db.FromContext(ctx)
 	if err != nil {
@@ -125,7 +125,7 @@ func (u *userRole) selectAllByUserID(ctx context.Context, userID uint64) (roles 
 	return
 }
 
-func (u *userRole) SelectAllByUserID(ctx context.Context, userID uint64) (roles []*model.UserRole, err error) {
+func (u *userRole) SelectAllByUserID(ctx context.Context, userID model.ID) (roles []*model.UserRole, err error) {
 	if store.FromSkipCacheContext(ctx) {
 		return u.selectAllByUserID(ctx, userID)
 	}
@@ -144,7 +144,7 @@ func (u *userRole) scanCacheID(ctx context.Context, items []*model.CacheIDPrimar
 	return
 }
 
-func (u *userRole) SelectAllByUserIDFromCache(ctx context.Context, userID uint64) (roles []*model.UserRole, err error) {
+func (u *userRole) SelectAllByUserIDFromCache(ctx context.Context, userID model.ID) (roles []*model.UserRole, err error) {
 	key := u.formatUserListKey(userID)
 	var items []*model.CacheIDPrimaryKey
 	items, err = store.ScanByCacheID(store.NewCacheContext(ctx, u.cache), key, model.UserRole{}, "user_id = ?", userID)

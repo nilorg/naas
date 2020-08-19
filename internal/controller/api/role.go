@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
-	"github.com/nilorg/sdk/convert"
 )
 
 type role struct {
@@ -55,8 +55,8 @@ func (*role) List(ctx *gin.Context) {
 // @Security OAuth2AccessCode
 func (*role) AddResourceWebRoute(ctx *gin.Context) {
 	roleCode := ctx.Param("role_code")
-	resourceWebRouteID := convert.ToUint64(ctx.Param("resource_web_route_id"))
-	err := service.Role.AddResourceWebRoute(contexts.WithGinContext(ctx), roleCode, resourceWebRouteID)
+	resourceWebRouteID := model.ConvertStringToID(ctx.Param("resource_web_route_id"))
+	err := service.Role.AddResourceWebRoute(contexts.WithGinContext(ctx), model.Code(roleCode), resourceWebRouteID)
 	if err != nil {
 		writeError(ctx, err)
 		return

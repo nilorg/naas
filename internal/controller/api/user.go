@@ -7,7 +7,6 @@ import (
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
-	"github.com/nilorg/sdk/convert"
 )
 
 type user struct {
@@ -61,7 +60,7 @@ func (*user) GetOne(ctx *gin.Context) {
 		user *model.User
 		err  error
 	)
-	userID := convert.ToUint64(ctx.Param("user_id"))
+	userID := model.ConvertStringToID(ctx.Param("user_id"))
 	user, err = service.User.GetOneByID(contexts.WithGinContext(ctx), userID)
 	if err != nil {
 		writeError(ctx, err)
@@ -85,9 +84,9 @@ func (*user) Delete(ctx *gin.Context) {
 		err error
 	)
 	idsStringSplit := strings.Split(ctx.Param("user_id"), ",")
-	var idsUint64Split []uint64
+	var idsUint64Split []model.ID
 	for _, id := range idsStringSplit {
-		idsUint64Split = append(idsUint64Split, convert.ToUint64(id))
+		idsUint64Split = append(idsUint64Split, model.ConvertStringToID(id))
 	}
 	err = service.User.DeleteByIDs(contexts.WithGinContext(ctx), idsUint64Split...)
 	if err != nil {
@@ -113,7 +112,7 @@ func (*user) Update(ctx *gin.Context) {
 		user service.UserUpdateModel
 		err  error
 	)
-	userID := convert.ToUint64(ctx.Param("user_id"))
+	userID := model.ConvertStringToID(ctx.Param("user_id"))
 	err = ctx.ShouldBindJSON(&user)
 	if err != nil {
 		writeError(ctx, err)
