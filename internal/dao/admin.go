@@ -61,12 +61,11 @@ func (*admin) Select(ctx context.Context, id model.ID) (ma *model.Admin, err err
 	if err != nil {
 		return
 	}
-	var dbResult model.Admin
-	err = gdb.First(&dbResult, id).Error
+	err = gdb.Model(ma).Where("id = ?", id).Scan(ma).Error
 	if err != nil {
+		ma = nil
 		return
 	}
-	ma = &dbResult
 	return
 }
 

@@ -127,12 +127,12 @@ func (s *oauth2Scope) selectOne(ctx context.Context, code model.Code) (m *model.
 	if err != nil {
 		return
 	}
-	var dbResult model.OAuth2Scope
-	err = gdb.First(&dbResult, "code = ?", code).Error
+	m = new(model.OAuth2Scope)
+	err = gdb.Model(m).Where("code = ?", code).Scan(m).Error
 	if err != nil {
+		m = nil
 		return
 	}
-	m = &dbResult
 	return
 }
 

@@ -43,12 +43,12 @@ func (*resourceWebRoute) Select(ctx context.Context, id model.ID) (resourceWebRo
 	if err != nil {
 		return
 	}
-	var dbResult model.ResourceWebRoute
-	err = gdb.First(&dbResult, id).Error
+	resourceWebRoute = new(model.ResourceWebRoute)
+	err = gdb.Model(resourceWebRoute).Where("id = ?", id).Scan(resourceWebRoute).Error
 	if err != nil {
+		resourceWebRoute = nil
 		return
 	}
-	resourceWebRoute = &dbResult
 	return
 }
 func (*resourceWebRoute) Update(ctx context.Context, resourceWebRoute *model.ResourceWebRoute) (err error) {

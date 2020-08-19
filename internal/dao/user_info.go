@@ -139,12 +139,12 @@ func (*userInfo) selectOne(ctx context.Context, id model.ID) (mu *model.UserInfo
 	if err != nil {
 		return
 	}
-	var dbResult model.UserInfo
-	err = gdb.First(&dbResult, id).Error
+	mu = new(model.UserInfo)
+	err = gdb.Model(mu).Where("id = ?", id).Scan(mu).Error
 	if err != nil {
+		mu = nil
 		return
 	}
-	mu = &dbResult
 	return
 }
 

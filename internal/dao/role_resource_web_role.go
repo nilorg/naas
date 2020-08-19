@@ -45,12 +45,12 @@ func (*roleResourceWebRoute) Select(ctx context.Context, id model.ID) (roleResou
 	if err != nil {
 		return
 	}
-	var dbResult model.RoleResourceWebRoute
-	err = gdb.First(&dbResult, id).Error
+	roleResourceWebRoute = new(model.RoleResourceWebRoute)
+	err = gdb.Model(roleResourceWebRoute).Where("id = ?", id).Scan(roleResourceWebRoute).Error
 	if err != nil {
+		roleResourceWebRoute = nil
 		return
 	}
-	roleResourceWebRoute = &dbResult
 	return
 }
 func (*roleResourceWebRoute) Update(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error) {

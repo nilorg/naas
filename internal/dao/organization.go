@@ -43,12 +43,12 @@ func (o *organization) Select(ctx context.Context, id model.ID) (m *model.Organi
 	if err != nil {
 		return
 	}
-	var dbResult model.Organization
-	err = gdb.First(&dbResult, id).Error
+	m = new(model.Organization)
+	err = gdb.Model(m).Where("id = ?", id).Scan(m).Error
 	if err != nil {
+		m = nil
 		return
 	}
-	m = &dbResult
 	return
 }
 func (o *organization) Update(ctx context.Context, m *model.Organization) (err error) {

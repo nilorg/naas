@@ -68,12 +68,12 @@ func (u *userRole) selectOne(ctx context.Context, id model.ID) (m *model.UserRol
 	if err != nil {
 		return
 	}
-	var dbResult model.UserRole
-	err = gdb.First(&dbResult, id).Error
+	m = new(model.UserRole)
+	err = gdb.Model(m).Where("id = ?", id).Scan(m).Error
 	if err != nil {
+		m = nil
 		return
 	}
-	m = &dbResult
 	return
 }
 

@@ -60,12 +60,12 @@ func (*resource) selectOne(ctx context.Context, id model.ID) (resource *model.Re
 	if err != nil {
 		return
 	}
-	var dbResult model.Resource
-	err = gdb.First(&dbResult, id).Error
+	resource = new(model.Resource)
+	err = gdb.Model(resource).Where("id = ?", id).Scan(resource).Error
 	if err != nil {
+		resource = nil
 		return
 	}
-	resource = &dbResult
 	return
 }
 
