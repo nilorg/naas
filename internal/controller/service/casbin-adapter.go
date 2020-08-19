@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	gormadapter "github.com/casbin/gorm-adapter/v2"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/proto"
 	"github.com/nilorg/sdk/convert"
@@ -18,7 +19,8 @@ type CasbinAdapterService struct {
 
 // LoadPolicy 加载规则
 func (ctl *CasbinAdapterService) LoadPolicy(ctx context.Context, req *proto.LoadPolicyRequest) (resp *proto.LoadPolicyResponse, err error) {
-	err = checkReSource(&proto.Resource{
+	ctx = contexts.WithContext(ctx)
+	err = checkReSource(ctx, &proto.Resource{
 		Id:     req.ResourceId,
 		Secret: req.ResourceSecret,
 	})
@@ -26,7 +28,7 @@ func (ctl *CasbinAdapterService) LoadPolicy(ctx context.Context, req *proto.Load
 		return
 	}
 	resp = new(proto.LoadPolicyResponse)
-	results, resultErr := service.Resource.LoadPolicy(convert.ToUint64(req.ResourceId))
+	results, resultErr := service.Resource.LoadPolicy(ctx, convert.ToUint64(req.ResourceId))
 	if resultErr != nil {
 		err = status.Error(codes.Unavailable, resultErr.Error())
 		return

@@ -1,9 +1,10 @@
 package service
 
 import (
+	"context"
+
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/pkg/errors"
 	"github.com/nilorg/pkg/logger"
 )
@@ -12,14 +13,14 @@ type admin struct {
 }
 
 // GetUserByUsername 根据用户名获取管理员
-func (a *admin) GetUserByUsername(username string) (ma *model.Admin, err error) {
-	return dao.Admin.SelectByUsername(store.NewDBContext(), username)
+func (a *admin) GetUserByUsername(ctx context.Context, username string) (ma *model.Admin, err error) {
+	return dao.Admin.SelectByUsername(ctx, username)
 }
 
 // Login 登录 ...
-func (a *admin) Login(username, password string) (su *model.SessionAccount, err error) {
+func (a *admin) Login(ctx context.Context, username, password string) (su *model.SessionAccount, err error) {
 	var ma *model.Admin
-	ma, err = a.GetUserByUsername(username)
+	ma, err = a.GetUserByUsername(ctx, username)
 	if err != nil {
 		logger.Errorln(err)
 		return

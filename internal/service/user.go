@@ -58,9 +58,9 @@ const (
 	createUserTypeWx       = "wx"
 )
 
-func (u *user) create(username, password, wxUnionID, typ string) (err error) {
+func (u *user) create(ctx context.Context, username, password, wxUnionID, typ string) (err error) {
 	tran := store.DB.Begin()
-	ctx := store.NewDBContext(tran)
+	ctx = store.NewDBContext(ctx, tran)
 	var exist bool
 	exist, err = dao.User.ExistByUsername(ctx, username)
 	if err != nil {
@@ -113,13 +113,13 @@ func (u *user) create(username, password, wxUnionID, typ string) (err error) {
 }
 
 // Create 创建用户
-func (u *user) Create(username, password string) (err error) {
-	return u.create(username, password, "", createUserTypePassword)
+func (u *user) Create(ctx context.Context, username, password string) (err error) {
+	return u.create(ctx, username, password, "", createUserTypePassword)
 }
 
 // CreateFromWeixin 从微信角度创建用户
-func (u *user) CreateFromWeixin(wxUnionID string) (err error) {
-	return u.create(wxUnionID, wxUnionID, wxUnionID, createUserTypeWx)
+func (u *user) CreateFromWeixin(ctx context.Context, wxUnionID string) (err error) {
+	return u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWx)
 }
 
 // UserUpdateModel ...
@@ -129,8 +129,7 @@ type UserUpdateModel struct {
 }
 
 // Update 修改用户
-func (u *user) Update(id uint64, update *UserUpdateModel) (err error) {
-	ctx := store.NewDBContext()
+func (u *user) Update(ctx context.Context, id uint64, update *UserUpdateModel) (err error) {
 	var (
 		user          *model.User
 		usernameExist bool
@@ -160,34 +159,34 @@ func (u *user) Update(id uint64, update *UserUpdateModel) (err error) {
 }
 
 // GetUserByUsername 根据用户名获取用户
-func (u *user) GetUserByUsername(username string) (usr *model.User, err error) {
-	return dao.User.SelectByUsername(store.NewDBContext(), username)
+func (u *user) GetUserByUsername(ctx context.Context, username string) (usr *model.User, err error) {
+	return dao.User.SelectByUsername(ctx, username)
 }
 
 // GetOneByID 根据ID获取用户
-func (u *user) GetOneByID(id uint64) (usr *model.User, err error) {
-	return dao.User.Select(store.NewDBContext(), id)
+func (u *user) GetOneByID(ctx context.Context, id uint64) (usr *model.User, err error) {
+	return dao.User.Select(ctx, id)
 }
 
 // GetInfoOneByUserID 根据用户ID获取信息
-func (u *user) GetInfoOneByUserID(userID uint64) (usr *model.UserInfo, err error) {
-	return dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
+func (u *user) GetInfoOneByUserID(ctx context.Context, userID uint64) (usr *model.UserInfo, err error) {
+	return dao.UserInfo.SelectByUserID(ctx, userID)
 }
 
 // GetInfoOneByCache 根据用户ID获取信息
-func (u *user) GetInfoOneByCache(userID uint64) (usr *model.User, usrInfo *model.UserInfo, err error) {
-	usr, err = dao.User.Select(store.NewDBContext(), userID)
+func (u *user) GetInfoOneByCache(ctx context.Context, userID uint64) (usr *model.User, usrInfo *model.UserInfo, err error) {
+	usr, err = dao.User.Select(ctx, userID)
 	if err != nil {
 		return
 	}
-	usrInfo, err = dao.UserInfo.SelectByUserID(store.NewDBContext(), userID)
+	usrInfo, err = dao.UserInfo.SelectByUserID(ctx, userID)
 	return
 }
 
 // Login 登录 ...
-func (u *user) Login(username, password string) (su *model.SessionAccount, err error) {
+func (u *user) Login(ctx context.Context, username, password string) (su *model.SessionAccount, err error) {
 	var usr *model.User
-	usr, err = u.GetUserByUsername(username)
+	usr, err = u.GetUserByUsername(ctx, username)
 	if err != nil {
 		logger.Errorln(err)
 		return
@@ -198,7 +197,7 @@ func (u *user) Login(username, password string) (su *model.SessionAccount, err e
 			UserName: usr.Username,
 		}
 		var userInfo *model.UserInfo
-		userInfo, err = u.GetInfoOneByUserID(usr.ID)
+		userInfo, err = u.GetInfoOneByUserID(ctx, usr.ID)
 		if err == nil {
 			su.Nickname = userInfo.Nickname
 			su.Picture = userInfo.Picture
@@ -209,11 +208,11 @@ func (u *user) Login(username, password string) (su *model.SessionAccount, err e
 	return
 }
 
-func (u *user) ListPaged(start, limit int) (result []*model.ResultUserInfo, total uint64, err error) {
+func (u *user) ListPaged(ctx context.Context, start, limit int) (result []*model.ResultUserInfo, total uint64, err error) {
 	var (
 		userList []*model.User
 	)
-	userList, total, err = dao.User.ListPaged(store.NewDBContext(), start, limit)
+	userList, total, err = dao.User.ListPaged(ctx, start, limit)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			err = nil
@@ -221,7 +220,7 @@ func (u *user) ListPaged(start, limit int) (result []*model.ResultUserInfo, tota
 		return
 	}
 	for _, user := range userList {
-		userInfo, userInfoErr := u.GetInfoOneByUserID(user.ID)
+		userInfo, userInfoErr := u.GetInfoOneByUserID(ctx, user.ID)
 		resultInfo := &model.ResultUserInfo{
 			User: user,
 		}
@@ -234,9 +233,9 @@ func (u *user) ListPaged(start, limit int) (result []*model.ResultUserInfo, tota
 }
 
 // DeleteByID 根据ID删除用户
-func (u *user) DeleteByIDs(ids ...uint64) (err error) {
+func (u *user) DeleteByIDs(ctx context.Context, ids ...uint64) (err error) {
 	tran := store.DB.Begin()
-	ctx := store.NewDBContext(tran)
+	ctx = store.NewDBContext(ctx, tran)
 	err = dao.User.DeleteInIDs(ctx, ids)
 	if err != nil {
 		tran.Rollback()

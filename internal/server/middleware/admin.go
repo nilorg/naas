@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/server/auth"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/oauth2"
@@ -115,7 +116,7 @@ func JWTAuthRequired(key interface{}, oauth2ClientID string) gin.HandlerFunc {
 func AdminAuthSuperUserRequired() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenClaims := ctx.MustGet("token").(*oauth2.JwtClaims)
-		usr, userInfo, err := service.User.GetInfoOneByCache(convert.ToUint64(tokenClaims.Subject))
+		usr, userInfo, err := service.User.GetInfoOneByCache(contexts.WithGinContext(ctx), convert.ToUint64(tokenClaims.Subject))
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": err.Error(),

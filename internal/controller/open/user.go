@@ -3,6 +3,7 @@ package open
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/controller/api"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 )
 
@@ -32,7 +33,7 @@ func (*user) CreateUserFromWeixin(ctx *gin.Context) {
 		api.Writer(ctx, err)
 		return
 	}
-	err = service.User.CreateFromWeixin(m.WxUnionID)
+	err = service.User.CreateFromWeixin(contexts.WithGinContext(ctx), m.WxUnionID)
 	if err != nil {
 		api.Writer(ctx, err)
 		return

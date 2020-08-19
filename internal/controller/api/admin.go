@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 )
 
@@ -22,12 +23,12 @@ type admin struct {
 // @Success 200 {string} string	"ok"
 // @Failure 400 {object} api.Result "error"
 // @Router /admin/login [post]
-func (*admin) Login(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-	su, err := service.Admin.Login(username, password)
+func (*admin) Login(ctx *gin.Context) {
+	username := ctx.PostForm("username")
+	password := ctx.PostForm("password")
+	su, err := service.Admin.Login(contexts.WithGinContext(ctx), username, password)
 	if err != nil {
-		c.JSON(400, err)
+		ctx.JSON(400, err)
 	}
-	c.JSON(200, su)
+	ctx.JSON(200, su)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
 	naasCasbin "github.com/nilorg/naas/internal/module/casbin"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/pkg/logger"
@@ -20,7 +21,7 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 		tokenClaims := ctx.MustGet("token").(*oauth2.JwtClaims)
 		openID := convert.ToUint64(tokenClaims.Subject)
 
-		roles, _ := service.Role.GetAllRoleByUserID(openID)
+		roles, _ := service.Role.GetAllRoleByUserID(contexts.WithGinContext(ctx), openID)
 		if len(roles) > 0 {
 			ctx.Set("current_role", roles)
 		} else {
@@ -52,7 +53,7 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 			return
 		}
 
-		usr, userInfo, err := service.User.GetInfoOneByCache(openID)
+		usr, userInfo, err := service.User.GetInfoOneByCache(contexts.WithGinContext(ctx), openID)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": err.Error(),

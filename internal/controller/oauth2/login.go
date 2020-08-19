@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/pkg/logger"
@@ -27,7 +28,7 @@ func LoginPage(ctx *gin.Context) {
 		clientInfo *model.OAuth2ClientInfo
 	)
 	clientID := ctx.Query("client_id")
-	clientInfo, err = service.OAuth2.GetClientInfo(convert.ToUint64(clientID))
+	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
 	if err != nil {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
 			"error": err.Error(),
@@ -45,7 +46,7 @@ func Login(ctx *gin.Context) {
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
 
-	suser, err := service.User.Login(username, password)
+	suser, err := service.User.Login(contexts.WithGinContext(ctx), username, password)
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {

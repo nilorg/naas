@@ -1,29 +1,30 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/casbin"
-	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/pkg/logger"
 )
 
 type casbinService struct{}
 
 func (cs *casbinService) InitLoadAllPolicy() {
-	cs.initRoleResourceWebRoute()
+	ctx := contexts.WithContext(context.Background())
+	cs.initRoleResourceWebRoute(ctx)
 }
 
-func (*casbinService) initRoleResourceWebRoute() {
+func (*casbinService) initRoleResourceWebRoute(ctx context.Context) {
 	var (
 		err                   error
 		roleResourceWebRoutes []*model.RoleResourceWebRoute
 		resourceWebRoute      *model.ResourceWebRoute
 		flag                  bool
 	)
-	ctx := store.NewDBContext()
 	// 获取所有角色对应的资源路由
 	roleResourceWebRoutes, err = dao.RoleResourceWebRoute.SelectAll(ctx)
 	if err != nil {

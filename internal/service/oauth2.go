@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/dao"
@@ -22,9 +24,9 @@ type OAuth2ClientEditModel struct {
 }
 
 // CreateClient 创建客户端
-func (*oauth2) CreateClient(create *OAuth2ClientEditModel) (err error) {
+func (*oauth2) CreateClient(ctx context.Context, create *OAuth2ClientEditModel) (err error) {
 	tran := store.DB.Begin()
-	ctx := store.NewDBContext(tran)
+	ctx = store.NewDBContext(ctx, tran)
 	client := &model.OAuth2Client{
 		ClientSecret: uuid.New().String(),
 		RedirectURI:  create.RedirectURI,
@@ -58,9 +60,9 @@ func (*oauth2) CreateClient(create *OAuth2ClientEditModel) (err error) {
 }
 
 // UpdateClient 修改客户端
-func (*oauth2) UpdateClient(id uint64, update *OAuth2ClientEditModel) (err error) {
+func (*oauth2) UpdateClient(ctx context.Context, id uint64, update *OAuth2ClientEditModel) (err error) {
 	tran := store.DB.Begin()
-	ctx := store.NewDBContext(tran)
+	ctx = store.NewDBContext(ctx, tran)
 	var (
 		oauth2Client     *model.OAuth2Client
 		oauth2ClientInfo *model.OAuth2ClientInfo
@@ -99,14 +101,14 @@ func (*oauth2) UpdateClient(id uint64, update *OAuth2ClientEditModel) (err error
 }
 
 // GetClient get oauth2 client.
-func (o *oauth2) GetClient(id uint64) (client *model.OAuth2Client, err error) {
-	client, err = dao.OAuth2Client.SelectByID(store.NewDBContext(), id)
+func (o *oauth2) GetClient(ctx context.Context, id uint64) (client *model.OAuth2Client, err error) {
+	client, err = dao.OAuth2Client.SelectByID(ctx, id)
 	return
 }
 
 // GetClient get oauth2 client info.
-func (o *oauth2) GetClientInfo(id uint64) (client *model.OAuth2ClientInfo, err error) {
-	client, err = dao.OAuth2ClientInfo.SelectByClientID(store.NewDBContext(), id)
+func (o *oauth2) GetClientInfo(ctx context.Context, id uint64) (client *model.OAuth2ClientInfo, err error) {
+	client, err = dao.OAuth2ClientInfo.SelectByClientID(ctx, id)
 	return
 }
 
@@ -121,16 +123,16 @@ type OAuth2ClientDetailInfo struct {
 }
 
 // GetClientDetailInfo get oauth2 client info.
-func (o *oauth2) GetClientDetailInfo(id uint64) (clientDetail *OAuth2ClientDetailInfo, err error) {
+func (o *oauth2) GetClientDetailInfo(ctx context.Context, id uint64) (clientDetail *OAuth2ClientDetailInfo, err error) {
 	var (
 		client     *model.OAuth2Client
 		clientInfo *model.OAuth2ClientInfo
 	)
-	client, err = dao.OAuth2Client.SelectByID(store.NewDBContext(), id)
+	client, err = dao.OAuth2Client.SelectByID(ctx, id)
 	if err != nil {
 		return
 	}
-	clientInfo, err = dao.OAuth2ClientInfo.SelectByClientID(store.NewDBContext(), id)
+	clientInfo, err = dao.OAuth2ClientInfo.SelectByClientID(ctx, id)
 	if err != nil {
 		return
 	}
@@ -156,11 +158,11 @@ type ResultClientInfo struct {
 }
 
 // ClientListPaged ...
-func (o *oauth2) ClientListPaged(start, limit int) (result []*ResultClientInfo, total uint64, err error) {
+func (o *oauth2) ClientListPaged(ctx context.Context, start, limit int) (result []*ResultClientInfo, total uint64, err error) {
 	var (
 		clientList []*model.OAuth2Client
 	)
-	clientList, total, err = dao.OAuth2Client.ListPaged(store.NewDBContext(), start, limit)
+	clientList, total, err = dao.OAuth2Client.ListPaged(ctx, start, limit)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			err = nil
@@ -168,7 +170,7 @@ func (o *oauth2) ClientListPaged(start, limit int) (result []*ResultClientInfo, 
 		return
 	}
 	for _, client := range clientList {
-		clientInfo, clientInfoErr := o.GetClientInfo(client.ClientID)
+		clientInfo, clientInfoErr := o.GetClientInfo(ctx, client.ClientID)
 		resultInfo := &ResultClientInfo{}
 		if clientInfoErr == nil {
 			resultInfo.ClientID = clientInfo.ClientID
@@ -184,8 +186,8 @@ func (o *oauth2) ClientListPaged(start, limit int) (result []*ResultClientInfo, 
 }
 
 // GetClientScope 获取客户端的范围
-func (o *oauth2) GetClientAllScope(clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
-	scopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(store.NewDBContext(), clientID)
+func (o *oauth2) GetClientAllScope(ctx context.Context, clientID uint64) (scopes []*model.OAuth2ClientScope, err error) {
+	scopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(ctx, clientID)
 	return
 }
 
@@ -197,8 +199,7 @@ type OAuth2ClientScopeInfo struct {
 	Type        string `json:"type"`
 }
 
-func (o *oauth2) GetClientAllScopeInfo(clientID uint64) (scopeInfos []*OAuth2ClientScopeInfo, err error) {
-	ctx := store.NewDBContext()
+func (o *oauth2) GetClientAllScopeInfo(ctx context.Context, clientID uint64) (scopeInfos []*OAuth2ClientScopeInfo, err error) {
 	var clientScopes []*model.OAuth2ClientScope
 	clientScopes, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(ctx, clientID)
 	if err != nil {
@@ -221,9 +222,9 @@ func (o *oauth2) GetClientAllScopeInfo(clientID uint64) (scopeInfos []*OAuth2Cli
 }
 
 // GetClientAllScopeCode 获取客户端的范围code
-func (o *oauth2) GetClientAllScopeCode(clientID uint64) (scopes []string, err error) {
+func (o *oauth2) GetClientAllScopeCode(ctx context.Context, clientID uint64) (scopes []string, err error) {
 	var scopeArray []*model.OAuth2ClientScope
-	scopeArray, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(store.NewDBContext(), clientID)
+	scopeArray, err = dao.OAuth2ClientScope.SelectByOAuth2ClientID(ctx, clientID)
 	if err != nil {
 		return
 	}
@@ -234,14 +235,14 @@ func (o *oauth2) GetClientAllScopeCode(clientID uint64) (scopes []string, err er
 }
 
 // AllScope 获取所有的范围
-func (o *oauth2) AllScope() (scopes []*model.OAuth2Scope, err error) {
-	scopes, err = dao.OAuth2Scope.SelectAll(store.NewDBContext())
+func (o *oauth2) AllScope(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
+	scopes, err = dao.OAuth2Scope.SelectAll(ctx)
 	return
 }
 
 // GetScopeOne 根据code获取scope
-func (o *oauth2) GetScopeOne(code string) (scope *model.OAuth2Scope, err error) {
-	return dao.OAuth2Scope.Select(store.NewDBContext(), code)
+func (o *oauth2) GetScopeOne(ctx context.Context, code string) (scope *model.OAuth2Scope, err error) {
+	return dao.OAuth2Scope.Select(ctx, code)
 }
 
 // OAuth2CreateScopeModel ...
@@ -253,8 +254,7 @@ type OAuth2CreateScopeModel struct {
 }
 
 // Update 修改用户
-func (o *oauth2) CreateScope(create *OAuth2CreateScopeModel) (err error) {
-	ctx := store.NewDBContext()
+func (o *oauth2) CreateScope(ctx context.Context, create *OAuth2CreateScopeModel) (err error) {
 	var (
 		scope *model.OAuth2Scope
 	)
@@ -276,8 +276,7 @@ type OAuth2UpdateScopeModel struct {
 }
 
 // Update 修改用户
-func (o *oauth2) UpdateScope(code string, update *OAuth2UpdateScopeModel) (err error) {
-	ctx := store.NewDBContext()
+func (o *oauth2) UpdateScope(ctx context.Context, code string, update *OAuth2UpdateScopeModel) (err error) {
 	var (
 		scope *model.OAuth2Scope
 	)
@@ -292,8 +291,8 @@ func (o *oauth2) UpdateScope(code string, update *OAuth2UpdateScopeModel) (err e
 	return
 }
 
-func (o *oauth2) ScopeListPaged(start, limit int) (scopes []*model.OAuth2Scope, total uint64, err error) {
-	scopes, total, err = dao.OAuth2Scope.ListPaged(store.NewDBContext(), start, limit)
+func (o *oauth2) ScopeListPaged(ctx context.Context, start, limit int) (scopes []*model.OAuth2Scope, total uint64, err error) {
+	scopes, total, err = dao.OAuth2Scope.ListPaged(ctx, start, limit)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			err = nil
@@ -303,9 +302,9 @@ func (o *oauth2) ScopeListPaged(start, limit int) (scopes []*model.OAuth2Scope, 
 	return
 }
 
-func (o *oauth2) AllScopeCode() (scopeCodes []string, err error) {
+func (o *oauth2) AllScopeCode(ctx context.Context) (scopeCodes []string, err error) {
 	var scopes []*model.OAuth2Scope
-	scopes, err = dao.OAuth2Scope.SelectAll(store.NewDBContext())
+	scopes, err = dao.OAuth2Scope.SelectAll(ctx)
 	if err != nil {
 		return
 	}

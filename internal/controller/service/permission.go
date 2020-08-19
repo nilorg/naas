@@ -6,6 +6,7 @@ import (
 
 	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -24,7 +25,7 @@ import (
 type PermissionService struct {
 }
 
-func checkReSource(resource *proto.Resource) (err error) {
+func checkReSource(ctx context.Context, resource *proto.Resource) (err error) {
 	if resource == nil {
 		err = status.Error(codes.InvalidArgument, "request resource is nil")
 		return
@@ -44,7 +45,7 @@ func checkReSource(resource *proto.Resource) (err error) {
 		rs    *model.Resource
 		rsErr error
 	)
-	rs, rsErr = service.Resource.Get(convert.ToUint64(resource.Id))
+	rs, rsErr = service.Resource.Get(ctx, convert.ToUint64(resource.Id))
 	if rsErr != nil {
 		logger.Errorf("service.Resource.GetClient Error: %s", rsErr)
 		err = status.Error(codes.Unavailable, oauth2.ErrUnauthorizedClient.Error())
@@ -58,17 +59,18 @@ func checkReSource(resource *proto.Resource) (err error) {
 
 // VerifyHttpRoute 验证Http路由
 func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.VerifyHttpRouteRequest) (res *proto.VerifyHttpRouteResponse, err error) {
-	err = checkReSource(req.Resource)
+	ctx = contexts.WithContext(ctx)
+	err = checkReSource(ctx, req.Resource)
 	if err != nil {
 		return
 	}
 	var openID string
-	openID, err = ctl.verifyToken(req.Token, req.Oauth2ClientId)
+	openID, err = ctl.verifyToken(ctx, req.Token, req.Oauth2ClientId)
 	if err != nil {
 		return
 	}
 	res = new(proto.VerifyHttpRouteResponse)
-	roles, _ := service.Role.GetAllRoleByUserID(convert.ToUint64(openID))
+	roles, _ := service.Role.GetAllRoleByUserID(ctx, convert.ToUint64(openID))
 	for _, role := range roles {
 		sub := fmt.Sprintf("role:%s", role.RoleCode)                 // 希望访问资源的用户
 		dom := fmt.Sprintf("resource:%s:web_route", req.Resource.Id) // 域/域租户,这里以资源为单位
@@ -85,7 +87,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 	}
 	// 返回用户信息
 	if res.Allow && req.ReturnUserInfo {
-		user, userErr := service.User.GetOneByID(convert.ToUint64(openID))
+		user, userErr := service.User.GetOneByID(ctx, convert.ToUint64(openID))
 		if userErr != nil {
 			err = status.Error(codes.Unavailable, userErr.Error())
 			return
@@ -94,7 +96,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 			OpenId:   convert.ToString(user.ID),
 			Username: user.Username,
 		}
-		userInfo, userInfoErr := service.User.GetInfoOneByUserID(convert.ToUint64(res.UserInfo.OpenId))
+		userInfo, userInfoErr := service.User.GetInfoOneByUserID(ctx, convert.ToUint64(res.UserInfo.OpenId))
 		if userInfoErr == nil && userInfo != nil {
 			res.UserInfo.NickName = userInfo.Nickname
 			res.UserInfo.AvatarUrl = userInfo.Picture
@@ -105,7 +107,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 }
 
 // verifyToken 验证Token
-func (ctl *PermissionService) verifyToken(token, oauth2ClientID string) (openID string, err error) {
+func (ctl *PermissionService) verifyToken(ctx context.Context, token, oauth2ClientID string) (openID string, err error) {
 	if token == "" {
 		err = status.Error(codes.InvalidArgument, "request token is empty")
 		return
@@ -120,7 +122,7 @@ func (ctl *PermissionService) verifyToken(token, oauth2ClientID string) (openID 
 		claimsErr error
 	)
 	rdsKey := fmt.Sprintf("oauth2_token_revocation:%s:access_token", oauth2ClientID)
-	exsit, err = store.RedisClient.HExists(context.Background(), rdsKey, token).Result()
+	exsit, err = store.RedisClient.HExists(ctx, rdsKey, token).Result()
 	if err != nil {
 		err = status.Error(codes.Internal, fmt.Sprintf("check token revocation error: %s", err))
 		return
@@ -143,19 +145,20 @@ func (ctl *PermissionService) verifyToken(token, oauth2ClientID string) (openID 
 }
 
 // VerifyToken 验证Token
-func (ctl *PermissionService) VerifyToken(_ context.Context, req *proto.VerifyTokenRequest) (res *proto.VerifyTokenResponse, err error) {
-	err = checkReSource(req.Resource)
+func (ctl *PermissionService) VerifyToken(ctx context.Context, req *proto.VerifyTokenRequest) (res *proto.VerifyTokenResponse, err error) {
+	ctx = contexts.WithContext(ctx)
+	err = checkReSource(ctx, req.Resource)
 	if err != nil {
 		return
 	}
 	var openID string
-	openID, err = ctl.verifyToken(req.Token, req.Oauth2ClientId)
+	openID, err = ctl.verifyToken(ctx, req.Token, req.Oauth2ClientId)
 	if err != nil {
 		return
 	}
 	res = new(proto.VerifyTokenResponse)
 	if req.ReturnUserInfo {
-		user, userErr := service.User.GetOneByID(convert.ToUint64(openID))
+		user, userErr := service.User.GetOneByID(ctx, convert.ToUint64(openID))
 		if userErr != nil {
 			err = status.Error(codes.Unavailable, userErr.Error())
 			return
@@ -164,7 +167,7 @@ func (ctl *PermissionService) VerifyToken(_ context.Context, req *proto.VerifyTo
 			OpenId:   convert.ToString(user.ID),
 			Username: user.Username,
 		}
-		userInfo, userInfoErr := service.User.GetInfoOneByUserID(convert.ToUint64(res.UserInfo.OpenId))
+		userInfo, userInfoErr := service.User.GetInfoOneByUserID(ctx, convert.ToUint64(res.UserInfo.OpenId))
 		if userInfoErr == nil && userInfo != nil {
 			res.UserInfo.NickName = userInfo.Nickname
 			res.UserInfo.AvatarUrl = userInfo.Picture

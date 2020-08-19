@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/sdk/convert"
 )
@@ -32,7 +33,7 @@ func (r *role) QueryChildren() gin.HandlerFunc {
 
 // Recursive 递归
 func (*role) Recursive(ctx *gin.Context) {
-	roles := service.Role.Recursive()
+	roles := service.Role.Recursive(contexts.WithGinContext(ctx))
 	ctx.JSON(http.StatusOK, roles)
 }
 
@@ -55,7 +56,7 @@ func (*role) List(ctx *gin.Context) {
 func (*role) AddResourceWebRoute(ctx *gin.Context) {
 	roleCode := ctx.Param("role_code")
 	resourceWebRouteID := convert.ToUint64(ctx.Param("resource_web_route_id"))
-	err := service.Role.AddResourceWebRoute(roleCode, resourceWebRouteID)
+	err := service.Role.AddResourceWebRoute(contexts.WithGinContext(ctx), roleCode, resourceWebRouteID)
 	if err != nil {
 		writeError(ctx, err)
 		return

@@ -9,6 +9,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools"
 	"github.com/nilorg/naas/pkg/tools/key"
@@ -34,7 +35,7 @@ func AuthorizePage(ctx *gin.Context) {
 		client     *model.OAuth2Client
 		clientInfo *model.OAuth2ClientInfo
 	)
-	client, err = service.OAuth2.GetClient(convert.ToUint64(clientID))
+	client, err = service.OAuth2.GetClient(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {
@@ -61,7 +62,7 @@ func AuthorizePage(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
-	clientInfo, err = service.OAuth2.GetClientInfo(convert.ToUint64(clientID))
+	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
 	if err != nil {
 		ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
 			"error": err.Error(),
@@ -76,7 +77,7 @@ func AuthorizePage(ctx *gin.Context) {
 	scopeSplit := sdkStrings.Split(scope, " ")
 	scopes := make([]map[string]interface{}, 0)
 	var scopeInfos []*service.OAuth2ClientScopeInfo
-	scopeInfos, err = service.OAuth2.GetClientAllScopeInfo(clientInfo.ClientID)
+	scopeInfos, err = service.OAuth2.GetClientAllScopeInfo(contexts.WithGinContext(ctx), clientInfo.ClientID)
 	if err != nil {
 		ctx.HTML(http.StatusOK, "authorize.tmpl", gin.H{
 			"error": err.Error(),

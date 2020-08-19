@@ -4,6 +4,7 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/pkg/logger"
 	"github.com/pkg/errors"
@@ -49,7 +50,7 @@ func Authenticator(ctx *gin.Context) (interface{}, error) {
 	userName := loginVals.Username
 	password := loginVals.Password
 
-	result, err := service.Admin.Login(userName, password)
+	result, err := service.Admin.Login(contexts.WithGinContext(ctx), userName, password)
 	if err != nil {
 		return nil, err
 	}

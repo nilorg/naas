@@ -1,24 +1,25 @@
 package service
 
 import (
+	"context"
+
 	gormadapter "github.com/casbin/gorm-adapter/v2"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
 )
 
 type resource struct {
 }
 
 // Get resource
-func (*resource) Get(id uint64) (resource *model.Resource, err error) {
-	resource, err = dao.Resource.Select(store.NewDBContext(), id)
+func (*resource) Get(ctx context.Context, id uint64) (resource *model.Resource, err error) {
+	resource, err = dao.Resource.Select(ctx, id)
 	return
 }
 
 // LoadPolicy 加载规则
-func (*resource) LoadPolicy(resourceID uint64) (results []*gormadapter.CasbinRule, err error) {
-	return dao.Resource.LoadPolicy(store.NewDBContext(), resourceID)
+func (*resource) LoadPolicy(ctx context.Context, resourceID uint64) (results []*gormadapter.CasbinRule, err error) {
+	return dao.Resource.LoadPolicy(ctx, resourceID)
 }
 
 // ResourceAddWebRouteRequest ...
@@ -29,13 +30,13 @@ type ResourceAddWebRouteRequest struct {
 }
 
 // AddWebRoute 添加web路由
-func (*resource) AddWebRoute(resourceID uint64, req *ResourceAddWebRouteRequest) (err error) {
+func (*resource) AddWebRoute(ctx context.Context, resourceID uint64, req *ResourceAddWebRouteRequest) (err error) {
 	v := &model.ResourceWebRoute{
 		Name:       req.Name,
 		Path:       req.Path,
 		Method:     req.Method,
 		ResourceID: resourceID,
 	}
-	err = dao.ResourceWebRoute.Insert(store.NewDBContext(), v)
+	err = dao.ResourceWebRoute.Insert(ctx, v)
 	return
 }

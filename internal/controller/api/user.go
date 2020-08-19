@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/sdk/convert"
 )
@@ -37,7 +38,7 @@ func (*user) Create(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.User.Create(m.Username, m.Password)
+	err = service.User.Create(contexts.WithGinContext(ctx), m.Username, m.Password)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -61,7 +62,7 @@ func (*user) GetOne(ctx *gin.Context) {
 		err  error
 	)
 	userID := convert.ToUint64(ctx.Param("user_id"))
-	user, err = service.User.GetOneByID(userID)
+	user, err = service.User.GetOneByID(contexts.WithGinContext(ctx), userID)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -88,7 +89,7 @@ func (*user) Delete(ctx *gin.Context) {
 	for _, id := range idsStringSplit {
 		idsUint64Split = append(idsUint64Split, convert.ToUint64(id))
 	}
-	err = service.User.DeleteByIDs(idsUint64Split...)
+	err = service.User.DeleteByIDs(contexts.WithGinContext(ctx), idsUint64Split...)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -118,7 +119,7 @@ func (*user) Update(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.User.Update(userID, &user)
+	err = service.User.Update(contexts.WithGinContext(ctx), userID, &user)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -143,7 +144,7 @@ func (*user) ListByPaged(ctx *gin.Context) {
 		err    error
 	)
 	pagination := model.NewPagination(ctx)
-	result, pagination.Total, err = service.User.ListPaged(pagination.GetSkip(), pagination.GetLimit())
+	result, pagination.Total, err = service.User.ListPaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
 	if err != nil {
 		writeError(ctx, err)
 		return

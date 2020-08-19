@@ -2,6 +2,13 @@ package model
 
 import "time"
 
+type (
+	// ID ...
+	ID uint64
+	// Code ...
+	Code string
+)
+
 // Model ...
 type Model struct {
 	ID        uint64     `json:"id" gorm:"primary_key;column:id"`

@@ -111,11 +111,11 @@ func initMySQL() {
 }
 
 // NewDBContext ...
-func NewDBContext(dbs ...*gorm.DB) context.Context {
+func NewDBContext(ctx context.Context, dbs ...*gorm.DB) context.Context {
 	if len(dbs) > 0 {
-		return db.NewContext(context.Background(), dbs[0])
+		return db.NewContext(ctx, dbs[0])
 	}
-	return db.NewContext(context.Background(), DB)
+	return db.NewContext(ctx, DB)
 }
 
 // NewCacheContext 创建缓存对象到上下文中

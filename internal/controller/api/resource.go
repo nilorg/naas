@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/sdk/convert"
 )
@@ -30,7 +31,7 @@ func (*resource) AddWebRoute(ctx *gin.Context) {
 		return
 	}
 	resourceID := convert.ToUint64(ctx.Param("resource_id"))
-	err = service.Resource.AddWebRoute(resourceID, &req)
+	err = service.Resource.AddWebRoute(contexts.WithGinContext(ctx), resourceID, &req)
 	if err != nil {
 		writeError(ctx, err)
 		return

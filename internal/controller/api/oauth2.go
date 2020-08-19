@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/sdk/convert"
 )
@@ -36,7 +37,7 @@ func (*oauth2) scopeAll(ctx *gin.Context) {
 		scopes []*model.OAuth2Scope
 		err    error
 	)
-	scopes, err = service.OAuth2.AllScope()
+	scopes, err = service.OAuth2.AllScope(contexts.WithGinContext(ctx))
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -50,7 +51,7 @@ func (*oauth2) scopeListByPaged(ctx *gin.Context) {
 		err    error
 	)
 	pagination := model.NewPagination(ctx)
-	scopes, pagination.Total, err = service.OAuth2.ScopeListPaged(pagination.GetSkip(), pagination.GetLimit())
+	scopes, pagination.Total, err = service.OAuth2.ScopeListPaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -73,7 +74,7 @@ func (*oauth2) GetScopeOne(ctx *gin.Context) {
 		err   error
 	)
 	scopCode := ctx.Param("scop_code")
-	scope, err = service.OAuth2.GetScopeOne(scopCode)
+	scope, err = service.OAuth2.GetScopeOne(contexts.WithGinContext(ctx), scopCode)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -102,7 +103,7 @@ func (*oauth2) UpdateScope(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.OAuth2.UpdateScope(scopCode, &scope)
+	err = service.OAuth2.UpdateScope(contexts.WithGinContext(ctx), scopCode, &scope)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -129,7 +130,7 @@ func (*oauth2) CreateScope(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.OAuth2.CreateScope(&scope)
+	err = service.OAuth2.CreateScope(contexts.WithGinContext(ctx), &scope)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -153,7 +154,7 @@ func (*oauth2) GetClientScopes(ctx *gin.Context) {
 		err    error
 	)
 	clientID := ctx.Param("client_id")
-	scopes, err = service.OAuth2.GetClientAllScope(convert.ToUint64(clientID))
+	scopes, err = service.OAuth2.GetClientAllScope(contexts.WithGinContext(ctx), convert.ToUint64(clientID))
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -181,7 +182,7 @@ func (*oauth2) CreateClient(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.OAuth2.CreateClient(&create)
+	err = service.OAuth2.CreateClient(contexts.WithGinContext(ctx), &create)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -204,7 +205,7 @@ func (*oauth2) GetClient(ctx *gin.Context) {
 		err              error
 	)
 	clientID := convert.ToUint64(ctx.Param("client_id"))
-	clientDetailInfo, err = service.OAuth2.GetClientDetailInfo(clientID)
+	clientDetailInfo, err = service.OAuth2.GetClientDetailInfo(contexts.WithGinContext(ctx), clientID)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -234,7 +235,7 @@ func (*oauth2) UpdateClient(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.OAuth2.UpdateClient(clientID, &update)
+	err = service.OAuth2.UpdateClient(contexts.WithGinContext(ctx), clientID, &update)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -259,7 +260,7 @@ func (*oauth2) ClientListByPaged(ctx *gin.Context) {
 		err    error
 	)
 	pagination := model.NewPagination(ctx)
-	result, pagination.Total, err = service.OAuth2.ClientListPaged(pagination.GetSkip(), pagination.GetLimit())
+	result, pagination.Total, err = service.OAuth2.ClientListPaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
 	if err != nil {
 		writeError(ctx, err)
 		return

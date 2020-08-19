@@ -19,6 +19,7 @@ import (
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/global"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/pkg/token"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
@@ -46,7 +47,7 @@ func Init() {
 	)
 	oauth2Server.VerifyClient = func(basic *oauth2.ClientBasic) (err error) {
 		var client *model.OAuth2Client
-		client, err = service.OAuth2.GetClient(convert.ToUint64(basic.ID))
+		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), convert.ToUint64(basic.ID))
 		if err != nil {
 			err = oauth2.ErrUnauthorizedClient
 			return
@@ -59,7 +60,7 @@ func Init() {
 	}
 	oauth2Server.VerifyPassword = func(username, password string) (openID string, err error) {
 		var user *model.User
-		user, err = service.User.GetUserByUsername(username)
+		user, err = service.User.GetUserByUsername(contexts.WithContext(context.Background()), username)
 		if err != nil {
 			err = oauth2.ErrAccessDenied
 			return
@@ -71,7 +72,7 @@ func Init() {
 	}
 	oauth2Server.VerifyRedirectURI = func(clientID, redirectURI string) (err error) {
 		var client *model.OAuth2Client
-		client, err = service.OAuth2.GetClient(convert.ToUint64(clientID))
+		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), convert.ToUint64(clientID))
 		if err != nil {
 			err = oauth2.ErrAccessDenied
 			return
@@ -119,7 +120,7 @@ func Init() {
 			return
 		}
 		var scopes []string
-		scopes, err = service.OAuth2.GetClientAllScopeCode(convert.ToUint64(clientID))
+		scopes, err = service.OAuth2.GetClientAllScopeCode(contexts.WithContext(context.Background()), convert.ToUint64(clientID))
 		if err != nil {
 			err = oauth2.ErrInvalidScope
 			return
@@ -174,7 +175,7 @@ func Init() {
 		resp.Exp = tokenClaims.ExpiresAt
 		resp.Iss = tokenClaims.IssuedAt
 		var user *model.User
-		user, err = service.User.GetOneByID(convert.ToUint64(tokenClaims.Subject))
+		user, err = service.User.GetOneByID(contexts.WithContext(context.Background()), convert.ToUint64(tokenClaims.Subject))
 		if err == nil && user != nil {
 			resp.Username = user.Username
 		}
