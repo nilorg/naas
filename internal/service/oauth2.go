@@ -245,49 +245,38 @@ func (o *oauth2) GetScopeOne(ctx context.Context, code model.Code) (scope *model
 	return dao.OAuth2Scope.Select(ctx, code)
 }
 
-// OAuth2CreateScopeModel ...
-type OAuth2CreateScopeModel struct {
-	Code        model.Code `json:"code"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Type        string     `json:"type"`
-}
-
-// Update 修改用户
-func (o *oauth2) CreateScope(ctx context.Context, create *OAuth2CreateScopeModel) (err error) {
-	var (
-		scope *model.OAuth2Scope
-	)
-	scope = &model.OAuth2Scope{
-		Name:        create.Name,
-		Description: create.Description,
-		Type:        create.Type,
-	}
-	scope.Code = create.Code
-	err = dao.OAuth2Scope.Insert(ctx, scope)
-	return
-}
-
-// OAuth2UpdateScopeModel ...
-type OAuth2UpdateScopeModel struct {
+// OAuth2EditScopeModel ...
+type OAuth2EditScopeModel struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Type        string `json:"type"`
 }
 
-// Update 修改用户
-func (o *oauth2) UpdateScope(ctx context.Context, code model.Code, update *OAuth2UpdateScopeModel) (err error) {
+// EditScope 编辑/创建scope
+func (o *oauth2) EditScope(ctx context.Context, code model.Code, edit *OAuth2EditScopeModel) (err error) {
 	var (
-		scope *model.OAuth2Scope
+		scope  *model.OAuth2Scope
+		insert bool
 	)
 	scope, err = dao.OAuth2Scope.Select(ctx, code)
 	if err != nil {
-		return
+		if gorm.IsRecordNotFoundError(err) {
+			insert = true
+			scope = new(model.OAuth2Scope)
+			scope.Code = code
+			err = nil
+		} else {
+			return
+		}
 	}
-	scope.Name = update.Name
-	scope.Description = update.Description
-	scope.Type = update.Type
-	err = dao.OAuth2Scope.Update(ctx, scope)
+	scope.Name = edit.Name
+	scope.Description = edit.Description
+	scope.Type = edit.Type
+	if insert {
+		err = dao.OAuth2Scope.Insert(ctx, scope)
+	} else {
+		err = dao.OAuth2Scope.Update(ctx, scope)
+	}
 	return
 }
 

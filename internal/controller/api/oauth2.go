@@ -81,19 +81,19 @@ func (*oauth2) GetScopeOne(ctx *gin.Context) {
 	writeData(ctx, scope)
 }
 
-// UpdateScope 修改scope
+// EditScope 编辑scope
 // @Tags 		OAuth2
-// @Summary		修改scope
+// @Summary		编辑scope
 // @Accept  json
 // @Produce	json
 // @Param 	scop_code	path	string	true	"scop code"
-// @Param 	body	body	service.OAuth2UpdateScopeModel	true	"body"
+// @Param 	body	body	service.OAuth2EditScopeModel	true	"body"
 // @Success 200	{object}	Result
 // @Router /oauth2/scopes/{scop_code} [PUT]
 // @Security OAuth2AccessCode
-func (*oauth2) UpdateScope(ctx *gin.Context) {
+func (*oauth2) EditScope(ctx *gin.Context) {
 	var (
-		scope service.OAuth2UpdateScopeModel
+		scope service.OAuth2EditScopeModel
 		err   error
 	)
 	scopCode := ctx.Param("scop_code")
@@ -102,34 +102,7 @@ func (*oauth2) UpdateScope(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.OAuth2.UpdateScope(contexts.WithGinContext(ctx), model.Code(scopCode), &scope)
-	if err != nil {
-		writeError(ctx, err)
-		return
-	}
-	writeData(ctx, nil)
-}
-
-// CreateScope 创建scope
-// @Tags 		OAuth2
-// @Summary		创建scope
-// @Accept  json
-// @Produce	json
-// @Param 	body	body	service.OAuth2CreateScopeModel	true	"body"
-// @Success 200	{object}	Result
-// @Router /oauth2/scopes [POST]
-// @Security OAuth2AccessCode
-func (*oauth2) CreateScope(ctx *gin.Context) {
-	var (
-		scope service.OAuth2CreateScopeModel
-		err   error
-	)
-	err = ctx.ShouldBindJSON(&scope)
-	if err != nil {
-		writeError(ctx, err)
-		return
-	}
-	err = service.OAuth2.CreateScope(contexts.WithGinContext(ctx), &scope)
+	err = service.OAuth2.EditScope(contexts.WithGinContext(ctx), model.Code(scopCode), &scope)
 	if err != nil {
 		writeError(ctx, err)
 		return
