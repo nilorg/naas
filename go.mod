@@ -17,12 +17,12 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/sessions v1.2.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway v1.14.6
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.1
+	github.com/grpc-ecosystem/grpc-gateway v1.14.7
 	github.com/jinzhu/gorm v1.9.16
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/nilorg/oauth2 v0.2.8
-	github.com/nilorg/pkg v0.0.0-20200712142249-ace26e0c9ddc
+	github.com/nilorg/pkg v0.0.0-20200812091233-336b4878dc9e
 	github.com/nilorg/sdk v0.0.0-20200722051921-d78210c90563
 	github.com/o1egl/govatar v0.3.0
 	github.com/pelletier/go-toml v1.7.0 // indirect
@@ -35,11 +35,10 @@ require (
 	github.com/square/go-jose/v3 v3.0.0-20200630053402-0a67ce9b0693
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/swag v1.6.7
-	golang.org/x/net v0.0.0-20200625001655-4c5254603344
-	golang.org/x/text v0.3.3 // indirect
-	golang.org/x/tools v0.0.0-20200626171337-aa94e735be7f // indirect
-	google.golang.org/genproto v0.0.0-20200513103714-09dca8ec2884
-	google.golang.org/grpc v1.31.0
-	google.golang.org/protobuf v1.23.0
+	golang.org/x/net v0.0.0-20200822124328-c89045814202
+	google.golang.org/genproto v0.0.0-20200825200019-8632dd797987
+	google.golang.org/grpc v1.31.1
+	google.golang.org/grpc/examples v0.0.0-20200826230536-d31b6710005d // indirect
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
