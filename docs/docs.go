@@ -390,42 +390,6 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OAuth2"
-                ],
-                "summary": "创建scope",
-                "parameters": [
-                    {
-                        "description": "body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.OAuth2CreateScopeModel"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
             }
         },
         "/oauth2/scopes/{scop_code}": {
@@ -478,7 +442,7 @@ var doc = `{
                 "tags": [
                     "OAuth2"
                 ],
-                "summary": "修改scope",
+                "summary": "编辑scope",
                 "parameters": [
                     {
                         "type": "string",
@@ -493,7 +457,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.OAuth2UpdateScopeModel"
+                            "$ref": "#/definitions/service.OAuth2EditScopeModel"
                         }
                     }
                 ],
@@ -1104,24 +1068,7 @@ var doc = `{
                 }
             }
         },
-        "service.OAuth2CreateScopeModel": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.OAuth2UpdateScopeModel": {
+        "service.OAuth2EditScopeModel": {
             "type": "object",
             "properties": {
                 "description": {
