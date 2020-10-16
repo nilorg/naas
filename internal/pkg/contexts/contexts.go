@@ -39,7 +39,7 @@ func WithContext(ctx context.Context) context.Context {
 	if viper.GetString("storage.type") == "oss" {
 		ctx = storage.NewBucketNameContext(ctx, viper.GetString("storage.oss.bucket"))
 	}
-	ctx = store.NewDBContext(ctx)
+	ctx = NewGormContext(ctx, store.DB)
 	return ctx
 }
 

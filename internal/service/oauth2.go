@@ -8,6 +8,7 @@ import (
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/sdk/convert"
 	"gorm.io/gorm"
 )
@@ -27,7 +28,7 @@ type OAuth2ClientEditModel struct {
 // CreateClient 创建客户端
 func (*oauth2) CreateClient(ctx context.Context, create *OAuth2ClientEditModel) (err error) {
 	tran := store.DB.Begin()
-	ctx = store.NewDBContext(ctx, tran)
+	ctx = contexts.NewGormTranContext(ctx, tran)
 	client := &model.OAuth2Client{
 		ClientSecret: uuid.New().String(),
 		RedirectURI:  create.RedirectURI,
@@ -63,7 +64,7 @@ func (*oauth2) CreateClient(ctx context.Context, create *OAuth2ClientEditModel) 
 // UpdateClient 修改客户端
 func (*oauth2) UpdateClient(ctx context.Context, id model.ID, update *OAuth2ClientEditModel) (err error) {
 	tran := store.DB.Begin()
-	ctx = store.NewDBContext(ctx, tran)
+	ctx = contexts.NewGormTranContext(ctx, tran)
 	var (
 		oauth2Client     *model.OAuth2Client
 		oauth2ClientInfo *model.OAuth2ClientInfo

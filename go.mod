@@ -19,7 +19,6 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/grpc-ecosystem/grpc-gateway v1.15.2
 	github.com/mailru/easyjson v0.7.1 // indirect
-	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
 	github.com/nilorg/oauth2 v0.3.0
 	github.com/nilorg/pkg v0.0.0-20200923011256-287aac349757
 	github.com/nilorg/sdk v0.0.0-20200912025101-a4037e6ee224

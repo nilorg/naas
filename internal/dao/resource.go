@@ -7,9 +7,9 @@ import (
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/go-redis/redis/v8"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/pkg/random"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/store"
 	"github.com/nilorg/sdk/cache"
 	"gorm.io/gorm"
 )
@@ -33,7 +33,7 @@ func (*resource) formatOneKey(id model.ID) string {
 
 func (*resource) Insert(ctx context.Context, resource *model.Resource) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -42,7 +42,7 @@ func (*resource) Insert(ctx context.Context, resource *model.Resource) (err erro
 }
 func (r *resource) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -56,7 +56,7 @@ func (r *resource) Delete(ctx context.Context, id model.ID) (err error) {
 
 func (*resource) selectOne(ctx context.Context, id model.ID) (resource *model.Resource, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -95,7 +95,7 @@ func (r *resource) selectFromCache(ctx context.Context, id model.ID) (resource *
 
 func (r *resource) Update(ctx context.Context, resource *model.Resource) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -110,7 +110,7 @@ func (r *resource) Update(ctx context.Context, resource *model.Resource) (err er
 // LoadPolicy 加载规则
 func (*resource) LoadPolicy(ctx context.Context, resourceID model.ID) (results []*gormadapter.CasbinRule, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}

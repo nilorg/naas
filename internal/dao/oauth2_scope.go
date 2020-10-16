@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/pkg/random"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/store"
 	"github.com/nilorg/sdk/cache"
 	"gorm.io/gorm"
 )
@@ -41,7 +41,7 @@ func (s *oauth2Scope) formatAllListBasicKey() string {
 
 func (s *oauth2Scope) Insert(ctx context.Context, m *model.OAuth2Scope) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -55,7 +55,7 @@ func (s *oauth2Scope) Insert(ctx context.Context, m *model.OAuth2Scope) (err err
 
 func (s *oauth2Scope) Delete(ctx context.Context, code model.Code) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -69,7 +69,7 @@ func (s *oauth2Scope) Delete(ctx context.Context, code model.Code) (err error) {
 
 func (s *oauth2Scope) selectAll(ctx context.Context) (m []*model.OAuth2Scope, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -103,7 +103,7 @@ func (s *oauth2Scope) SelectByAllBasic(ctx context.Context) (scopes []*model.OAu
 
 func (s *oauth2Scope) selectByAllBasic(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -123,7 +123,7 @@ func (s *oauth2Scope) selectByAllBasicFromCache(ctx context.Context) (scopes []*
 
 func (s *oauth2Scope) selectOne(ctx context.Context, code model.Code) (m *model.OAuth2Scope, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -162,7 +162,7 @@ func (s *oauth2Scope) selectFromCache(ctx context.Context, code model.Code) (m *
 
 func (s *oauth2Scope) Update(ctx context.Context, m *model.OAuth2Scope) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -188,7 +188,7 @@ func (s *oauth2Scope) scanCacheCode(ctx context.Context, items []*model.CacheCod
 
 func (s *oauth2Scope) ListPaged(ctx context.Context, start, limit int) (scopes []*model.OAuth2Scope, total int64, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}

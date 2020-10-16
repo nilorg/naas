@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/pkg/random"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/store"
 	"github.com/nilorg/sdk/cache"
 	"gorm.io/gorm"
 )
@@ -44,7 +44,7 @@ func (u *userInfo) formatOneUserIDKeys(ids ...model.ID) (keys []string) {
 
 func (*userInfo) selectByUserID(ctx context.Context, userID model.ID) (mu *model.UserInfo, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -83,7 +83,7 @@ func (u *userInfo) selectByUserIDFromCache(ctx context.Context, userID model.ID)
 
 func (*userInfo) Insert(ctx context.Context, mu *model.UserInfo) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -93,7 +93,7 @@ func (*userInfo) Insert(ctx context.Context, mu *model.UserInfo) (err error) {
 
 func (u *userInfo) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -107,7 +107,7 @@ func (u *userInfo) Delete(ctx context.Context, id model.ID) (err error) {
 
 func (u *userInfo) DeleteByUserID(ctx context.Context, userID model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -121,7 +121,7 @@ func (u *userInfo) DeleteByUserID(ctx context.Context, userID model.ID) (err err
 
 func (u *userInfo) DeleteInUserIDs(ctx context.Context, userIDs []model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -135,7 +135,7 @@ func (u *userInfo) DeleteInUserIDs(ctx context.Context, userIDs []model.ID) (err
 
 func (*userInfo) selectOne(ctx context.Context, id model.ID) (mu *model.UserInfo, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (u *userInfo) selectFromCache(ctx context.Context, id model.ID) (m *model.U
 
 func (u *userInfo) Update(ctx context.Context, mu *model.UserInfo) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}

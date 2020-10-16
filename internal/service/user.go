@@ -14,6 +14,7 @@ import (
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/pkg/errors"
 	"github.com/nilorg/sdk/convert"
 	"github.com/o1egl/govatar"
@@ -60,7 +61,7 @@ const (
 
 func (u *user) create(ctx context.Context, username, password, wxUnionID, typ string) (err error) {
 	tran := store.DB.Begin()
-	ctx = store.NewDBContext(ctx, tran)
+	ctx = contexts.NewGormTranContext(ctx, tran)
 	var exist bool
 	exist, err = dao.User.ExistByUsername(ctx, username)
 	if err != nil {
@@ -235,7 +236,7 @@ func (u *user) ListPaged(ctx context.Context, start, limit int) (result []*model
 // DeleteByID 根据ID删除用户
 func (u *user) DeleteByIDs(ctx context.Context, ids ...model.ID) (err error) {
 	tran := store.DB.Begin()
-	ctx = store.NewDBContext(ctx, tran)
+	ctx = contexts.NewGormTranContext(ctx, tran)
 	err = dao.User.DeleteInIDs(ctx, ids)
 	if err != nil {
 		tran.Rollback()

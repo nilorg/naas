@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/pkg/random"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/store"
 	"github.com/nilorg/sdk/cache"
 	"gorm.io/gorm"
 )
@@ -36,7 +36,7 @@ func (*oauth2ClientScope) formatClientListKey(clientID model.ID) string {
 
 func (*oauth2ClientScope) Select(ctx context.Context, id model.ID) (mc *model.OAuth2ClientScope, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -68,7 +68,7 @@ func (o *oauth2ClientScope) SelectFromCache(ctx context.Context, id model.ID) (m
 
 func (*oauth2ClientScope) selectByOAuth2ClientID(ctx context.Context, clientID model.ID) (scopes []*model.OAuth2ClientScope, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -95,7 +95,7 @@ func (o *oauth2ClientScope) selectByOAuth2ClientIDFromCache(ctx context.Context,
 
 func (o *oauth2ClientScope) Insert(ctx context.Context, mc *model.OAuth2ClientScope) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -109,7 +109,7 @@ func (o *oauth2ClientScope) Insert(ctx context.Context, mc *model.OAuth2ClientSc
 
 func (o *oauth2ClientScope) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -123,7 +123,7 @@ func (o *oauth2ClientScope) Delete(ctx context.Context, id model.ID) (err error)
 
 func (o *oauth2ClientScope) Update(ctx context.Context, mc *model.OAuth2ClientScope) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}

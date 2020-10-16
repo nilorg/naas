@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +23,7 @@ type roleResourceWebRoute struct {
 
 func (*roleResourceWebRoute) Insert(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -32,7 +32,7 @@ func (*roleResourceWebRoute) Insert(ctx context.Context, roleResourceWebRoute *m
 }
 func (*roleResourceWebRoute) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -41,7 +41,7 @@ func (*roleResourceWebRoute) Delete(ctx context.Context, id model.ID) (err error
 }
 func (*roleResourceWebRoute) Select(ctx context.Context, id model.ID) (roleResourceWebRoute *model.RoleResourceWebRoute, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -55,7 +55,7 @@ func (*roleResourceWebRoute) Select(ctx context.Context, id model.ID) (roleResou
 }
 func (*roleResourceWebRoute) Update(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -65,7 +65,7 @@ func (*roleResourceWebRoute) Update(ctx context.Context, roleResourceWebRoute *m
 
 func (*roleResourceWebRoute) SelectAll(ctx context.Context) (roleResourceWebRoutes []*model.RoleResourceWebRoute, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -75,7 +75,7 @@ func (*roleResourceWebRoute) SelectAll(ctx context.Context) (roleResourceWebRout
 
 func (*roleResourceWebRoute) exist(ctx context.Context, query interface{}, args ...interface{}) (exist bool, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}

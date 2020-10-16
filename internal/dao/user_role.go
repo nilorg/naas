@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/pkg/random"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/store"
 	"github.com/nilorg/sdk/cache"
 	"gorm.io/gorm"
 )
@@ -36,7 +36,7 @@ func (*userRole) formatUserListKey(userID model.ID) string {
 
 func (u *userRole) Insert(ctx context.Context, m *model.UserRole) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -50,7 +50,7 @@ func (u *userRole) Insert(ctx context.Context, m *model.UserRole) (err error) {
 
 func (u *userRole) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -64,7 +64,7 @@ func (u *userRole) Delete(ctx context.Context, id model.ID) (err error) {
 
 func (u *userRole) selectOne(ctx context.Context, id model.ID) (m *model.UserRole, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -103,7 +103,7 @@ func (u *userRole) selectFromCache(ctx context.Context, id model.ID) (m *model.U
 
 func (u *userRole) Update(ctx context.Context, m *model.UserRole) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -117,7 +117,7 @@ func (u *userRole) Update(ctx context.Context, m *model.UserRole) (err error) {
 
 func (u *userRole) selectAllByUserID(ctx context.Context, userID model.ID) (roles []*model.UserRole, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}

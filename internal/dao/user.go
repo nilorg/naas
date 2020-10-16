@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/pkg/random"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/store"
 	"github.com/nilorg/sdk/cache"
 	"gorm.io/gorm"
 )
@@ -45,7 +45,7 @@ func (u *user) formatOneKeys(ids ...model.ID) (keys []string) {
 
 func (*user) SelectByUsername(ctx context.Context, username string) (mu *model.User, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -60,7 +60,7 @@ func (*user) SelectByUsername(ctx context.Context, username string) (mu *model.U
 
 func (*user) SelectByWxUnionID(ctx context.Context, wxUnionID string) (mu *model.User, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -74,7 +74,7 @@ func (*user) SelectByWxUnionID(ctx context.Context, wxUnionID string) (mu *model
 
 func (*user) Insert(ctx context.Context, mu *model.User) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -84,7 +84,7 @@ func (*user) Insert(ctx context.Context, mu *model.User) (err error) {
 
 func (u *user) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -98,7 +98,7 @@ func (u *user) Delete(ctx context.Context, id model.ID) (err error) {
 
 func (u *user) DeleteInIDs(ctx context.Context, ids []model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -112,7 +112,7 @@ func (u *user) DeleteInIDs(ctx context.Context, ids []model.ID) (err error) {
 
 func (*user) selectOne(ctx context.Context, id model.ID) (mu *model.User, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -151,7 +151,7 @@ func (u *user) selectFromCache(ctx context.Context, id model.ID) (m *model.User,
 
 func (*user) Update(ctx context.Context, mu *model.User) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -164,7 +164,7 @@ func (*user) Update(ctx context.Context, mu *model.User) (err error) {
 
 func (*user) ListPaged(ctx context.Context, start, limit int) (user []*model.User, total int64, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -176,7 +176,7 @@ func (*user) ListPaged(ctx context.Context, start, limit int) (user []*model.Use
 
 func (*user) exist(ctx context.Context, query interface{}, args ...interface{}) (exist bool, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +21,7 @@ type organization struct {
 
 func (o *organization) Insert(ctx context.Context, m *model.Organization) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -30,7 +30,7 @@ func (o *organization) Insert(ctx context.Context, m *model.Organization) (err e
 }
 func (o *organization) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -39,7 +39,7 @@ func (o *organization) Delete(ctx context.Context, id model.ID) (err error) {
 }
 func (o *organization) Select(ctx context.Context, id model.ID) (m *model.Organization, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -53,7 +53,7 @@ func (o *organization) Select(ctx context.Context, id model.ID) (m *model.Organi
 }
 func (o *organization) Update(ctx context.Context, m *model.Organization) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}

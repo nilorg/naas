@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/pkg/random"
-	"github.com/nilorg/pkg/db"
+	"github.com/nilorg/naas/internal/pkg/store"
 	"github.com/nilorg/sdk/cache"
 	"gorm.io/gorm"
 )
@@ -40,7 +40,7 @@ func (o *oauth2Client) formatOneKeys(ids ...model.ID) (keys []string) {
 
 func (*oauth2Client) Insert(ctx context.Context, mc *model.OAuth2Client) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -50,7 +50,7 @@ func (*oauth2Client) Insert(ctx context.Context, mc *model.OAuth2Client) (err er
 
 func (o *oauth2Client) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -64,7 +64,7 @@ func (o *oauth2Client) Delete(ctx context.Context, id model.ID) (err error) {
 
 func (o *oauth2Client) DeleteInIDs(ctx context.Context, ids []model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -78,7 +78,7 @@ func (o *oauth2Client) DeleteInIDs(ctx context.Context, ids []model.ID) (err err
 
 func (o *oauth2Client) Update(ctx context.Context, mc *model.OAuth2Client) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -92,7 +92,7 @@ func (o *oauth2Client) Update(ctx context.Context, mc *model.OAuth2Client) (err 
 
 func (o *oauth2Client) UpdateRedirectURI(ctx context.Context, id model.ID, redirectURI string) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -106,7 +106,7 @@ func (o *oauth2Client) UpdateRedirectURI(ctx context.Context, id model.ID, redir
 
 func (*oauth2Client) selectByID(ctx context.Context, clientID model.ID) (mc *model.OAuth2Client, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
@@ -145,7 +145,7 @@ func (o *oauth2Client) selectByIDFromCache(ctx context.Context, id model.ID) (m 
 
 func (*oauth2Client) ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total int64, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromGormV2Context(ctx)
+	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
