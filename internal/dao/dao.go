@@ -12,7 +12,6 @@ var (
 	OAuth2Scope          OAuth2Scoper
 	Resource             Resourcer
 	ResourceWebRoute     ResourceWebRouter
-	Admin                Adminer
 	User                 Userer
 	UserInfo             UserInfoer
 	Organization         Organizationer
@@ -29,7 +28,6 @@ func Init() {
 	OAuth2ClientScope = &oauth2ClientScope{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_client_scope:")}
 	OAuth2Scope = &oauth2Scope{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_scope:")}
 	ResourceWebRoute = &resourceWebRoute{}
-	Admin = &admin{}
 	User = &user{cache: cache.NewRedisCache(store.RedisClient, "naas:user:")}
 	UserInfo = &userInfo{cache: cache.NewRedisCache(store.RedisClient, "naas:user_info:")}
 	Organization = &organization{}

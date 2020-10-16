@@ -24,7 +24,6 @@ require (
 	github.com/nilorg/sdk v0.0.0-20200912025101-a4037e6ee224
 	github.com/o1egl/govatar v0.3.0
 	github.com/pelletier/go-toml v1.7.0 // indirect
-	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

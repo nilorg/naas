@@ -94,7 +94,6 @@ func initMySQL() {
 	}
 	// Migrate the schema
 	DB.AutoMigrate(
-		&model.Admin{},
 		&model.OAuth2Scope{},
 		&model.OAuth2Client{},
 		&model.OAuth2ClientScope{},
