@@ -11,7 +11,6 @@ import (
 
 	"context"
 
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
@@ -20,6 +19,7 @@ import (
 	"github.com/o1egl/govatar"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
 type user struct {
@@ -208,13 +208,13 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 	return
 }
 
-func (u *user) ListPaged(ctx context.Context, start, limit int) (result []*model.ResultUserInfo, total uint64, err error) {
+func (u *user) ListPaged(ctx context.Context, start, limit int) (result []*model.ResultUserInfo, total int64, err error) {
 	var (
 		userList []*model.User
 	)
 	userList, total, err = dao.User.ListPaged(ctx, start, limit)
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
 		}
 		return

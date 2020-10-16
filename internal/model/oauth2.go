@@ -60,6 +60,7 @@ type OAuth2ClientScope struct {
 	ScopeCode      Code `json:"scope_code" gorm:"column:scope_code"`
 }
 
+// TableName 表明
 func (*OAuth2ClientScope) TableName() string {
 	return "oauth2_client_scope"
 }

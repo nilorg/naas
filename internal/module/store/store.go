@@ -4,18 +4,21 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
 	sdkCache "github.com/nilorg/sdk/cache"
 	"github.com/nilorg/sdk/storage"
 	"github.com/sirupsen/logrus"
 
-	// use db mysql
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/spf13/viper"
@@ -78,16 +81,27 @@ func initRedis() {
 
 func initMySQL() {
 	var err error
-	DB, err = gorm.Open("mysql", viper.GetString("mysql.address"))
-	if err != nil {
-		logrus.Fatalf("failed to connect database: %v", err)
-		return
+	gormLogger := logger.Discard
+	if viper.GetBool("mysql.log") {
+		gormLogger = logger.New(logrus.StandardLogger(), logger.Config{
+			SlowThreshold: 100 * time.Millisecond,
+			LogLevel:      logger.Info,
+			Colorful:      true,
+		})
 	}
-	DB.LogMode(viper.GetBool("mysql.log"))
-	DB.DB().SetMaxOpenConns(viper.GetInt("mysql.max_open"))
-	DB.DB().SetMaxIdleConns(viper.GetInt("mysql.max_idle"))
-	// 关闭复数表名，如果设置为true，`User`表的表名就会是`user`，而不是`users`
-	DB.SingularTable(true)
+	DB, err = gorm.Open(
+		mysql.Open(viper.GetString("mysql.address")),
+		&gorm.Config{
+			Logger:                 gormLogger,
+			SkipDefaultTransaction: true,
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true,
+			},
+		},
+	)
+	if err != nil {
+		panic("failed to connect database.")
+	}
 	// Migrate the schema
 	DB.AutoMigrate(
 		&model.Admin{},
@@ -114,9 +128,9 @@ func initMySQL() {
 // NewDBContext ...
 func NewDBContext(ctx context.Context, dbs ...*gorm.DB) context.Context {
 	if len(dbs) > 0 {
-		return db.NewContext(ctx, dbs[0])
+		return db.NewGormV2Context(ctx, dbs[0])
 	}
-	return db.NewContext(ctx, DB)
+	return db.NewGormV2Context(ctx, DB)
 }
 
 // NewCacheContext 创建缓存对象到上下文中
@@ -188,7 +202,7 @@ func scanByCache(ctx context.Context, cacheKey string, table interface{}, values
 		gdb   *gorm.DB
 		cache cache.Cacher
 	)
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}

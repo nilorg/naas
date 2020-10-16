@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	gormadapter "github.com/casbin/gorm-adapter/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"

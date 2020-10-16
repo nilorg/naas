@@ -2,13 +2,13 @@ package oidc
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/oidc"
 	"github.com/nilorg/oauth2"
 	"github.com/nilorg/sdk/convert"
+	"gorm.io/gorm"
 )
 
 // GetUserinfo ...

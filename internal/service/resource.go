@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	gormadapter "github.com/casbin/gorm-adapter/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 )

@@ -3,9 +3,9 @@ package dao
 import (
 	"context"
 
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/pkg/db"
+	"gorm.io/gorm"
 )
 
 // OrganizationRoleer ...
@@ -21,7 +21,7 @@ type organizationRole struct {
 
 func (o *organizationRole) Insert(ctx context.Context, m *model.OrganizationRole) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -30,7 +30,7 @@ func (o *organizationRole) Insert(ctx context.Context, m *model.OrganizationRole
 }
 func (o *organizationRole) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -39,7 +39,7 @@ func (o *organizationRole) Delete(ctx context.Context, id model.ID) (err error) 
 }
 func (o *organizationRole) Select(ctx context.Context, id model.ID) (m *model.OrganizationRole, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -53,11 +53,11 @@ func (o *organizationRole) Select(ctx context.Context, id model.ID) (m *model.Or
 }
 func (o *organizationRole) Update(ctx context.Context, m *model.OrganizationRole) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(m).Update(m).Error
+	err = gdb.Model(m).Save(m).Error
 	if err != nil {
 		return
 	}

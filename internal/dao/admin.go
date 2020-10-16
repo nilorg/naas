@@ -3,9 +3,9 @@ package dao
 import (
 	"context"
 
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/pkg/db"
+	"gorm.io/gorm"
 )
 
 // Adminer ...
@@ -22,7 +22,7 @@ type admin struct {
 
 func (*admin) SelectByUsername(ctx context.Context, username string) (ma *model.Admin, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -37,7 +37,7 @@ func (*admin) SelectByUsername(ctx context.Context, username string) (ma *model.
 
 func (*admin) Insert(ctx context.Context, ma *model.Admin) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -47,7 +47,7 @@ func (*admin) Insert(ctx context.Context, ma *model.Admin) (err error) {
 
 func (*admin) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -57,7 +57,7 @@ func (*admin) Delete(ctx context.Context, id model.ID) (err error) {
 
 func (*admin) Select(ctx context.Context, id model.ID) (ma *model.Admin, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -71,11 +71,11 @@ func (*admin) Select(ctx context.Context, id model.ID) (ma *model.Admin, err err
 
 func (*admin) Update(ctx context.Context, ma *model.Admin) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(ma).Update(ma).Error
+	err = gdb.Model(ma).Save(ma).Error
 	if err != nil {
 		return
 	}

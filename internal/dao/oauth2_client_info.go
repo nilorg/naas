@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
+	"gorm.io/gorm"
 )
 
 // OAuth2ClientInfoer oauth2 client 接口
@@ -40,7 +40,7 @@ func (o *oauth2ClientInfo) formatOneKeys(ids ...model.ID) (keys []string) {
 
 func (*oauth2ClientInfo) SelectByClientID(ctx context.Context, clientID model.ID) (mc *model.OAuth2ClientInfo, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -72,7 +72,7 @@ func (o *oauth2ClientInfo) SelectByClientIDFromCache(ctx context.Context, client
 
 func (*oauth2ClientInfo) Insert(ctx context.Context, mc *model.OAuth2ClientInfo) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -82,7 +82,7 @@ func (*oauth2ClientInfo) Insert(ctx context.Context, mc *model.OAuth2ClientInfo)
 
 func (o *oauth2ClientInfo) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -96,7 +96,7 @@ func (o *oauth2ClientInfo) Delete(ctx context.Context, id model.ID) (err error) 
 
 func (o *oauth2ClientInfo) DeleteByClientID(ctx context.Context, clientID model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -110,7 +110,7 @@ func (o *oauth2ClientInfo) DeleteByClientID(ctx context.Context, clientID model.
 
 func (o *oauth2ClientInfo) DeleteInClientIDs(ctx context.Context, clientIDs []model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -124,11 +124,11 @@ func (o *oauth2ClientInfo) DeleteInClientIDs(ctx context.Context, clientIDs []mo
 
 func (o *oauth2ClientInfo) Update(ctx context.Context, mc *model.OAuth2ClientInfo) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(mc).Update(mc).Error
+	err = gdb.Model(mc).Save(mc).Error
 	if err != nil {
 		return
 	}

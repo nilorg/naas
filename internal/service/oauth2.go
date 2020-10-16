@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/sdk/convert"
+	"gorm.io/gorm"
 )
 
 type oauth2 struct {
@@ -158,13 +159,13 @@ type ResultClientInfo struct {
 }
 
 // ClientListPaged ...
-func (o *oauth2) ClientListPaged(ctx context.Context, start, limit int) (result []*ResultClientInfo, total uint64, err error) {
+func (o *oauth2) ClientListPaged(ctx context.Context, start, limit int) (result []*ResultClientInfo, total int64, err error) {
 	var (
 		clientList []*model.OAuth2Client
 	)
 	clientList, total, err = dao.OAuth2Client.ListPaged(ctx, start, limit)
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
 		}
 		return
@@ -260,7 +261,7 @@ func (o *oauth2) EditScope(ctx context.Context, code model.Code, edit *OAuth2Edi
 	)
 	scope, err = dao.OAuth2Scope.Select(ctx, code)
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			insert = true
 			scope = new(model.OAuth2Scope)
 			scope.Code = code
@@ -280,10 +281,10 @@ func (o *oauth2) EditScope(ctx context.Context, code model.Code, edit *OAuth2Edi
 	return
 }
 
-func (o *oauth2) ScopeListPaged(ctx context.Context, start, limit int) (scopes []*model.OAuth2Scope, total uint64, err error) {
+func (o *oauth2) ScopeListPaged(ctx context.Context, start, limit int) (scopes []*model.OAuth2Scope, total int64, err error) {
 	scopes, total, err = dao.OAuth2Scope.ListPaged(ctx, start, limit)
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
 		}
 		return

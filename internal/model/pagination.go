@@ -7,9 +7,9 @@ import (
 
 // Pagination ...
 type Pagination struct {
-	Total    uint64 `json:"total"`
-	PageSize int    `json:"pageSize"`
-	Current  int    `json:"current"`
+	Total    int64 `json:"total"`
+	PageSize int   `json:"pageSize"`
+	Current  int   `json:"current"`
 }
 
 // GetSkip 获取跳过条数

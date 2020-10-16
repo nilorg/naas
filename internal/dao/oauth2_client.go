@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
+	"gorm.io/gorm"
 )
 
 // OAuth2Clienter oauth2 client 接口
@@ -21,7 +21,7 @@ type OAuth2Clienter interface {
 	Update(ctx context.Context, mc *model.OAuth2Client) (err error)
 	UpdateRedirectURI(ctx context.Context, id model.ID, redirectURI string) (err error)
 	SelectByID(ctx context.Context, clientID model.ID) (mc *model.OAuth2Client, err error)
-	ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total uint64, err error)
+	ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total int64, err error)
 }
 
 type oauth2Client struct {
@@ -40,7 +40,7 @@ func (o *oauth2Client) formatOneKeys(ids ...model.ID) (keys []string) {
 
 func (*oauth2Client) Insert(ctx context.Context, mc *model.OAuth2Client) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -50,7 +50,7 @@ func (*oauth2Client) Insert(ctx context.Context, mc *model.OAuth2Client) (err er
 
 func (o *oauth2Client) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -64,7 +64,7 @@ func (o *oauth2Client) Delete(ctx context.Context, id model.ID) (err error) {
 
 func (o *oauth2Client) DeleteInIDs(ctx context.Context, ids []model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -78,11 +78,11 @@ func (o *oauth2Client) DeleteInIDs(ctx context.Context, ids []model.ID) (err err
 
 func (o *oauth2Client) Update(ctx context.Context, mc *model.OAuth2Client) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(mc).Update(mc).Error
+	err = gdb.Model(mc).Save(mc).Error
 	if err != nil {
 		return
 	}
@@ -92,7 +92,7 @@ func (o *oauth2Client) Update(ctx context.Context, mc *model.OAuth2Client) (err 
 
 func (o *oauth2Client) UpdateRedirectURI(ctx context.Context, id model.ID, redirectURI string) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -106,7 +106,7 @@ func (o *oauth2Client) UpdateRedirectURI(ctx context.Context, id model.ID, redir
 
 func (*oauth2Client) selectByID(ctx context.Context, clientID model.ID) (mc *model.OAuth2Client, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -143,9 +143,9 @@ func (o *oauth2Client) selectByIDFromCache(ctx context.Context, id model.ID) (m 
 	return
 }
 
-func (*oauth2Client) ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total uint64, err error) {
+func (*oauth2Client) ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total int64, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}

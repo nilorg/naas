@@ -8,7 +8,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/casbin/casbin/v2 v2.14.2
-	github.com/casbin/gorm-adapter/v2 v2.1.0
+	github.com/casbin/gorm-adapter/v3 v3.0.3
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-openapi/swag v0.19.9 // indirect
@@ -18,8 +18,8 @@ require (
 	github.com/gorilla/sessions v1.2.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/grpc-ecosystem/grpc-gateway v1.15.2
-	github.com/jinzhu/gorm v1.9.16
 	github.com/mailru/easyjson v0.7.1 // indirect
+	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
 	github.com/nilorg/oauth2 v0.3.0
 	github.com/nilorg/pkg v0.0.0-20200923011256-287aac349757
 	github.com/nilorg/sdk v0.0.0-20200912025101-a4037e6ee224
@@ -39,4 +39,6 @@ require (
 	google.golang.org/grpc v1.33.0
 	google.golang.org/grpc/examples v0.0.0-20200826230536-d31b6710005d // indirect
 	google.golang.org/protobuf v1.25.0
+	gorm.io/driver/mysql v1.0.2
+	gorm.io/gorm v1.20.2
 )

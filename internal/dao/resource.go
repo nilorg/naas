@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	gormadapter "github.com/casbin/gorm-adapter/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/go-redis/redis/v8"
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/random"
 	"github.com/nilorg/pkg/db"
 	"github.com/nilorg/sdk/cache"
+	"gorm.io/gorm"
 )
 
 // Resourcer ...
@@ -33,7 +33,7 @@ func (*resource) formatOneKey(id model.ID) string {
 
 func (*resource) Insert(ctx context.Context, resource *model.Resource) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -42,7 +42,7 @@ func (*resource) Insert(ctx context.Context, resource *model.Resource) (err erro
 }
 func (r *resource) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -56,7 +56,7 @@ func (r *resource) Delete(ctx context.Context, id model.ID) (err error) {
 
 func (*resource) selectOne(ctx context.Context, id model.ID) (resource *model.Resource, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -95,11 +95,11 @@ func (r *resource) selectFromCache(ctx context.Context, id model.ID) (resource *
 
 func (r *resource) Update(ctx context.Context, resource *model.Resource) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(resource).Update(resource).Error
+	err = gdb.Model(resource).Save(resource).Error
 	if err != nil {
 		return
 	}
@@ -110,7 +110,7 @@ func (r *resource) Update(ctx context.Context, resource *model.Resource) (err er
 // LoadPolicy 加载规则
 func (*resource) LoadPolicy(ctx context.Context, resourceID model.ID) (results []*gormadapter.CasbinRule, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}

@@ -8,7 +8,7 @@ import (
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/util"
-	gormadapter "github.com/casbin/gorm-adapter/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/spf13/viper"

@@ -3,9 +3,9 @@ package dao
 import (
 	"context"
 
-	"github.com/jinzhu/gorm"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/pkg/db"
+	"gorm.io/gorm"
 )
 
 // ResourceWebRouter ...
@@ -21,7 +21,7 @@ type resourceWebRoute struct {
 
 func (*resourceWebRoute) Insert(ctx context.Context, resourceWebRoute *model.ResourceWebRoute) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -30,7 +30,7 @@ func (*resourceWebRoute) Insert(ctx context.Context, resourceWebRoute *model.Res
 }
 func (*resourceWebRoute) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -39,7 +39,7 @@ func (*resourceWebRoute) Delete(ctx context.Context, id model.ID) (err error) {
 }
 func (*resourceWebRoute) Select(ctx context.Context, id model.ID) (resourceWebRoute *model.ResourceWebRoute, err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
@@ -53,10 +53,10 @@ func (*resourceWebRoute) Select(ctx context.Context, id model.ID) (resourceWebRo
 }
 func (*resourceWebRoute) Update(ctx context.Context, resourceWebRoute *model.ResourceWebRoute) (err error) {
 	var gdb *gorm.DB
-	gdb, err = db.FromContext(ctx)
+	gdb, err = db.FromGormV2Context(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(resourceWebRoute).Update(resourceWebRoute).Error
+	err = gdb.Model(resourceWebRoute).Save(resourceWebRoute).Error
 	return
 }
