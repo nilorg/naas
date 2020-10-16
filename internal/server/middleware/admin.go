@@ -13,7 +13,7 @@ import (
 	"github.com/nilorg/naas/internal/server/auth"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/oauth2"
-	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/spf13/viper"
@@ -86,7 +86,7 @@ func JWTAuthRequired(key interface{}, oauth2ClientID string) gin.HandlerFunc {
 		}
 		tokenClaims, err = oauth2.ParseJwtClaimsToken(tok, key)
 		if err != nil {
-			logger.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
+			logrus.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": oauth2.ErrAccessDenied.Error(),
 			})
@@ -99,7 +99,7 @@ func JWTAuthRequired(key interface{}, oauth2ClientID string) gin.HandlerFunc {
 			return
 		}
 		if err = tokenClaims.Valid(); err != nil {
-			logger.Errorf("token valid: %s", err)
+			logrus.Errorf("token valid: %s", err)
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": oauth2.ErrAccessDenied.Error(),
 			})

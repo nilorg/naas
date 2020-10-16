@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/oauth2"
-	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 )
 
 func writeData(ctx *gin.Context, data interface{}) {
@@ -29,7 +29,7 @@ func AuthToken(oauth2Client *oauth2.Client, redirectURI string) gin.HandlerFunc 
 		clientID := ctx.Query("client_id")
 		token, err := oauth2Client.TokenAuthorizationCode(code, redirectURI, clientID)
 		if err != nil {
-			logger.Errorf("oauth2Client.TokenAuthorizationCode: %s", err)
+			logrus.Errorf("oauth2Client.TokenAuthorizationCode: %s", err)
 			writeError(ctx, err)
 			return
 		}
@@ -43,7 +43,7 @@ func AuthRefreshToken(oauth2Client *oauth2.Client) gin.HandlerFunc {
 		refreshToken := ctx.Query("refresh_token")
 		token, err := oauth2Client.RefreshToken(refreshToken)
 		if err != nil {
-			logger.Errorf("oauth2Client.RefreshToken: %s", err)
+			logrus.Errorf("oauth2Client.RefreshToken: %s", err)
 			writeError(ctx, err)
 			return
 		}

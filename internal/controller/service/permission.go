@@ -7,13 +7,13 @@ import (
 	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/contexts"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/spf13/viper"
 
 	"github.com/nilorg/oauth2"
-	"github.com/nilorg/pkg/logger"
 	"github.com/nilorg/sdk/convert"
 
 	"github.com/nilorg/naas/internal/model"
@@ -47,7 +47,7 @@ func checkReSource(ctx context.Context, resource *proto.Resource) (err error) {
 	)
 	rs, rsErr = service.Resource.Get(ctx, model.ConvertStringToID(resource.Id))
 	if rsErr != nil {
-		logger.Errorf("service.Resource.GetClient Error: %s", rsErr)
+		logrus.Errorf("service.Resource.GetClient Error: %s", rsErr)
 		err = status.Error(codes.Unavailable, oauth2.ErrUnauthorizedClient.Error())
 		return
 	}

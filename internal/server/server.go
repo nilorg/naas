@@ -22,7 +22,6 @@ import (
 	"github.com/nilorg/naas/internal/controller/wellknown"
 	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/global"
-	"github.com/nilorg/pkg/logger"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -64,7 +63,7 @@ import (
 func RunHTTP() {
 	store, err := redis.NewStore(10, "tcp", viper.GetString("session.redis.address"), viper.GetString("session.redis.password"), []byte(viper.GetString("session.secret")))
 	if err != nil {
-		logger.Errorf("redis.NewStore Error:", err)
+		logrus.Errorf("redis.NewStore Error:", err)
 		return
 	}
 	store.Options(sessions.Options{
@@ -187,13 +186,13 @@ func grpcOAuth2(inCtx context.Context) (outCtx context.Context, err error) {
 	if err != nil {
 		return
 	}
-	logger.Debugf("clientID: %s, clientSecret: %s", clientID, clientSecret)
+	logrus.Debugf("clientID: %s, clientSecret: %s", clientID, clientSecret)
 	return
 }
 
 // RunGRpc 运行Grpc
 func RunGRpc() {
-	logrusEntry := logrus.NewEntry(logger.Default())
+	logrusEntry := logrus.NewEntry(logrus.StandardLogger())
 	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
 	gRPCServer := grpc.NewServer(
 		grpc.StreamInterceptor(
@@ -213,15 +212,15 @@ func RunGRpc() {
 	// 在gRPC服务器上注册反射服务。
 	reflection.Register(gRPCServer)
 	addr := fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.grpc.port"))
-	logger.Infof("%s grpc server listen: %s", "naas", addr)
+	logrus.Infof("%s grpc server listen: %s", "naas", addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		logger.Errorf("net.Listen Error: %s", err)
+		logrus.Errorf("net.Listen Error: %s", err)
 		return
 	}
 	go func() {
 		if err := gRPCServer.Serve(lis); err != nil {
-			logger.Infof("%s grpc server failed to serve: %v", "naas", err)
+			logrus.Infof("%s grpc server failed to serve: %v", "naas", err)
 		}
 	}()
 	return
@@ -242,7 +241,7 @@ func RunGRpcGateway() {
 		Addr:    addr,
 		Handler: gatewayMux,
 	}
-	logger.Infof("启动GRpcGateway: %s", addr)
+	logrus.Infof("启动GRpcGateway: %s", addr)
 	go func() {
 		if srvErr := srv.ListenAndServe(); srvErr != nil {
 			log.Printf("%s gateway server listen: %v\n", viper.GetString("server.name"), srvErr)

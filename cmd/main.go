@@ -10,7 +10,6 @@ import (
 	"github.com/nilorg/naas/internal/module"
 	"github.com/nilorg/naas/internal/server"
 	"github.com/nilorg/naas/internal/service"
-	"github.com/nilorg/pkg/logger"
 	"github.com/spf13/viper"
 )
 
@@ -29,8 +28,6 @@ func init() {
 	}
 	viper.WatchConfig()
 
-	logger.Level = viper.GetString("log.level")
-	logger.Init()
 	module.Init()
 	dao.Init()
 	oauth2.Init()

@@ -9,7 +9,7 @@ import (
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
-	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 )
 
 // LoginPage 登录页面
@@ -49,7 +49,7 @@ func Login(ctx *gin.Context) {
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {
-			logger.Errorln(err)
+			logrus.Errorln(err)
 		}
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
@@ -59,10 +59,10 @@ func Login(ctx *gin.Context) {
 	session.Set(key.SessionAccount, suser)
 	err = session.Save()
 	if err != nil {
-		logger.Errorf("Login-Success-session.Save: %s", err)
+		logrus.Errorf("Login-Success-session.Save: %s", err)
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {
-			logger.Errorf("SetErrorMessage: %s", err)
+			logrus.Errorf("SetErrorMessage: %s", err)
 		}
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return

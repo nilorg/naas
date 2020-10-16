@@ -42,7 +42,7 @@ func Init() {
 	Enforcer.AddFunction("MyRegexMatch", MyRegexMatchFunc)
 
 	// aaa, ww := Enforcer.Enforce("eve", "tenant1", "/alice_data/111", "POST")
-	// logger.Debugln(aaa, ww)
+	// logrus.Debugln(aaa, ww)
 
 	// Enforcer.AddRoleForUserInDomain("role:global_admin", "role:reader", "domain1")
 	// Enforcer.AddRoleForUserInDomain("role:global_admin", "role:writer", "domain1")
@@ -53,10 +53,10 @@ func Init() {
 	// Enforcer.AddPolicy("role:writer", "domain1", "data1", "write")
 
 	// roles, _ := Enforcer.GetImplicitRolesForUser("alice", "domain1")
-	// logger.Debugln("roles:", roles)
+	// logrus.Debugln("roles:", roles)
 	// for _, role := range roles {
 	// 	check, checkErr := Enforcer.Enforce(role, "domain1", "data1", "read")
-	// 	logger.Debugln(role, "check:", check, checkErr)
+	// 	logrus.Debugln(role, "check:", check, checkErr)
 	// }
 }
 

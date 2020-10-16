@@ -25,6 +25,7 @@ server:
 
 log:
   level: "debug" # panic/fatal/error/warn/info/debug
+  report_caller: true
 
 jwt:
   secret: "github.com/nilorg/naas"

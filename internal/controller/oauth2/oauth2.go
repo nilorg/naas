@@ -6,11 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"github.com/nilorg/sdk/convert"
-
-	"github.com/nilorg/pkg/logger"
 
 	"github.com/nilorg/pkg/slice"
 
@@ -105,7 +104,7 @@ func Init() {
 		}
 		err = store.RedisClient.Set(context.Background(), key.WrapOAuth2Code(code), value, time.Minute).Err()
 		if err != nil {
-			logger.Errorf("store.RedisClient.Set Error: %s", err)
+			logrus.Errorf("store.RedisClient.Set Error: %s", err)
 			err = oauth2.ErrServerError
 		}
 		return
@@ -116,7 +115,7 @@ func Init() {
 		ctx := context.Background()
 		err = store.RedisClient.Get(ctx, redisKey).Scan(value)
 		if err != nil {
-			logger.Errorf("store.RedisClient.Get Error: %s", err)
+			logrus.Errorf("store.RedisClient.Get Error: %s", err)
 			err = oauth2.ErrAccessDenied
 			return
 		}
@@ -150,12 +149,12 @@ func Init() {
 		return
 	}
 	oauth2Server.VerifyIntrospectionToken = func(token, clientID string, tokenTypeHint ...string) (resp *oauth2.IntrospectionResponse, err error) {
-		logger.Debugf("oauth2Server.VerifyIntrospectionToken....")
+		logrus.Debugf("oauth2Server.VerifyIntrospectionToken....")
 		key := tokenRevocationKey(token, clientID, tokenTypeHint...)
 		var exsit bool
 		exsit, err = store.RedisClient.HExists(context.Background(), key, token).Result()
 		if err != nil {
-			logger.Errorf("store.RedisClient.HExists: %s", err)
+			logrus.Errorf("store.RedisClient.HExists: %s", err)
 			err = oauth2.ErrServerError
 			return
 		}
@@ -166,18 +165,18 @@ func Init() {
 		var tokenClaims *oauth2.JwtClaims
 		tokenClaims, err = oauth2.ParseJwtClaimsToken(token, global.JwtPrivateKey.Public())
 		if err != nil {
-			logger.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
+			logrus.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
 			err = oauth2.ErrServerError
 			return
 		}
 		if !tokenClaims.VerifyAudience([]string{clientID}, false) {
-			logger.Debugf("tokenClaims.VerifyAudience.....false")
+			logrus.Debugf("tokenClaims.VerifyAudience.....false")
 			err = oauth2.ErrInvalidClient
 		}
 		resp = new(oauth2.IntrospectionResponse)
 		resp.Active = true
 		if verr := tokenClaims.Valid(); verr != nil {
-			logger.Debugf("tokenClaims.Valid: %s", verr)
+			logrus.Debugf("tokenClaims.Valid: %s", verr)
 			resp.Active = false
 			return
 		}
@@ -198,13 +197,13 @@ func Init() {
 		key := tokenRevocationKey(token, clientID, tokenTypeHint...)
 		tokenClaims, err := oauth2.ParseJwtClaimsToken(token, global.JwtPrivateKey.Public())
 		if err != nil {
-			logger.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
+			logrus.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
 			return
 		}
 		exp := time.Unix(tokenClaims.ExpiresAt, 0)
 		err = store.RedisClient.HSet(context.Background(), key, token, time.Now().Sub(exp)).Err()
 		if err != nil {
-			logger.Errorf("store.RedisClient.Set: %s", err)
+			logrus.Errorf("store.RedisClient.Set: %s", err)
 			return
 		}
 	}

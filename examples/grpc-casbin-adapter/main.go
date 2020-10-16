@@ -11,7 +11,6 @@ import (
 	"github.com/casbin/casbin/v2/util"
 	naasAdapter "github.com/nilorg/naas/pkg/casbin/adapter"
 	"github.com/nilorg/ngrpc"
-	"github.com/nilorg/pkg/logger"
 	"github.com/nilorg/sdk/signal"
 )
 
@@ -20,9 +19,6 @@ var (
 	Enforcer *casbin.SyncedEnforcer
 )
 
-func init() {
-	logger.Init()
-}
 func main() {
 	ctx := context.Background()
 	var (

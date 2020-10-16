@@ -7,7 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 
-	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/square/go-jose/v3"
 )
@@ -37,12 +37,12 @@ func initPrivate() {
 	)
 	rsaPrivatePEMBlock, _ = pem.Decode([]byte(viper.GetString("jwt.rsa.private")))
 	if rsaPrivatePEMBlock == nil {
-		logger.Fatalln("failed to parse certificate PEM")
+		logrus.Fatalln("failed to parse certificate PEM")
 		return
 	}
 	JwtPrivateKey, err = x509.ParsePKCS1PrivateKey(rsaPrivatePEMBlock.Bytes)
 	if err != nil {
-		logger.Fatalf("x509.ParsePKCS1PrivateKey Error: %s", err)
+		logrus.Fatalf("x509.ParsePKCS1PrivateKey Error: %s", err)
 		return
 	}
 	JwtPublicKey = &JwtPrivateKey.PublicKey
@@ -55,12 +55,12 @@ func initCert() {
 	)
 	rsaCertPEMBlock, _ = pem.Decode([]byte(viper.GetString("jwt.rsa.cert")))
 	if rsaCertPEMBlock == nil {
-		logger.Fatalln("failed to parse certificate PEM")
+		logrus.Fatalln("failed to parse certificate PEM")
 		return
 	}
 	JwtCertificates, err = x509.ParseCertificates(rsaCertPEMBlock.Bytes)
 	if err != nil {
-		logger.Fatalln("failed to parse certificate: %s", err)
+		logrus.Fatalln("failed to parse certificate: %s", err)
 		return
 	}
 }
@@ -79,6 +79,6 @@ func initJwk() {
 		CertificateThumbprintSHA256: x5tSHA256[:],
 	}
 	if !Jwk.Valid() {
-		logger.Fatalf("Jwk.Valid: false")
+		logrus.Fatalf("Jwk.Valid: false")
 	}
 }

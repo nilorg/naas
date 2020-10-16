@@ -10,8 +10,8 @@ import (
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
-	"github.com/nilorg/pkg/logger"
 	"github.com/nilorg/sdk/convert"
+	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 )
@@ -51,7 +51,7 @@ func OAuth2AuthUserinfoRequired(key interface{}) gin.HandlerFunc {
 		)
 		idTokenClaims, err = oauth2.ParseJwtClaimsToken(tok, key)
 		if err != nil {
-			logger.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
+			logrus.Errorf("oauth2.ParseJwtClaimsToken: %s", err)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": oauth2.ErrAccessDenied.Error(),
 			})
@@ -64,7 +64,7 @@ func OAuth2AuthUserinfoRequired(key interface{}) gin.HandlerFunc {
 			return
 		}
 		if err = idTokenClaims.Valid(); err != nil {
-			logger.Errorf("token valid: %s", err)
+			logrus.Errorf("token valid: %s", err)
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": oauth2.ErrAccessDenied.Error(),
 			})

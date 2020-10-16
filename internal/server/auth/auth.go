@@ -6,9 +6,9 @@ import (
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
-	"github.com/nilorg/pkg/logger"
 	"github.com/nilorg/sdk/convert"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // 备注：
@@ -22,7 +22,7 @@ type login struct {
 // PayloadFunc 设置jwt payload data
 // data 是 Authenticator 返回的数据
 func PayloadFunc(data interface{}) jwt.MapClaims {
-	logger.Debugln("jwt PayloadFunc...")
+	logrus.Debugln("jwt PayloadFunc...")
 	if v, ok := data.(*model.SessionAccount); ok {
 		return jwt.MapClaims{
 			"user_id":   convert.ToString(v.UserID),
@@ -34,7 +34,7 @@ func PayloadFunc(data interface{}) jwt.MapClaims {
 
 // IdentityHandler 身份处理
 func IdentityHandler(c *gin.Context) interface{} {
-	logger.Debugln("jwt IdentityHandler...")
+	logrus.Debugln("jwt IdentityHandler...")
 	claims := jwt.ExtractClaims(c)
 	return &model.SessionAccount{
 		UserID:   model.ConvertStringToID(claims["user_id"].(string)),
@@ -65,7 +65,7 @@ func Authenticator(ctx *gin.Context) (interface{}, error) {
 //只有在身份验证成功之后。成功必归真，失败必归假。
 //可选，默认成功。
 func Authorizator(data interface{}, c *gin.Context) bool {
-	logger.Debugf("Authorizator Data:%+v", data)
+	logrus.Debugf("Authorizator Data:%+v", data)
 
 	//if v, ok := data.(*User); ok && v.UserName == "admin" {
 	//	return true

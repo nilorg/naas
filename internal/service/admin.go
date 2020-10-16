@@ -6,7 +6,7 @@ import (
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/pkg/errors"
-	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 )
 
 type admin struct {
@@ -22,7 +22,7 @@ func (a *admin) Login(ctx context.Context, username, password string) (su *model
 	var ma *model.Admin
 	ma, err = a.GetUserByUsername(ctx, username)
 	if err != nil {
-		logger.Errorln(err)
+		logrus.Errorln(err)
 		return
 	}
 	if ma.Username == username && ma.Password == password {

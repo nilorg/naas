@@ -9,10 +9,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/nilorg/pkg/db"
-	"github.com/nilorg/pkg/logger"
 	"github.com/nilorg/sdk/cache"
 	sdkCache "github.com/nilorg/sdk/cache"
 	"github.com/nilorg/sdk/storage"
+	"github.com/sirupsen/logrus"
 
 	// use db mysql
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -73,14 +73,14 @@ func initRedis() {
 	if err != nil {
 		panic(err)
 	}
-	logger.Println(pong)
+	logrus.Println(pong)
 }
 
 func initMySQL() {
 	var err error
 	DB, err = gorm.Open("mysql", viper.GetString("mysql.address"))
 	if err != nil {
-		logger.Fatalf("failed to connect database: %v", err)
+		logrus.Fatalf("failed to connect database: %v", err)
 		return
 	}
 	DB.LogMode(viper.GetBool("mysql.log"))

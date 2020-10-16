@@ -10,7 +10,7 @@ import (
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/oauth2"
-	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -31,10 +31,10 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 		}
 		allow := false
 		for _, role := range roles {
-			logger.Debugf("openid: %d, role code: %s", openID, role.RoleCode)
+			logrus.Debugf("openid: %d, role code: %s", openID, role.RoleCode)
 			check, checkErr := naasCasbin.EnforceWebRoute(role, viper.GetString("naas.resource.id"), ctx.Request, enforcer)
 			if checkErr != nil {
-				logger.Errorf("casbin enforce web route:", checkErr)
+				logrus.Errorf("casbin enforce web route:", checkErr)
 				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 					"error": checkErr.Error(),
 				})

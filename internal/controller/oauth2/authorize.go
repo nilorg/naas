@@ -14,8 +14,8 @@ import (
 	"github.com/nilorg/naas/pkg/tools"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
-	"github.com/nilorg/pkg/logger"
 	sdkStrings "github.com/nilorg/sdk/strings"
+	"github.com/sirupsen/logrus"
 )
 
 // AuthorizePage 授权页面
@@ -38,7 +38,7 @@ func AuthorizePage(ctx *gin.Context) {
 	if err != nil {
 		err = SetErrorMessage(ctx, err.Error())
 		if err != nil {
-			logger.Errorln(err)
+			logrus.Errorln(err)
 		}
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
@@ -56,7 +56,7 @@ func AuthorizePage(ctx *gin.Context) {
 	if !strings.HasPrefix(queryRedirectURI, client.RedirectURI) && queryRedirectURI != client.RedirectURI {
 		err = SetErrorMessage(ctx, "重定向域名不符合后台配置规范")
 		if err != nil {
-			logger.Errorln(err)
+			logrus.Errorln(err)
 		}
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return

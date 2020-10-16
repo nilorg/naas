@@ -6,12 +6,11 @@ import (
 
 	"github.com/nilorg/naas/internal/module/global"
 	"github.com/nilorg/oauth2"
-	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 func TestMain(m *testing.M) {
-	logger.Init()
 	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
 	configFilename := "configs/config.yaml"
 	if v := os.Getenv("NAAS_CONFIG"); v != "" {
@@ -20,14 +19,14 @@ func TestMain(m *testing.M) {
 	viper.SetConfigFile(configFilename)
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
-		logger.Fatalf("Fatal error config file: %s ", err)
+		logrus.Fatalf("Fatal error config file: %s ", err)
 	}
 	global.Init()
 	m.Run()
 }
 
 func TestJwtToken(t *testing.T) {
-	logger.Debugln("TestJwtToken....")
+	logrus.Debugln("TestJwtToken....")
 	var (
 		err           error
 		tokenResponse *oauth2.TokenResponse

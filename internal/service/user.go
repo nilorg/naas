@@ -16,9 +16,9 @@ import (
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/pkg/errors"
-	"github.com/nilorg/pkg/logger"
 	"github.com/nilorg/sdk/convert"
 	"github.com/o1egl/govatar"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -188,7 +188,7 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 	var usr *model.User
 	usr, err = u.GetUserByUsername(ctx, username)
 	if err != nil {
-		logger.Errorln(err)
+		logrus.Errorln(err)
 		return
 	}
 	if usr.Username == username && usr.Password == password {

@@ -7,7 +7,7 @@ import (
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/casbin"
-	"github.com/nilorg/pkg/logger"
+	"github.com/sirupsen/logrus"
 )
 
 type role struct {
@@ -20,7 +20,7 @@ func (r *role) Recursive(ctx context.Context) []*model.Role {
 	)
 	rootRoles, err = dao.Role.SelectByRoot(ctx)
 	if err != nil {
-		logger.Errorf("dao.Role.SelectByRoot: %s", err)
+		logrus.Errorf("dao.Role.SelectByRoot: %s", err)
 	}
 	r.recursive(ctx, rootRoles)
 	return rootRoles
@@ -37,7 +37,7 @@ func (r *role) recursive(ctx context.Context, roles []*model.Role) {
 	for _, role := range roles {
 		childRoles, err = dao.Role.SelectByParentCode(ctx, role.Code)
 		if err != nil {
-			logger.Errorf("dao.Role.SelectByRoot: %s", err)
+			logrus.Errorf("dao.Role.SelectByRoot: %s", err)
 		}
 		r.recursive(ctx, childRoles)
 		role.ChildRoles = childRoles
@@ -76,7 +76,7 @@ func (r *role) AddResourceWebRoute(ctx context.Context, roleCode model.Code, res
 	sub, dom, obj, act := formatPolicy(roleCode, resourceWebRoute)
 	_, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
 	if err != nil {
-		logger.Errorf("casbin.Enforcer.AddPolicy: %s", err)
+		logrus.Errorf("casbin.Enforcer.AddPolicy: %s", err)
 	}
 	return
 }
