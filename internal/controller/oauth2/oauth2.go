@@ -45,6 +45,19 @@ func Init() {
 		oauth2.ServerIntrospectEndpointEnabled(viper.GetBool("server.oauth2.introspection_endpoint_enabled")),
 		oauth2.ServerTokenRevocationEnabled(viper.GetBool("server.oauth2.revocation_endpoint_enabled")),
 	)
+	// TODO: 这个方法需要优化
+	oauth2Server.VerifyClientID = func(clientID string) (err error) {
+		var client *model.OAuth2Client
+		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), model.ConvertStringToID(clientID))
+		if err != nil {
+			err = oauth2.ErrUnauthorizedClient
+			return
+		}
+		if convert.ToString(client.ClientID) != clientID {
+			err = oauth2.ErrUnauthorizedClient
+		}
+		return
+	}
 	oauth2Server.VerifyClient = func(basic *oauth2.ClientBasic) (err error) {
 		var client *model.OAuth2Client
 		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), model.ConvertStringToID(basic.ID))

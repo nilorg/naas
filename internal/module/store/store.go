@@ -80,7 +80,8 @@ func initMySQL() {
 	var err error
 	DB, err = gorm.Open("mysql", viper.GetString("mysql.address"))
 	if err != nil {
-		panic("failed to connect database")
+		logger.Fatalf("failed to connect database: %v", err)
+		return
 	}
 	DB.LogMode(viper.GetBool("mysql.log"))
 	DB.DB().SetMaxOpenConns(viper.GetInt("mysql.max_open"))

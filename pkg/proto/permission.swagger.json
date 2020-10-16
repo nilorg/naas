@@ -1,0 +1,251 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pkg/proto/permission.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/permission/verification_http_router": {
+      "post": {
+        "summary": "VerifyHttpRoute 验证Http路由权限",
+        "operationId": "Permission_VerifyHttpRoute",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoVerifyHttpRouteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoVerifyHttpRouteRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Permission"
+        ]
+      }
+    },
+    "/permission/verification_token": {
+      "post": {
+        "summary": "VerifyToken 验证Token",
+        "operationId": "Permission_VerifyToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoVerifyTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoVerifyTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Permission"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protoResource": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "secret": {
+          "type": "string"
+        }
+      }
+    },
+    "protoVerifyHttpRouteRequest": {
+      "type": "object",
+      "properties": {
+        "oauth2_client_id": {
+          "type": "string",
+          "title": "oauth2 client id"
+        },
+        "resource": {
+          "$ref": "#/definitions/protoResource",
+          "title": "资源"
+        },
+        "token": {
+          "type": "string",
+          "title": "token"
+        },
+        "path": {
+          "type": "string",
+          "title": "路由"
+        },
+        "method": {
+          "type": "string",
+          "title": "请求方法"
+        },
+        "return_user_info": {
+          "type": "boolean",
+          "title": "是否返回用户信息,token验证通过的情况下"
+        }
+      },
+      "title": "VerifyHttpRouteRequest 验证HTTP路由权限请求参数"
+    },
+    "protoVerifyHttpRouteResponse": {
+      "type": "object",
+      "properties": {
+        "allow": {
+          "type": "boolean",
+          "title": "是否允许"
+        },
+        "user_info": {
+          "$ref": "#/definitions/protoVerifyHttpRouteResponseUserInfo",
+          "title": "用户信息"
+        }
+      },
+      "title": "VerificationHttpRouterResponse 验证HTTP路由权限响应参数"
+    },
+    "protoVerifyHttpRouteResponseUserInfo": {
+      "type": "object",
+      "properties": {
+        "open_id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "nick_name": {
+          "type": "string"
+        },
+        "avatar_url": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "用户信息"
+    },
+    "protoVerifyTokenRequest": {
+      "type": "object",
+      "properties": {
+        "oauth2_client_id": {
+          "type": "string",
+          "title": "oauth2 client id"
+        },
+        "resource": {
+          "$ref": "#/definitions/protoResource",
+          "title": "资源"
+        },
+        "token": {
+          "type": "string",
+          "title": "token"
+        },
+        "return_user_info": {
+          "type": "boolean",
+          "title": "是否返回用户信息,token验证通过的情况下"
+        }
+      },
+      "title": "VerificationTokenRequest 验证Token请求参数"
+    },
+    "protoVerifyTokenResponse": {
+      "type": "object",
+      "properties": {
+        "allow": {
+          "type": "boolean",
+          "title": "是否允许"
+        },
+        "user_info": {
+          "$ref": "#/definitions/protoVerifyTokenResponseUserInfo",
+          "title": "用户信息"
+        }
+      },
+      "title": "VerificationTokenResponse 验证Token响应参数"
+    },
+    "protoVerifyTokenResponseUserInfo": {
+      "type": "object",
+      "properties": {
+        "open_id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "nick_name": {
+          "type": "string"
+        },
+        "avatar_url": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "用户信息"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
