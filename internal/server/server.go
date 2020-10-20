@@ -170,6 +170,14 @@ func RunHTTP() {
 			apiGroup.GET("/oauth2/scopes", api.OAuth2.ScopeQueryChildren())
 			apiGroup.GET("/oauth2/scopes/:scop_code", api.OAuth2.GetScopeOne)
 			apiGroup.PUT("/oauth2/scopes/:scop_code", api.OAuth2.EditScope)
+
+			apiGroup.GET("/organizations", api.Organization.ListByPaged)
+			apiGroup.GET("/organizations/:org_id", api.Organization.GetOne)
+			apiGroup.POST("/organizations", api.Organization.Create)
+			apiGroup.PUT("/organizations/:org_id", api.Organization.Update)
+			apiGroup.DELETE("/organizations/:org_id", api.Organization.Delete)
+
+			apiGroup.GET("/common/select", api.Common.SelectQueryChildren())
 		}
 	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080

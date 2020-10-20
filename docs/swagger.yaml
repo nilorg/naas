@@ -140,6 +140,17 @@ definitions:
       type:
         type: string
     type: object
+  service.OrganizationEditModel:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: integer
+    type: object
   service.ResourceAddWebRouteRequest:
     properties:
       method:
@@ -185,36 +196,6 @@ info:
   title: NilOrg认证授权服务
   version: "1.0"
 paths:
-  /admin/login:
-    post:
-      consumes:
-      - application/json
-      description: 后台管理员登录
-      parameters:
-      - description: 用户名
-        in: formData
-        name: username
-        required: true
-        type: string
-      - description: 密码
-        in: formData
-        name: password
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            type: string
-        "400":
-          description: error
-          schema:
-            $ref: '#/definitions/api.Result'
-      summary: 管理员登录
-      tags:
-      - 管理员（已弃用）
   /oauth2/clients:
     get:
       consumes:
@@ -473,6 +454,135 @@ paths:
       summary: 从微信创建用户
       tags:
       - Open（开放接口）
+  /organizations:
+    get:
+      consumes:
+      - application/json
+      description: 查询组织翻页数据
+      parameters:
+      - description: 当前页
+        in: query
+        name: current
+        required: true
+        type: integer
+      - description: 页大小
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 查询组织
+      tags:
+      - Organization（组织）
+    post:
+      consumes:
+      - application/json
+      description: 创建组织
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.OrganizationEditModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 创建组织
+      tags:
+      - Organization（组织）
+  /organizations/{org_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据组织ID,删除一个组织
+      parameters:
+      - description: organization id
+        in: path
+        name: org_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 删除一个组织
+      tags:
+      - Organization（组织）
+    get:
+      consumes:
+      - application/json
+      description: 根据组织ID,获取一个组织
+      parameters:
+      - description: org id
+        in: path
+        name: org_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个组织
+      tags:
+      - Organization（组织）
+    put:
+      consumes:
+      - application/json
+      description: 根据组织ID,修改一个组织
+      parameters:
+      - description: organization id
+        in: path
+        name: org_id
+        required: true
+        type: string
+      - description: 组织需要修改的信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.OrganizationEditModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个组织
+      tags:
+      - Organization（组织）
   /resources/{resource_id}/web_routes:
     post:
       consumes:

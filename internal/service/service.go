@@ -11,4 +11,6 @@ var (
 	Casbin = &casbinService{}
 	// Resource service
 	Resource = &resource{}
+	// Organization service
+	Organization = &organization{}
 )
