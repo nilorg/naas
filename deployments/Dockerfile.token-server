@@ -2,7 +2,7 @@
 FROM nilorg/golang:latest AS builder
 WORKDIR /src
 COPY . .
-RUN go build -o ./bin/token-server -i ./cmd/token-server/main.go
+RUN go build -mod=vendor -o ./bin/token-server -i ./cmd/token-server/main.go
 
 #final stage
 FROM nilorg/alpine:latest
