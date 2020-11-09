@@ -8,3 +8,9 @@ type Resource struct {
 	Description    string `json:"description"`
 	OrganizationID ID     `json:"organization_id"`
 }
+
+// ResultResource 返回资源
+type ResultResource struct {
+	Resource     *Resource     `json:"resource"`
+	Organization *Organization `json:"organization"`
+}

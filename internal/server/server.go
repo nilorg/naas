@@ -157,7 +157,12 @@ func RunHTTP() {
 			apiGroup.GET("/roles", api.Role.QueryChildren())
 			apiGroup.POST("/roles/:role_code/resource_web_route/:resource_web_route_id", api.Role.AddResourceWebRoute)
 
+			apiGroup.GET("/resources", api.Resource.ListByPaged)
+			apiGroup.GET("/resources/:resource_id", api.Resource.GetOne)
 			apiGroup.POST("/resources/:resource_id/web_routes", api.Resource.AddWebRoute)
+			apiGroup.POST("/resources", api.Resource.Create)
+			apiGroup.PUT("/resources/:resource_id", api.Resource.Update)
+			apiGroup.DELETE("/resources/:resource_id", api.Resource.Delete)
 
 			apiGroup.POST("/files", api.File.Upload)
 

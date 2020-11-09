@@ -128,7 +128,7 @@ func (s *oauth2Scope) selectOne(ctx context.Context, code model.Code) (m *model.
 		return
 	}
 	m = new(model.OAuth2Scope)
-	err = gdb.Model(m).Where("code = ?", code).Scan(m).Error
+	err = gdb.Model(m).Where("code = ?", code).Take(m).Error
 	if err != nil {
 		m = nil
 		return

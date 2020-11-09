@@ -25,11 +25,12 @@ type common struct {
 // @Security OAuth2AccessCode
 func (c *common) SelectQueryChildren() gin.HandlerFunc {
 	return QueryChildren(map[string]gin.HandlerFunc{
-		"org": c.SelectOrganizationList,
+		"organization": c.SelectOrganizationList,
+		"resource":     c.SelectResourceList,
 	})
 }
 
-// SelectOrganizationList 递归
+// SelectOrganizationList 组织Select列表
 func (*common) SelectOrganizationList(ctx *gin.Context) {
 	id := ctx.Query("id")
 	parentCtx := contexts.WithGinContext(ctx)
@@ -47,6 +48,39 @@ func (*common) SelectOrganizationList(ctx *gin.Context) {
 		name := ctx.Query("name")
 		limit := convert.ToInt(ctx.Query("limit"))
 		list, err := service.Organization.ListByName(parentCtx, name, limit)
+		if err != nil {
+			writeError(ctx, err)
+		} else {
+			var results []*model.ResultSelect
+			for _, item := range list {
+				results = append(results, &model.ResultSelect{
+					Label: item.Name,
+					Value: item.ID,
+				})
+			}
+			writeData(ctx, results)
+		}
+	}
+}
+
+// SelectResourceList 资源Select列表
+func (*common) SelectResourceList(ctx *gin.Context) {
+	id := ctx.Query("id")
+	parentCtx := contexts.WithGinContext(ctx)
+	if id != "" {
+		res, err := service.Resource.Get(parentCtx, model.ConvertStringToID(id))
+		if err != nil {
+			writeError(ctx, err)
+		} else {
+			writeData(ctx, &model.ResultSelect{
+				Label: res.Name,
+				Value: res.ID,
+			})
+		}
+	} else {
+		name := ctx.Query("name")
+		limit := convert.ToInt(ctx.Query("limit"))
+		list, err := service.Resource.ListByName(parentCtx, name, limit)
 		if err != nil {
 			writeError(ctx, err)
 		} else {

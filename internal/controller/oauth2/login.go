@@ -15,12 +15,6 @@ import (
 // LoginPage 登录页面
 func LoginPage(ctx *gin.Context) {
 	errMsg := GetErrorMessage(ctx)
-	if errMsg != "" {
-		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error": errMsg,
-		})
-		return
-	}
 
 	var (
 		err        error
@@ -28,13 +22,18 @@ func LoginPage(ctx *gin.Context) {
 	)
 	clientID := ctx.Query("client_id")
 	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
-	if err != nil {
+	if errMsg != "" {
+		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
+			"error":       errMsg,
+			"client_info": clientInfo,
+		})
+		return
+	} else if err != nil {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-
 	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
 		"client_info": clientInfo,
 	})

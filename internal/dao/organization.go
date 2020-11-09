@@ -50,7 +50,7 @@ func (o *organization) Select(ctx context.Context, id model.ID) (m *model.Organi
 		return
 	}
 	m = new(model.Organization)
-	err = gdb.Model(m).Where("id = ?", id).Scan(m).Error
+	err = gdb.Model(m).Where("id = ?", id).Take(m).Error
 	if err != nil {
 		m = nil
 		return

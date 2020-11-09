@@ -18,9 +18,12 @@ import (
 type Resourcer interface {
 	Insert(ctx context.Context, resource *model.Resource) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteInIDs(ctx context.Context, ids []model.ID) (err error)
 	Select(ctx context.Context, id model.ID) (resource *model.Resource, err error)
 	Update(ctx context.Context, resource *model.Resource) (err error)
+	ListPaged(ctx context.Context, start, limit int) (list []*model.Resource, total int64, err error)
 	LoadPolicy(ctx context.Context, resourceID model.ID) (results []*gormadapter.CasbinRule, err error)
+	ListByName(ctx context.Context, name string, limit int) (list []*model.Resource, err error)
 }
 
 type resource struct {
@@ -40,6 +43,7 @@ func (*resource) Insert(ctx context.Context, resource *model.Resource) (err erro
 	err = gdb.Create(resource).Error
 	return
 }
+
 func (r *resource) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
@@ -54,6 +58,19 @@ func (r *resource) Delete(ctx context.Context, id model.ID) (err error) {
 	return
 }
 
+func (r *resource) DeleteInIDs(ctx context.Context, ids []model.ID) (err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where("id in (?)", ids).Delete(model.Resource{}).Error
+	if err != nil {
+		return
+	}
+	return
+}
+
 func (*resource) selectOne(ctx context.Context, id model.ID) (resource *model.Resource, err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
@@ -61,7 +78,7 @@ func (*resource) selectOne(ctx context.Context, id model.ID) (resource *model.Re
 		return
 	}
 	resource = new(model.Resource)
-	err = gdb.Model(resource).Where("id = ?", id).Scan(resource).Error
+	err = gdb.Model(resource).Where("id = ?", id).Take(resource).Error
 	if err != nil {
 		resource = nil
 		return
@@ -115,5 +132,27 @@ func (*resource) LoadPolicy(ctx context.Context, resourceID model.ID) (results [
 		return
 	}
 	err = gdb.Where("v1 like ?", fmt.Sprintf("resource:%d%%", resourceID)).Find(&results).Error
+	return
+}
+
+func (r *resource) ListByName(ctx context.Context, name string, limit int) (list []*model.Resource, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Model(&model.Resource{}).Where("name like ?", fmt.Sprintf("%%%s%%", name)).Offset(0).Limit(limit).Find(&list).Error
+	return
+}
+
+func (r *resource) ListPaged(ctx context.Context, start, limit int) (list []*model.Resource, total int64, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	expression := gdb.Model(&model.Resource{})
+	expression.Count(&total)
+	err = expression.Offset(start).Limit(limit).Find(&list).Error
 	return
 }

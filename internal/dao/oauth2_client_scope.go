@@ -41,7 +41,7 @@ func (*oauth2ClientScope) Select(ctx context.Context, id model.ID) (mc *model.OA
 		return
 	}
 	mc = new(model.OAuth2ClientScope)
-	err = gdb.Model(mc).Where("id = ?", id).Scan(mc).Error
+	err = gdb.Model(mc).Where("id = ?", id).Take(mc).Error
 	if err != nil {
 		mc = nil
 		return

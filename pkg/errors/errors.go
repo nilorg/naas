@@ -16,6 +16,16 @@ var (
 	ErrOrganizationCodeExist = errors.New("org_code_exist")
 	// ErrOrganizationParentNotExist 上级组织不存在
 	ErrOrganizationParentNotExist = errors.New("org_parent_not_exist")
+	// ErrOrganizationNotFound 组织不存在
+	ErrOrganizationNotFound = errors.New("org_not_found")
+	// ErrOrganizationCreate 创建组织错误
+	ErrOrganizationCreate = errors.New("org_create")
+	// ErrOrganizationUpdate 修改组织错误
+	ErrOrganizationUpdate = errors.New("org_update")
 	// ErrOrganizationCurrentAndParentEqual 上级组织和当前组织相同
 	ErrOrganizationCurrentAndParentEqual = errors.New("org_parent_equal")
+	// ErrResourceCreate 创建资源错误
+	ErrResourceCreate = errors.New("resource_create")
+	// ErrResourceUpdate 修改资源错误
+	ErrResourceUpdate = errors.New("resource_update")
 )

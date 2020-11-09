@@ -46,7 +46,7 @@ func (*roleResourceWebRoute) Select(ctx context.Context, id model.ID) (roleResou
 		return
 	}
 	roleResourceWebRoute = new(model.RoleResourceWebRoute)
-	err = gdb.Model(roleResourceWebRoute).Where("id = ?", id).Scan(roleResourceWebRoute).Error
+	err = gdb.Model(roleResourceWebRoute).Where("id = ?", id).Take(roleResourceWebRoute).Error
 	if err != nil {
 		roleResourceWebRoute = nil
 		return

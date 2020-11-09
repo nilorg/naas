@@ -44,7 +44,7 @@ func (*resourceWebRoute) Select(ctx context.Context, id model.ID) (resourceWebRo
 		return
 	}
 	resourceWebRoute = new(model.ResourceWebRoute)
-	err = gdb.Model(resourceWebRoute).Where("id = ?", id).Scan(resourceWebRoute).Error
+	err = gdb.Model(resourceWebRoute).Where("id = ?", id).Take(resourceWebRoute).Error
 	if err != nil {
 		resourceWebRoute = nil
 		return

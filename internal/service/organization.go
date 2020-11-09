@@ -8,6 +8,7 @@ import (
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -22,7 +23,7 @@ type OrganizationEditModel struct {
 	ParentID    model.ID `json:"parent_id"`
 }
 
-// Create 创建用户
+// Create 创建组织
 func (o *organization) Create(ctx context.Context, create *OrganizationEditModel) (err error) {
 	var exist bool
 	exist, err = dao.Organization.ExistByCode(ctx, create.Code)
@@ -52,12 +53,13 @@ func (o *organization) Create(ctx context.Context, create *OrganizationEditModel
 	}
 	err = dao.Organization.Insert(ctx, org)
 	if err != nil {
-
+		logrus.WithContext(ctx).Errorln(err)
+		err = errors.ErrOrganizationCreate
 	}
 	return
 }
 
-// Update 修改用户
+// Update 修改组织
 func (o *organization) Update(ctx context.Context, id model.ID, update *OrganizationEditModel) (err error) {
 	var (
 		org *model.Organization
@@ -87,6 +89,8 @@ func (o *organization) Update(ctx context.Context, id model.ID, update *Organiza
 
 	err = dao.Organization.Update(ctx, org)
 	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		err = errors.ErrOrganizationUpdate
 		return
 	}
 	return
