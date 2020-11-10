@@ -6,6 +6,10 @@ var (
 	// Is reports whether any error in err's chain matches target.
 	// 使用系统标准接口
 	Is = errors.Is
+	// New returns an error that formats as the given text.
+	// Each call to New returns a distinct error value even if the text is identical.
+	// 使用系统标准接口
+	New = errors.New
 	// ErrUsernameOrPassword 用户名或密码错误
 	ErrUsernameOrPassword = errors.New("incorrect_username_or_password")
 	// ErrUsernameExist 用户名存在

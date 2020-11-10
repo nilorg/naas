@@ -157,12 +157,16 @@ func RunHTTP() {
 			apiGroup.GET("/roles", api.Role.QueryChildren())
 			apiGroup.POST("/roles/:role_code/resource_web_route/:resource_web_route_id", api.Role.AddResourceWebRoute)
 
-			apiGroup.GET("/resources", api.Resource.ListByPaged)
-			apiGroup.GET("/resources/:resource_id", api.Resource.GetOne)
-			apiGroup.POST("/resources/:resource_id/web_routes", api.Resource.AddWebRoute)
-			apiGroup.POST("/resources", api.Resource.Create)
-			apiGroup.PUT("/resources/:resource_id", api.Resource.Update)
-			apiGroup.DELETE("/resources/:resource_id", api.Resource.Delete)
+			apiGroup.GET("/resource/servers", api.Resource.ListServerByPaged)
+			apiGroup.GET("/resource/servers/:resource_server_id", api.Resource.GetServerOne)
+			apiGroup.POST("/resource/servers", api.Resource.CreateServer)
+			apiGroup.PUT("/resource/servers/:resource_server_id", api.Resource.UpdateServer)
+			apiGroup.DELETE("/resource/servers", api.Resource.DeleteServer)
+			apiGroup.GET("/resource/web_routes", api.Resource.ListWebRoutePaged)
+			apiGroup.POST("/resource/web_routes", api.Resource.AddWebRoute)
+			apiGroup.PUT("/resource/web_routes/:resource_web_route_id", api.Resource.UpdateWebRoute)
+			apiGroup.DELETE("/resource/web_routes", api.Resource.DeleteWebRoute)
+			apiGroup.GET("/resource/web_routes/:resource_web_route_id", api.Resource.GetWebRouteOne)
 
 			apiGroup.POST("/files", api.File.Upload)
 

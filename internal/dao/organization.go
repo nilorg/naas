@@ -13,7 +13,7 @@ import (
 type Organizationer interface {
 	Insert(ctx context.Context, m *model.Organization) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
-	DeleteInIDs(ctx context.Context, ids []model.ID) (err error)
+	DeleteInIDs(ctx context.Context, ids ...model.ID) (err error)
 	Select(ctx context.Context, id model.ID) (m *model.Organization, err error)
 	Update(ctx context.Context, m *model.Organization) (err error)
 	ListPaged(ctx context.Context, start, limit int) (list []*model.Organization, total int64, err error)
@@ -96,16 +96,13 @@ func (o *organization) ListByName(ctx context.Context, name string, limit int) (
 	return
 }
 
-func (o *organization) DeleteInIDs(ctx context.Context, ids []model.ID) (err error) {
+func (o *organization) DeleteInIDs(ctx context.Context, ids ...model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Where("id in (?)", ids).Delete(model.Organization{}).Error
-	if err != nil {
-		return
-	}
+	err = gdb.Where("id in ?", ids).Delete(model.Organization{}).Error
 	return
 }
 

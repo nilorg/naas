@@ -128,7 +128,7 @@ func (o *organization) ListByName(ctx context.Context, name string, limit int) (
 func (o *organization) DeleteByIDs(ctx context.Context, ids ...model.ID) (err error) {
 	tran := store.DB.Begin()
 	ctx = contexts.NewGormTranContext(ctx, tran)
-	err = dao.Organization.DeleteInIDs(ctx, ids)
+	err = dao.Organization.DeleteInIDs(ctx, ids...)
 	if err != nil {
 		tran.Rollback()
 		return

@@ -21,14 +21,14 @@ type CasbinAdapterService struct {
 func (ctl *CasbinAdapterService) LoadPolicy(ctx context.Context, req *proto.LoadPolicyRequest) (resp *proto.LoadPolicyResponse, err error) {
 	ctx = contexts.WithContext(ctx)
 	err = checkReSource(ctx, &proto.Resource{
-		Id:     req.ResourceId,
-		Secret: req.ResourceSecret,
+		Id:     req.ResourceServerId,
+		Secret: req.ResourceServerSecret,
 	})
 	if err != nil {
 		return
 	}
 	resp = new(proto.LoadPolicyResponse)
-	results, resultErr := service.Resource.LoadPolicy(ctx, model.ConvertStringToID(req.ResourceId))
+	results, resultErr := service.Resource.LoadPolicy(ctx, model.ConvertStringToID(req.ResourceServerId))
 	if resultErr != nil {
 		err = status.Error(codes.Unavailable, resultErr.Error())
 		return

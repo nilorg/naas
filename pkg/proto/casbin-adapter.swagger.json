@@ -31,13 +31,13 @@
         },
         "parameters": [
           {
-            "name": "resource_id",
+            "name": "resource_server_id",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
-            "name": "resource_secret",
+            "name": "resource_server_secret",
             "in": "query",
             "required": false,
             "type": "string"

@@ -25,8 +25,8 @@ type common struct {
 // @Security OAuth2AccessCode
 func (c *common) SelectQueryChildren() gin.HandlerFunc {
 	return QueryChildren(map[string]gin.HandlerFunc{
-		"organization": c.SelectOrganizationList,
-		"resource":     c.SelectResourceList,
+		"organization":    c.SelectOrganizationList,
+		"resource_server": c.SelectResourceServerList,
 	})
 }
 
@@ -63,12 +63,12 @@ func (*common) SelectOrganizationList(ctx *gin.Context) {
 	}
 }
 
-// SelectResourceList 资源Select列表
-func (*common) SelectResourceList(ctx *gin.Context) {
+// SelectResourceServerList 资源服务器Select列表
+func (*common) SelectResourceServerList(ctx *gin.Context) {
 	id := ctx.Query("id")
 	parentCtx := contexts.WithGinContext(ctx)
 	if id != "" {
-		res, err := service.Resource.Get(parentCtx, model.ConvertStringToID(id))
+		res, err := service.Resource.GetServer(parentCtx, model.ConvertStringToID(id))
 		if err != nil {
 			writeError(ctx, err)
 		} else {

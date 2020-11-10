@@ -11,64 +11,35 @@ import (
 type resource struct {
 }
 
-// GetOne 获取一个资源
+// GetServerOne 获取一个资源
 // @Tags 		Resource（资源）
 // @Summary		获取一个资源
 // @Description	根据资源ID,获取一个资源
 // @Accept  json
 // @Produce	json
-// @Param 	resource_id	path	string	true	"resource id"
+// @Param 	resource_server_id	path	string	true	"resource id"
 // @Success 200	{object}	Result
-// @Router /resources/{resource_id} [GET]
+// @Router /resource/servers/{resource_server_id} [GET]
 // @Security OAuth2AccessCode
-func (*resource) GetOne(ctx *gin.Context) {
+func (*resource) GetServerOne(ctx *gin.Context) {
 	var (
-		org *model.Resource
+		r   *model.Resource
 		err error
 	)
-	orgID := model.ConvertStringToID(ctx.Param("resource_id"))
-	org, err = service.Resource.Get(contexts.WithGinContext(ctx), orgID)
+	id := model.ConvertStringToID(ctx.Param("resource_server_id"))
+	r, err = service.Resource.GetServer(contexts.WithGinContext(ctx), id)
 	if err != nil {
 		writeError(ctx, err)
 		return
 	}
-	writeData(ctx, org)
+	writeData(ctx, r)
 }
 
-// AddWebRoute 添加web路由
-// @Tags 		Resource（资源）
-// @Summary		添加web路由
-// @Accept  json
-// @Produce	json
-// @Param	resource_id		path	string	true	"资源ID"
-// @Param 	body	body	service.ResourceAddWebRouteRequest	true	"body"
-// @Success 200	{object}	Result
-// @Router /resources/{resource_id}/web_routes [POST]
-// @Security OAuth2AccessCode
-func (*resource) AddWebRoute(ctx *gin.Context) {
-	var (
-		req service.ResourceAddWebRouteRequest
-		err error
-	)
-	err = ctx.ShouldBindJSON(&req)
-	if err != nil {
-		writeError(ctx, err)
-		return
-	}
-	resourceID := model.ConvertStringToID(ctx.Param("resource_id"))
-	err = service.Resource.AddWebRoute(contexts.WithGinContext(ctx), resourceID, &req)
-	if err != nil {
-		writeError(ctx, err)
-		return
-	}
-	writeData(ctx, nil)
-}
-
-func (*resource) Delete(ctx *gin.Context) {
+func (*resource) DeleteServer(ctx *gin.Context) {
 	var (
 		err error
 	)
-	idsStringSplit := strings.Split(ctx.Param("res_id"), ",")
+	idsStringSplit := strings.Split(ctx.Param("ids"), ",")
 	var idsUint64Split []model.ID
 	for _, id := range idsStringSplit {
 		idsUint64Split = append(idsUint64Split, model.ConvertStringToID(id))
@@ -81,7 +52,7 @@ func (*resource) Delete(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
-// ListByPaged 查询资源
+// ListServerByPaged 查询资源
 // @Tags 		Resource（资源）
 // @Summary		查询资源
 // @Description	查询资源翻页数据
@@ -90,15 +61,15 @@ func (*resource) Delete(ctx *gin.Context) {
 // @Param	current		query	int	true	"当前页"
 // @Param	pageSize	query	int	true	"页大小"
 // @Success 200	{object}	Result{data=model.TableListData}
-// @Router /resources [GET]
+// @Router /resource/servers [GET]
 // @Security OAuth2AccessCode
-func (*resource) ListByPaged(ctx *gin.Context) {
+func (*resource) ListServerByPaged(ctx *gin.Context) {
 	var (
-		result []*model.ResultResource
+		result []*model.ResultResourceServer
 		err    error
 	)
 	pagination := model.NewPagination(ctx)
-	result, pagination.Total, err = service.Resource.ListPaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
+	result, pagination.Total, err = service.Resource.ListServerPaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -106,7 +77,7 @@ func (*resource) ListByPaged(ctx *gin.Context) {
 	writeData(ctx, model.NewTableListData(*pagination, result))
 }
 
-// Create 创建资源
+// CreateServer 创建资源
 // @Tags 		Resource（资源）
 // @Summary		创建资源
 // @Description	创建资源
@@ -114,9 +85,9 @@ func (*resource) ListByPaged(ctx *gin.Context) {
 // @Produce	json
 // @Param 	body	body	service.ResourceEditModel	true	"body"
 // @Success 200	{object}	Result
-// @Router /resources [POST]
+// @Router /resource/servers [POST]
 // @Security OAuth2AccessCode
-func (*resource) Create(ctx *gin.Context) {
+func (*resource) CreateServer(ctx *gin.Context) {
 	var (
 		m   service.ResourceEditModel
 		err error
@@ -134,23 +105,23 @@ func (*resource) Create(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
-// Update 修改一个资源
+// UpdateServer 修改一个资源
 // @Tags 		Resource（资源）
 // @Summary		修改一个资源
 // @Description	根据资源ID,修改一个资源
 // @Accept  json
 // @Produce	json
-// @Param 	resource_id	path	string	true	"resource id"
+// @Param 	resource_server_id	path	string	true	"resource id"
 // @Param 	body	body	service.ResourceEditModel	true	"资源需要修改的信息"
 // @Success 200	{object}	Result
-// @Router /resources/{resource_id} [PUT]
+// @Router /resource/servers/{resource_server_id} [PUT]
 // @Security OAuth2AccessCode
-func (*resource) Update(ctx *gin.Context) {
+func (*resource) UpdateServer(ctx *gin.Context) {
 	var (
 		org service.ResourceEditModel
 		err error
 	)
-	resID := model.ConvertStringToID(ctx.Param("resource_id"))
+	resID := model.ConvertStringToID(ctx.Param("resource_server_id"))
 	err = ctx.ShouldBindJSON(&org)
 	if err != nil {
 		writeError(ctx, err)
@@ -162,4 +133,129 @@ func (*resource) Update(ctx *gin.Context) {
 		return
 	}
 	writeData(ctx, nil)
+}
+
+// ========================
+
+// AddWebRoute 添加web路由
+// @Tags 		ResourceWebRoute（资源服务器Web路由）
+// @Summary		添加web路由
+// @Accept  json
+// @Produce	json
+// @Param 	body	body	service.ResourceWebRouteEdit	true	"body"
+// @Success 200	{object}	Result
+// @Router /resource/web_routes [POST]
+// @Security OAuth2AccessCode
+func (*resource) AddWebRoute(ctx *gin.Context) {
+	var (
+		req service.ResourceWebRouteEdit
+		err error
+	)
+	err = ctx.ShouldBindJSON(&req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Resource.AddWebRoute(contexts.WithGinContext(ctx), &req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// UpdateWebRoute 修改资源web路由
+// @Tags 		ResourceWebRoute（资源服务器Web路由）
+// @Summary		修改一个资源web路由
+// @Description	根据资源web路由ID,修改一个资源web路由
+// @Accept  json
+// @Produce	json
+// @Param 	resource_web_route_id	path	string	true	"resource web route id"
+// @Param 	body	body	service.ResourceWebRouteEdit	true	"Web路由需要修改的信息"
+// @Success 200	{object}	Result
+// @Router /resource/web_routes/:resource_web_route_id [PUT]
+// @Security OAuth2AccessCode
+func (*resource) UpdateWebRoute(ctx *gin.Context) {
+	var (
+		org service.ResourceWebRouteEdit
+		err error
+	)
+	id := model.ConvertStringToID(ctx.Param("resource_web_route_id"))
+	err = ctx.ShouldBindJSON(&org)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Resource.UpdateWebRoute(contexts.WithGinContext(ctx), id, &org)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+func (*resource) DeleteWebRoute(ctx *gin.Context) {
+	var (
+		err error
+	)
+	idsStringSplit := strings.Split(ctx.Query("ids"), ",")
+	var idsUint64Split []model.ID
+	for _, id := range idsStringSplit {
+		idsUint64Split = append(idsUint64Split, model.ConvertStringToID(id))
+	}
+	err = service.Resource.DeleteWebRoute(contexts.WithGinContext(ctx), idsUint64Split...)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// ListWebRoutePaged 查询资源服务器WebRule
+// @Tags 		ResourceWebRoute（资源服务器Web路由）
+// @Summary		查询资源服务器WebRule
+// @Description	查询资源服务器WebRule翻页数据
+// @Accept  json
+// @Produce	json
+// @Param	current		query	int	true	"当前页"
+// @Param	pageSize	query	int	true	"页大小"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Router /resource/web_routes [GET]
+// @Security OAuth2AccessCode
+func (*resource) ListWebRoutePaged(ctx *gin.Context) {
+	var (
+		result []*model.ResultResourceWebRoute
+		err    error
+	)
+	pagination := model.NewPagination(ctx)
+	result, pagination.Total, err = service.Resource.ListWebRoutePaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, model.NewTableListData(*pagination, result))
+}
+
+// GetWebRouteOne 获取一个Web路由
+// @Tags 		ResourceWebRoute（资源服务器Web路由）
+// @Summary		获取一个Web路由
+// @Description	根据路由ID,获取一个Web路由
+// @Accept  json
+// @Produce	json
+// @Param 	resource_web_route_id	path	string	true	"resource web route id"
+// @Success 200	{object}	Result
+// @Router /resource/web_routes/{resource_web_route_id} [GET]
+// @Security OAuth2AccessCode
+func (*resource) GetWebRouteOne(ctx *gin.Context) {
+	var (
+		rwr *model.ResourceWebRoute
+		err error
+	)
+	id := model.ConvertStringToID(ctx.Param("resource_web_route_id"))
+	rwr, err = service.Resource.GetResourceWebRoute(contexts.WithGinContext(ctx), id)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, rwr)
 }

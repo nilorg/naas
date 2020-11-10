@@ -49,7 +49,6 @@ func (*role) List(ctx *gin.Context) {
 // @Produce	json
 // @Param	role_code		path	string	true	"角色Code"
 // @Param	resource_web_route_id		path	string	true	"资源web路由ID"
-// @Param 	body	body	service.ResourceAddWebRouteRequest	true	"body"
 // @Success 200	{object}	Result
 // @Router /roles/{role_code}/resource_web_route/{resource_web_route_id} [POST]
 // @Security OAuth2AccessCode

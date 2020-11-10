@@ -32,12 +32,12 @@ func checkReSource(ctx context.Context, resource *proto.Resource) (err error) {
 	}
 
 	if resource.GetId() == "" {
-		err = status.Error(codes.InvalidArgument, "request resource_id is empty")
+		err = status.Error(codes.InvalidArgument, "request resource_server_id is empty")
 		return
 	}
 
 	if resource.GetSecret() == "" {
-		err = status.Error(codes.InvalidArgument, "request resource_secret is empty")
+		err = status.Error(codes.InvalidArgument, "request resource_server_secret is empty")
 		return
 	}
 
@@ -45,9 +45,9 @@ func checkReSource(ctx context.Context, resource *proto.Resource) (err error) {
 		rs    *model.Resource
 		rsErr error
 	)
-	rs, rsErr = service.Resource.Get(ctx, model.ConvertStringToID(resource.Id))
+	rs, rsErr = service.Resource.GetServer(ctx, model.ConvertStringToID(resource.Id))
 	if rsErr != nil {
-		logrus.Errorf("service.Resource.GetClient Error: %s", rsErr)
+		logrus.Errorf("service.Resource.GetServer Error: %s", rsErr)
 		err = status.Error(codes.Unavailable, oauth2.ErrUnauthorizedClient.Error())
 		return
 	}

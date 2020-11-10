@@ -17,8 +17,8 @@ service CasbinAdapter {
 
 // LoadPolicyRequest 加载策略请求
 message LoadPolicyRequest {
-    string resource_id = 1;
-    string resource_secret = 2;
+    string resource_server_id = 1;
+    string resource_server_secret = 2;
 }
 
 // LoadPolicyResponse 加载策略响应

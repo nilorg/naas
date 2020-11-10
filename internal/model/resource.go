@@ -9,8 +9,14 @@ type Resource struct {
 	OrganizationID ID     `json:"organization_id"`
 }
 
-// ResultResource 返回资源
-type ResultResource struct {
-	Resource     *Resource     `json:"resource"`
-	Organization *Organization `json:"organization"`
+// ResultResourceServer 返回资源服务器
+type ResultResourceServer struct {
+	ResourceServer *Resource     `json:"resource_server"`
+	Organization   *Organization `json:"organization"`
+}
+
+// ResultResourceWebRoute 返回资源服务器中的Web路由
+type ResultResourceWebRoute struct {
+	ResourceServer   *Resource         `json:"resource_server"`
+	ResourceWebRoute *ResourceWebRoute `json:"resource_web_route"`
 }

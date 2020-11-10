@@ -16,6 +16,7 @@ type RoleResourceWebRouter interface {
 	SelectAll(ctx context.Context) (roleResourceWebRoutes []*model.RoleResourceWebRoute, err error)
 	Update(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error)
 	ExistByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (exist bool, err error)
+	ExistByResourceWebRouteID(ctx context.Context, resourceWebRouteID model.ID) (exist bool, err error)
 	ListByRoleCode(ctx context.Context, roleCode model.Code, limit int) (list []*model.RoleResourceWebRoute, err error)
 }
 
@@ -94,6 +95,11 @@ func (*roleResourceWebRoute) exist(ctx context.Context, query interface{}, args 
 // ExistByRoleCodeAndResourceWebRouteID 判断根据RoleCode和资源web路由ID
 func (r *roleResourceWebRoute) ExistByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (exist bool, err error) {
 	return r.exist(ctx, "role_code = ? and resource_web_route_id = ?", roleCode, resourceWebRouteID)
+}
+
+// ExistByResourceWebRouteID 判断根据资源web路由ID
+func (r *roleResourceWebRoute) ExistByResourceWebRouteID(ctx context.Context, resourceWebRouteID model.ID) (exist bool, err error) {
+	return r.exist(ctx, "resource_web_route_id = ?", resourceWebRouteID)
 }
 
 func (r *roleResourceWebRoute) ListByRoleCode(ctx context.Context, roleCode model.Code, limit int) (list []*model.RoleResourceWebRoute, err error) {

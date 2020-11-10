@@ -33,6 +33,66 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/common/select": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "org:组织\nxxxx:其他",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role（角色）"
+                ],
+                "summary": "查询角色",
+                "parameters": [
+                    {
+                        "enum": [
+                            "org",
+                            "xxxx"
+                        ],
+                        "type": "string",
+                        "description": "查询参数",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResultSelect"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/oauth2/clients": {
             "get": {
                 "security": [
@@ -669,7 +729,235 @@ var doc = `{
                 }
             }
         },
-        "/resources/{resource_id}/web_routes": {
+        "/resource/servers": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "查询资源翻页数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource（资源）"
+                ],
+                "summary": "查询资源",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "当前页",
+                        "name": "current",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "创建资源",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource（资源）"
+                ],
+                "summary": "创建资源",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceEditModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/servers/{resource_server_id}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源ID,获取一个资源",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource（资源）"
+                ],
+                "summary": "获取一个资源",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource id",
+                        "name": "resource_server_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源ID,修改一个资源",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource（资源）"
+                ],
+                "summary": "修改一个资源",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource id",
+                        "name": "resource_server_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "资源需要修改的信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceEditModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/web_routes": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "查询资源服务器WebRule翻页数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebRoute（资源服务器Web路由）"
+                ],
+                "summary": "查询资源服务器WebRule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "当前页",
+                        "name": "current",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -683,25 +971,101 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Resource（资源）"
+                    "ResourceWebRoute（资源服务器Web路由）"
                 ],
                 "summary": "添加web路由",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "资源ID",
-                        "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "description": "body",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.ResourceAddWebRouteRequest"
+                            "$ref": "#/definitions/service.ResourceWebRouteEdit"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/web_routes/:resource_web_route_id": {
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源web路由ID,修改一个资源web路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebRoute（资源服务器Web路由）"
+                ],
+                "summary": "修改一个资源web路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource web route id",
+                        "name": "resource_web_route_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Web路由需要修改的信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceWebRouteEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/web_routes/{resource_web_route_id}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据路由ID,获取一个Web路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebRoute（资源服务器Web路由）"
+                ],
+                "summary": "获取一个Web路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource web route id",
+                        "name": "resource_web_route_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -801,15 +1165,6 @@ var doc = `{
                         "name": "resource_web_route_id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.ResourceAddWebRouteRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -1136,6 +1491,17 @@ var doc = `{
                 }
             }
         },
+        "model.ResultSelect": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "object"
+                }
+            }
+        },
         "model.Role": {
             "type": "object",
             "properties": {
@@ -1263,7 +1629,24 @@ var doc = `{
                 }
             }
         },
-        "service.ResourceAddWebRouteRequest": {
+        "service.ResourceEditModel": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "secret": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ResourceWebRouteEdit": {
             "type": "object",
             "properties": {
                 "method": {
@@ -1274,6 +1657,9 @@ var doc = `{
                 },
                 "path": {
                     "type": "string"
+                },
+                "resource_server_id": {
+                    "type": "integer"
                 }
             }
         },

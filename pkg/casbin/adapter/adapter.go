@@ -55,8 +55,8 @@ func (a *Adapter) LoadPolicy(model model.Model) error {
 func (a *Adapter) loadPolicyGrpc(model model.Model, handler func(string, model.Model)) (err error) {
 	var resp *proto.LoadPolicyResponse
 	resp, err = a.client.LoadPolicy(a.ctx, &proto.LoadPolicyRequest{
-		ResourceId:     a.ResourceID,
-		ResourceSecret: a.ResourceSecret,
+		ResourceServerId:     a.ResourceID,
+		ResourceServerSecret: a.ResourceSecret,
 	})
 	if err != nil {
 		return

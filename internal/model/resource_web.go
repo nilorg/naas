@@ -3,10 +3,10 @@ package model
 // ResourceWebRoute 资源Web路由
 type ResourceWebRoute struct {
 	Model
-	Name       string `json:"name"`
-	Path       string `json:"path"`
-	Method     string `json:"method"` // 可多选(POST,GET,PUT,DELETE)等
-	ResourceID ID     `json:"resource_id"`
+	Name             string `json:"name"`
+	Path             string `json:"path"`
+	Method           string `json:"method"` // 可多选(POST,GET,PUT,DELETE)等
+	ResourceServerID ID     `json:"resource_server_id"`
 }
 
 const (
