@@ -73,7 +73,9 @@ func initMySQL() {
 	var err error
 	gormLogger := logger.Discard
 	if viper.GetBool("mysql.log") {
-		gormLogger = logger.New(logrus.StandardLogger(), logger.Config{
+		std := *logrus.StandardLogger()
+		std.SetReportCaller(false)
+		gormLogger = logger.New(&std, logger.Config{
 			SlowThreshold: 100 * time.Millisecond,
 			LogLevel:      logger.Info,
 			Colorful:      true,

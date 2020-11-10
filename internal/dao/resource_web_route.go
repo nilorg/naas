@@ -14,6 +14,8 @@ type ResourceWebRouter interface {
 	Delete(ctx context.Context, id model.ID) (err error)
 	Select(ctx context.Context, id model.ID) (resourceWebRoute *model.ResourceWebRoute, err error)
 	Update(ctx context.Context, resourceWebRoute *model.ResourceWebRoute) (err error)
+	ListByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceWebRoute, err error)
+	ListInIDs(ctx context.Context, ids ...model.ID) (list []*model.ResourceWebRoute, err error)
 }
 
 type resourceWebRoute struct {
@@ -58,5 +60,29 @@ func (*resourceWebRoute) Update(ctx context.Context, resourceWebRoute *model.Res
 		return
 	}
 	err = gdb.Model(resourceWebRoute).Save(resourceWebRoute).Error
+	return
+}
+
+func (*resourceWebRoute) ListByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceWebRoute, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	exp := gdb.Model(&model.ResourceWebRoute{}).Where("resource_id = ?", resourceID)
+	if limit > 0 {
+		exp = exp.Offset(0).Limit(limit)
+	}
+	err = exp.Find(&list).Error
+	return
+}
+
+func (*resourceWebRoute) ListInIDs(ctx context.Context, ids ...model.ID) (list []*model.ResourceWebRoute, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Model(&model.ResourceWebRoute{}).Where("id in ?", ids).Find(&list).Error
 	return
 }

@@ -28,4 +28,6 @@ var (
 	ErrResourceCreate = errors.New("resource_create")
 	// ErrResourceUpdate 修改资源错误
 	ErrResourceUpdate = errors.New("resource_update")
+	// ErrResourceNotFound 资源服务器不存在
+	ErrResourceNotFound = errors.New("resource_not_found")
 )

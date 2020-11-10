@@ -80,3 +80,22 @@ func (r *role) AddResourceWebRoute(ctx context.Context, roleCode model.Code, res
 	}
 	return
 }
+
+// ListResourceWebRouteByRoleCode 根据RoleCode获取资源服务器Web路由
+func (r *role) ListResourceWebRouteByRoleCode(ctx context.Context, roleCode model.Code, limit int) (list []*model.ResourceWebRoute, err error) {
+	var rrwrList []*model.RoleResourceWebRoute
+	rrwrList, err = dao.RoleResourceWebRoute.ListByRoleCode(ctx, roleCode, limit)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	var ids []model.ID
+	for _, rrwr := range rrwrList {
+		ids = append(ids, rrwr.ResourceWebRouteID)
+	}
+	list, err = dao.ResourceWebRoute.ListInIDs(ctx, ids...)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+	}
+	return
+}

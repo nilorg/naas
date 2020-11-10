@@ -139,6 +139,16 @@ type ResourceAddWebRouteRequest struct {
 
 // AddWebRoute 添加web路由
 func (*resource) AddWebRoute(ctx context.Context, resourceID model.ID, req *ResourceAddWebRouteRequest) (err error) {
+	var resourceExist bool
+	resourceExist, err = dao.Resource.ExistByID(ctx, resourceID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	if !resourceExist {
+		err = errors.ErrResourceNotFound
+		return
+	}
 	v := &model.ResourceWebRoute{
 		Name:       req.Name,
 		Path:       req.Path,
@@ -147,4 +157,32 @@ func (*resource) AddWebRoute(ctx context.Context, resourceID model.ID, req *Reso
 	}
 	err = dao.ResourceWebRoute.Insert(ctx, v)
 	return
+}
+
+// UpdateWebRoute 修改web路由
+func (*resource) UpdateWebRoute(ctx context.Context, resourceWebRouteID model.ID, req *ResourceAddWebRouteRequest) (err error) {
+	// TODO：验证资源服务器是否存在
+	// var resourceExist bool
+	// resourceExist, err = dao.Resource.ExistByID(ctx, resourceID)
+	// if err != nil {
+	// 	logrus.WithContext(ctx).Errorln(err)
+	// 	return
+	// }
+	// if !resourceExist {
+	// 	err = errors.ErrResourceNotFound
+	// 	return
+	// }
+	return
+}
+
+// DeleteWebRoute 删除web路由
+func (*resource) DeleteWebRoute(ctx context.Context, resourceWebRouteID model.ID, req *ResourceAddWebRouteRequest) (err error) {
+	// TODO：验证Web路由是否被使用，如果被使用不能删除
+
+	return
+}
+
+// ListWebRouteByResourceID 根据资源服务器ID获取Web路由
+func (r *resource) ListWebRouteByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceWebRoute, err error) {
+	return dao.ResourceWebRoute.ListByResourceID(ctx, resourceID, limit)
 }

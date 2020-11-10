@@ -88,7 +88,11 @@ func (o *organization) ListByName(ctx context.Context, name string, limit int) (
 	if err != nil {
 		return
 	}
-	err = gdb.Model(&model.Organization{}).Where("name like ?", fmt.Sprintf("%%%s%%", name)).Offset(0).Limit(limit).Find(&list).Error
+	exp := gdb.Model(&model.Organization{}).Where("name like ?", fmt.Sprintf("%%%s%%", name))
+	if limit > 0 {
+		exp = exp.Offset(0).Limit(limit)
+	}
+	err = exp.Offset(0).Limit(limit).Find(&list).Error
 	return
 }
 

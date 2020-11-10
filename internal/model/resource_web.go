@@ -28,7 +28,7 @@ type ResourceWebComponent struct {
 
 const (
 	// WebFunctionTypeMenu ...
-	WebFunctionTypeMenu = ""
+	WebFunctionTypeMenu = "menu"
 )
 
 // ResourceWebFunction web功能

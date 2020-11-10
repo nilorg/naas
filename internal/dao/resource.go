@@ -24,6 +24,7 @@ type Resourcer interface {
 	ListPaged(ctx context.Context, start, limit int) (list []*model.Resource, total int64, err error)
 	LoadPolicy(ctx context.Context, resourceID model.ID) (results []*gormadapter.CasbinRule, err error)
 	ListByName(ctx context.Context, name string, limit int) (list []*model.Resource, err error)
+	ExistByID(ctx context.Context, id model.ID) (exist bool, err error)
 }
 
 type resource struct {
@@ -154,5 +155,26 @@ func (r *resource) ListPaged(ctx context.Context, start, limit int) (list []*mod
 	expression := gdb.Model(&model.Resource{})
 	expression.Count(&total)
 	err = expression.Offset(start).Limit(limit).Find(&list).Error
+	return
+}
+
+func (r *resource) ExistByID(ctx context.Context, id model.ID) (exist bool, err error) {
+	return r.exist(ctx, "id = ?", id)
+}
+
+func (r *resource) exist(ctx context.Context, query interface{}, args ...interface{}) (exist bool, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	var count int64
+	err = gdb.Model(&model.Resource{}).Where(query, args...).Count(&count).Error
+	if err != nil {
+		return
+	}
+	if count > 0 {
+		exist = true
+	}
 	return
 }
