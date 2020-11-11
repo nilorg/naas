@@ -17,10 +17,10 @@ type organization struct {
 
 // OrganizationEditModel ...
 type OrganizationEditModel struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Code        string   `json:"code"`
-	ParentID    model.ID `json:"parent_id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Code        model.Code `json:"code"`
+	ParentID    model.ID   `json:"parent_id"`
 }
 
 // Create 创建组织

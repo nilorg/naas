@@ -5,7 +5,7 @@ type Role struct {
 	CodeModel
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
-	ParentCode  string  `json:"parent_code"`
+	ParentCode  Code    `json:"parent_code"`
 	ChildRoles  []*Role `json:"child_roles" gorm:"-"`
 }
 
@@ -28,4 +28,10 @@ type RoleResourceWebRoute struct {
 	Model
 	RoleCode           Code `json:"role_code" gorm:"column:role_code"`
 	ResourceWebRouteID ID   `json:"resource_web_route_id" gorm:"column:resource_web_route_id"`
+}
+
+// ResultRole 角色
+type ResultRole struct {
+	Role       *Role `json:"role"`
+	ParentRole *Role `json:"parent_role"`
 }

@@ -18,7 +18,7 @@ type Organizationer interface {
 	Update(ctx context.Context, m *model.Organization) (err error)
 	ListPaged(ctx context.Context, start, limit int) (list []*model.Organization, total int64, err error)
 	ListByName(ctx context.Context, name string, limit int) (list []*model.Organization, err error)
-	ExistByCode(ctx context.Context, code string) (exist bool, err error)
+	ExistByCode(ctx context.Context, code model.Code) (exist bool, err error)
 	ExistByID(ctx context.Context, id model.ID) (exist bool, err error)
 }
 
@@ -106,7 +106,7 @@ func (o *organization) DeleteInIDs(ctx context.Context, ids ...model.ID) (err er
 	return
 }
 
-func (o *organization) ExistByCode(ctx context.Context, code string) (exist bool, err error) {
+func (o *organization) ExistByCode(ctx context.Context, code model.Code) (exist bool, err error) {
 	return o.exist(ctx, "code = ?", code)
 }
 

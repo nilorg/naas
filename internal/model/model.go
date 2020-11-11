@@ -26,6 +26,11 @@ func ConvertStringToID(id string) ID {
 	return ID(convert.ToUint64(id))
 }
 
+// ConvertStringToCode string 转 code
+func ConvertStringToCode(code string) Code {
+	return Code(code)
+}
+
 // Model ...
 type Model struct {
 	ID        ID         `json:"id" gorm:"primary_key;column:id"`

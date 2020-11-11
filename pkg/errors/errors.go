@@ -34,4 +34,14 @@ var (
 	ErrResourceUpdate = errors.New("resource_update")
 	// ErrResourceNotFound 资源服务器不存在
 	ErrResourceNotFound = errors.New("resource_not_found")
+	// ErrRoleCodeExist 角色code存在
+	ErrRoleCodeExist = errors.New("role_code_exist")
+	// ErrRoleNotFound 角色不存在
+	ErrRoleNotFound = errors.New("role_not_found")
+	// ErrRoleCurrentAndParentEqual 上级角色和当前角色相同
+	ErrRoleCurrentAndParentEqual = errors.New("role_parent_equal")
+	// ErrRoleParentNotExist 上级角色不存在
+	ErrRoleParentNotExist = errors.New("role_parent_not_exist")
+	// ErrRoleUpdate 修改角色错误
+	ErrRoleUpdate = errors.New("role_update")
 )

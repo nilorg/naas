@@ -155,7 +155,11 @@ func RunHTTP() {
 			apiGroup.DELETE("/users/:user_id", api.User.Delete)
 
 			apiGroup.GET("/roles", api.Role.QueryChildren())
+			apiGroup.GET("/roles/:role_code", api.Role.GetOne)
 			apiGroup.POST("/roles/:role_code/resource_web_route/:resource_web_route_id", api.Role.AddResourceWebRoute)
+			apiGroup.POST("/roles", api.Role.Create)
+			apiGroup.PUT("/roles", api.Role.Update)
+			apiGroup.DELETE("/roles", api.Role.Delete)
 
 			apiGroup.GET("/resource/servers", api.Resource.ListServerByPaged)
 			apiGroup.GET("/resource/servers/:resource_server_id", api.Resource.GetServerOne)

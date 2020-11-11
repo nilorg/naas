@@ -23,8 +23,8 @@ type ResourceEditModel struct {
 	OrganizationID model.ID `json:"organization_id"`
 }
 
-// Create 创建资源
-func (r *resource) Create(ctx context.Context, create *ResourceEditModel) (err error) {
+// CreateServer 创建资源
+func (r *resource) CreateServer(ctx context.Context, create *ResourceEditModel) (err error) {
 	if create.OrganizationID > 0 {
 		var existOrgID bool
 		existOrgID, err = dao.Organization.ExistByID(ctx, create.OrganizationID)
@@ -50,8 +50,8 @@ func (r *resource) Create(ctx context.Context, create *ResourceEditModel) (err e
 	return
 }
 
-// Update 修改资源
-func (r *resource) Update(ctx context.Context, id model.ID, update *ResourceEditModel) (err error) {
+// UpdateServer 修改资源
+func (r *resource) UpdateServer(ctx context.Context, id model.ID, update *ResourceEditModel) (err error) {
 	var (
 		res *model.Resource
 	)

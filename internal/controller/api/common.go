@@ -27,6 +27,7 @@ func (c *common) SelectQueryChildren() gin.HandlerFunc {
 	return QueryChildren(map[string]gin.HandlerFunc{
 		"organization":    c.SelectOrganizationList,
 		"resource_server": c.SelectResourceServerList,
+		"role":            c.SelectRoleList,
 	})
 }
 
@@ -89,6 +90,39 @@ func (*common) SelectResourceServerList(ctx *gin.Context) {
 				results = append(results, &model.ResultSelect{
 					Label: item.Name,
 					Value: item.ID,
+				})
+			}
+			writeData(ctx, results)
+		}
+	}
+}
+
+// SelectRoleList 角色Select列表
+func (*common) SelectRoleList(ctx *gin.Context) {
+	id := ctx.Query("id")
+	parentCtx := contexts.WithGinContext(ctx)
+	if id != "" {
+		res, err := service.Role.GetOneByCode(parentCtx, model.ConvertStringToCode(id))
+		if err != nil {
+			writeError(ctx, err)
+		} else {
+			writeData(ctx, &model.ResultSelect{
+				Label: res.Name,
+				Value: res.Code,
+			})
+		}
+	} else {
+		name := ctx.Query("name")
+		limit := convert.ToInt(ctx.Query("limit"))
+		list, err := service.Role.ListByName(parentCtx, name, limit)
+		if err != nil {
+			writeError(ctx, err)
+		} else {
+			var results []*model.ResultSelect
+			for _, item := range list {
+				results = append(results, &model.ResultSelect{
+					Label: item.Name,
+					Value: item.Code,
 				})
 			}
 			writeData(ctx, results)

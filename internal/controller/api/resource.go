@@ -97,7 +97,7 @@ func (*resource) CreateServer(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.Resource.Create(contexts.WithGinContext(ctx), &m)
+	err = service.Resource.CreateServer(contexts.WithGinContext(ctx), &m)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -127,7 +127,7 @@ func (*resource) UpdateServer(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.Resource.Update(contexts.WithGinContext(ctx), resID, &org)
+	err = service.Resource.UpdateServer(contexts.WithGinContext(ctx), resID, &org)
 	if err != nil {
 		writeError(ctx, err)
 		return

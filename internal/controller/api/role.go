@@ -7,6 +7,7 @@ import (
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
+	"github.com/nilorg/sdk/strings"
 )
 
 type role struct {
@@ -39,7 +40,17 @@ func (*role) Recursive(ctx *gin.Context) {
 
 // List 查询列表
 func (*role) List(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{})
+	var (
+		result []*model.ResultRole
+		err    error
+	)
+	pagination := model.NewPagination(ctx)
+	result, pagination.Total, err = service.Role.ListPaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, model.NewTableListData(*pagination, result))
 }
 
 // AddResourceWebRoute 添加资源web路由
@@ -61,4 +72,111 @@ func (*role) AddResourceWebRoute(ctx *gin.Context) {
 		return
 	}
 	writeData(ctx, nil)
+}
+
+// Create 创建角色
+// @Tags 		Role（角色）
+// @Summary		创建角色
+// @Description	创建角色
+// @Accept  json
+// @Produce	json
+// @Param 	body	body	service.RoleEditModel	true	"body"
+// @Success 200	{object}	Result
+// @Router /roles [POST]
+// @Security OAuth2AccessCode
+func (*role) Create(ctx *gin.Context) {
+	var (
+		m   service.RoleEditModel
+		err error
+	)
+	err = ctx.ShouldBindJSON(&m)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Role.Create(contexts.WithGinContext(ctx), &m)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// Delete 删除一个角色
+// @Tags 		Role（角色）
+// @Summary		删除一个角色
+// @Description	根据角色Code,删除一个角色
+// @Accept  json
+// @Produce	json
+// @Param 	codes	query	string	true	"role code"
+// @Success 200	{object}	Result
+// @Router /roles [DELETE]
+// @Security OAuth2AccessCode
+func (*role) Delete(ctx *gin.Context) {
+	var (
+		err error
+	)
+	codesStringSplit := strings.Split(ctx.Query("codes"), ",")
+	var codesUint64Split []model.Code
+	for _, code := range codesStringSplit {
+		codesUint64Split = append(codesUint64Split, model.ConvertStringToCode(code))
+	}
+	err = service.Role.DeleteByCodes(contexts.WithGinContext(ctx), codesUint64Split...)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// Update 修改一个角色
+// @Tags 		Role（角色）
+// @Summary		修改一个角色
+// @Description	根据角色Code,修改一个角色
+// @Accept  json
+// @Produce	json
+// @Param 	body	body	service.RoleEditModel	true	"角色需要修改的信息"
+// @Success 200	{object}	Result
+// @Router /roles [PUT]
+// @Security OAuth2AccessCode
+func (*role) Update(ctx *gin.Context) {
+	var (
+		role service.RoleEditModel
+		err  error
+	)
+	err = ctx.ShouldBindJSON(&role)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Role.Update(contexts.WithGinContext(ctx), &role)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// GetOne 获取一个角色
+// @Tags 		Role（角色）
+// @Summary		获取一个角色
+// @Description	根据角色Code,获取一个角色
+// @Accept  json
+// @Produce	json
+// @Param 	role_code	path	string	true	"role code"
+// @Success 200	{object}	Result
+// @Router /roles/{role_code} [GET]
+// @Security OAuth2AccessCode
+func (*role) GetOne(ctx *gin.Context) {
+	var (
+		role *model.Role
+		err  error
+	)
+	roleCode := model.ConvertStringToCode(ctx.Param("role_code"))
+	role, err = service.Role.GetOneByCode(contexts.WithGinContext(ctx), roleCode)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, role)
 }

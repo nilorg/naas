@@ -5,7 +5,7 @@ type Organization struct {
 	Model
 	Name        string `json:"name" gorm:"column:name"`
 	Description string `json:"description" gorm:"column:description"`
-	Code        string `json:"code" gorm:"column:code"`
+	Code        Code   `json:"code" gorm:"column:code"`
 	ParentID    ID     `json:"parent_id" gorm:"column:parent_id"`
 }
 
