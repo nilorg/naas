@@ -14,6 +14,7 @@ type OrganizationRoleer interface {
 	Delete(ctx context.Context, id model.ID) (err error)
 	Select(ctx context.Context, id model.ID) (m *model.OrganizationRole, err error)
 	Update(ctx context.Context, m *model.OrganizationRole) (err error)
+	ListPagedByOrganizationID(ctx context.Context, organizationID model.ID, start, limit int) (list []*model.OrganizationRole, total int64, err error)
 }
 
 type organizationRole struct {
@@ -61,5 +62,17 @@ func (o *organizationRole) Update(ctx context.Context, m *model.OrganizationRole
 	if err != nil {
 		return
 	}
+	return
+}
+
+func (o *organizationRole) ListPagedByOrganizationID(ctx context.Context, organizationID model.ID, start, limit int) (list []*model.OrganizationRole, total int64, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	expression := gdb.Model(&model.OrganizationRole{}).Where("organization_id = ?", organizationID)
+	expression.Count(&total)
+	err = expression.Offset(start).Limit(limit).Find(&list).Error
 	return
 }

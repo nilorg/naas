@@ -301,3 +301,10 @@ g, role:naas_admin, domain:naas, role:reader
 g, role:naas_admin, domain:naas, role:writer
 
 g, alice, domain:naas, role:naas_admin
+
+# Role Code规则
+
+role_code = {organization_code}_{custom_role_code}
+
+NAAS_DEV
+NAAS_OPS
