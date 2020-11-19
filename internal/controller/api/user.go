@@ -230,3 +230,33 @@ func (*user) UpdateRole(ctx *gin.Context) {
 	}
 	writeData(ctx, nil)
 }
+
+// UpdateOrganization 修改一个用户的组织
+// @Tags 		User（用户）
+// @Summary		修改一个用户的组织
+// @Description	根据用户ID,修改一个用户的组织
+// @Accept  json
+// @Produce	json
+// @Param 	user_id	path	string	true	"user id"
+// @Param 	body	body	service.UserUpdateRoleModel	true	"用户需要修改的组织"
+// @Success 200	{object}	Result
+// @Router /users/{user_id}/organizations [PUT]
+// @Security OAuth2AccessCode
+func (*user) UpdateOrganization(ctx *gin.Context) {
+	var (
+		org service.UserUpdateOrganizationModel
+		err error
+	)
+	userID := model.ConvertStringToID(ctx.Param("user_id"))
+	err = ctx.ShouldBindJSON(&org)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.User.UpdateOrganization(contexts.WithGinContext(ctx), userID, &org)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}

@@ -135,7 +135,9 @@ func (*organization) Update(ctx *gin.Context) {
 // @Security OAuth2AccessCode
 func (o *organization) QueryChildren() gin.HandlerFunc {
 	return QueryChildren(map[string]gin.HandlerFunc{
-		"list": o.ListByPaged,
+		"list":      o.ListByPaged,
+		"recursive": o.Recursive,
+		"tree":      o.RecursiveTree,
 	})
 }
 
@@ -151,4 +153,17 @@ func (*organization) ListByPaged(ctx *gin.Context) {
 		return
 	}
 	writeData(ctx, model.NewTableListData(*pagination, result))
+}
+
+// Recursive 递归
+func (*organization) Recursive(ctx *gin.Context) {
+	orgs := service.Organization.Recursive(contexts.WithGinContext(ctx))
+	writeData(ctx, orgs)
+}
+
+// RecursiveTree 递归 tree
+func (*organization) RecursiveTree(ctx *gin.Context) {
+	orgs := service.Organization.Recursive(contexts.WithGinContext(ctx))
+	tree := model.RecursiveOrganizationToTree(orgs)
+	writeData(ctx, tree)
 }

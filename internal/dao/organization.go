@@ -15,6 +15,8 @@ type Organizationer interface {
 	Delete(ctx context.Context, id model.ID) (err error)
 	DeleteInIDs(ctx context.Context, ids ...model.ID) (err error)
 	Select(ctx context.Context, id model.ID) (m *model.Organization, err error)
+	SelectByRoot(ctx context.Context) (results []*model.Organization, err error)
+	SelectByParentID(ctx context.Context, parentID model.ID) (results []*model.Organization, err error)
 	Update(ctx context.Context, m *model.Organization) (err error)
 	ListPaged(ctx context.Context, start, limit int) (list []*model.Organization, total int64, err error)
 	ListByName(ctx context.Context, name string, limit int) (list []*model.Organization, err error)
@@ -57,6 +59,27 @@ func (o *organization) Select(ctx context.Context, id model.ID) (m *model.Organi
 	}
 	return
 }
+
+func (o *organization) SelectByRoot(ctx context.Context) (results []*model.Organization, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where("ISNULL(parent_id) OR parent_id = 0").Find(&results).Error
+	return
+}
+
+func (o *organization) SelectByParentID(ctx context.Context, parentID model.ID) (results []*model.Organization, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where("parent_id = ?", parentID).Find(&results).Error
+	return
+}
+
 func (o *organization) Update(ctx context.Context, m *model.Organization) (err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)

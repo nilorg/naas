@@ -154,6 +154,7 @@ func RunHTTP() {
 			apiGroup.PUT("/users/:user_id", api.User.Update)
 			apiGroup.DELETE("/users/:user_id", api.User.Delete)
 			apiGroup.GET("/users/:user_id/organizations", api.User.GetOrganizationList)
+			apiGroup.PUT("/users/:user_id/organizations", api.User.UpdateOrganization)
 			apiGroup.GET("/users/:user_id/organizations/:organization_id/roles", api.User.GetRoleList)
 			apiGroup.PUT("/users/:user_id/roles", api.User.UpdateRole)
 
@@ -187,7 +188,7 @@ func RunHTTP() {
 			apiGroup.GET("/oauth2/scopes/:scop_code", api.OAuth2.GetScopeOne)
 			apiGroup.PUT("/oauth2/scopes/:scop_code", api.OAuth2.EditScope)
 
-			apiGroup.GET("/organizations", api.Organization.ListByPaged)
+			apiGroup.GET("/organizations", api.Organization.QueryChildren())
 			apiGroup.GET("/organizations/:org_id", api.Organization.GetOne)
 			apiGroup.POST("/organizations", api.Organization.Create)
 			apiGroup.PUT("/organizations/:org_id", api.Organization.Update)

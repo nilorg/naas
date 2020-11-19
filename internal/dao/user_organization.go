@@ -17,6 +17,7 @@ import (
 type UserOrganizationer interface {
 	Insert(ctx context.Context, m *model.UserOrganization) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteByUserID(ctx context.Context, userID model.ID) (err error)
 	Select(ctx context.Context, id model.ID) (m *model.UserOrganization, err error)
 	Update(ctx context.Context, m *model.UserOrganization) (err error)
 	SelectAllByUserID(ctx context.Context, userID model.ID) (m []*model.UserOrganization, err error)
@@ -152,4 +153,23 @@ func (u *userOrganization) SelectAllByUserIDFromCache(ctx context.Context, userI
 		return
 	}
 	return u.scanCacheID(ctx, items)
+}
+
+func (u *userOrganization) delete(ctx context.Context, query interface{}, args ...interface{}) (err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where(query, args...).Delete(model.UserOrganization{}).Error
+	return
+}
+
+func (u *userOrganization) DeleteByUserID(ctx context.Context, userID model.ID) (err error) {
+	err = u.delete(ctx, "user_id = ?", userID)
+	if err != nil {
+		return
+	}
+	err = u.cache.Remove(ctx, u.formatUserListKey(userID))
+	return
 }

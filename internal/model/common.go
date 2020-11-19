@@ -58,3 +58,28 @@ func RecursiveRoleToTreeNode(roles []*Role) (treeNodes []*ResultTreeNode) {
 	}
 	return
 }
+
+// ResultTree 返回Tree
+type ResultTree struct {
+	Title    string        `json:"title"`
+	Value    interface{}   `json:"value"`
+	Key      interface{}   `json:"key"`
+	Children []*ResultTree `json:"children"`
+}
+
+// RecursiveOrganizationToTree 递归organization转tree
+func RecursiveOrganizationToTree(orgs []*Organization) (result []*ResultTree) {
+	for _, org := range orgs {
+		treeNode := new(ResultTree)
+		treeNode.Title = org.Name
+		treeNode.Key = org.ID
+		treeNode.Value = org.ID
+		if len(org.ChildOrganizations) > 0 {
+			treeNode.Children = RecursiveOrganizationToTree(org.ChildOrganizations)
+		} else {
+			treeNode.Children = make([]*ResultTree, 0)
+		}
+		result = append(result, treeNode)
+	}
+	return
+}

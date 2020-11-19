@@ -3,10 +3,11 @@ package model
 // Organization ...
 type Organization struct {
 	Model
-	Name        string `json:"name" gorm:"column:name"`
-	Description string `json:"description" gorm:"column:description"`
-	Code        Code   `json:"code" gorm:"column:code"`
-	ParentID    ID     `json:"parent_id" gorm:"column:parent_id"`
+	Name               string          `json:"name" gorm:"column:name"`
+	Description        string          `json:"description" gorm:"column:description"`
+	Code               Code            `json:"code" gorm:"column:code"`
+	ParentID           ID              `json:"parent_id" gorm:"column:parent_id"`
+	ChildOrganizations []*Organization `json:"child_organizations" gorm:"-"`
 }
 
 // UserOrganization 用户组织

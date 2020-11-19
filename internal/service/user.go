@@ -293,3 +293,46 @@ func (u *user) UpdateRole(ctx context.Context, userID model.ID, update *UserUpda
 	err = tran.Commit().Error
 	return
 }
+
+// UserUpdateOrganizationModel ...
+type UserUpdateOrganizationModel struct {
+	Organizations []model.ID `json:"organizations"`
+}
+
+// UpdateOrganization 修改用户组织
+func (u *user) UpdateOrganization(ctx context.Context, userID model.ID, update *UserUpdateOrganizationModel) (err error) {
+	var (
+		exist bool
+	)
+	exist, err = dao.User.ExistByID(ctx, userID)
+	if err != nil {
+		return
+	}
+	if !exist {
+		err = errors.ErrUserNotFound
+		return
+	}
+	// TODO: 这地方有待优化
+	tran := store.DB.Begin()
+	ctx = contexts.NewGormTranContext(ctx, tran)
+	defer func() {
+		if err != nil {
+			tran.Rollback()
+		}
+	}()
+	err = dao.UserOrganization.DeleteByUserID(ctx, userID)
+	if err != nil {
+		return
+	}
+	for _, orgID := range update.Organizations {
+		err = dao.UserOrganization.Insert(ctx, &model.UserOrganization{
+			UserID:         userID,
+			OrganizationID: orgID,
+		})
+		if err != nil {
+			return
+		}
+	}
+	err = tran.Commit().Error
+	return
+}

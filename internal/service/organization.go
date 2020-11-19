@@ -23,6 +23,42 @@ type OrganizationEditModel struct {
 	ParentID    model.ID   `json:"parent_id"`
 }
 
+func (o *organization) Recursive(ctx context.Context) []*model.Organization {
+	var (
+		orgs []*model.Organization
+		err  error
+	)
+	orgs, err = dao.Organization.SelectByRoot(ctx)
+	if err != nil {
+		logrus.Errorf("dao.Organization.SelectByRoot: %s", err)
+		return nil
+	}
+	o.recursive(ctx, orgs)
+	return orgs
+}
+
+func (o *organization) recursive(ctx context.Context, orgs []*model.Organization) {
+	if len(orgs) == 0 {
+		return
+	}
+	var (
+		childOrgs []*model.Organization
+		err       error
+	)
+	for _, org := range orgs {
+		if org.ParentID == 0 {
+			continue
+		}
+
+		childOrgs, err = dao.Organization.SelectByParentID(ctx, org.ParentID)
+		if err != nil {
+			logrus.Errorf("dao.Organization.SelectByParentID(%v): %s", org.ParentID, err)
+		}
+		o.recursive(ctx, childOrgs)
+		org.ChildOrganizations = childOrgs
+	}
+}
+
 // Create 创建组织
 func (o *organization) Create(ctx context.Context, create *OrganizationEditModel) (err error) {
 	var exist bool

@@ -1,8 +1,6 @@
 package api
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
@@ -38,7 +36,7 @@ func (r *role) QueryChildren() gin.HandlerFunc {
 func (*role) Recursive(ctx *gin.Context) {
 	organizationID := model.ConvertStringToID(ctx.Query("organization_id"))
 	roles := service.Role.Recursive(contexts.WithGinContext(ctx), organizationID)
-	ctx.JSON(http.StatusOK, roles)
+	writeData(ctx, roles)
 }
 
 // RecursiveTreeSelect 递归 tree select
