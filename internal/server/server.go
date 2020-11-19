@@ -184,6 +184,7 @@ func RunHTTP() {
 			apiGroup.PUT("/oauth2/clients/:client_id", api.OAuth2.UpdateClient)
 
 			apiGroup.GET("/oauth2/clients/:client_id/scopes", api.OAuth2.GetClientScopes)
+			apiGroup.PUT("/oauth2/clients/:client_id/scopes", api.OAuth2.UpdateClientScopes)
 			apiGroup.GET("/oauth2/scopes", api.OAuth2.ScopeQueryChildren())
 			apiGroup.GET("/oauth2/scopes/:scop_code", api.OAuth2.GetScopeOne)
 			apiGroup.PUT("/oauth2/scopes/:scop_code", api.OAuth2.EditScope)

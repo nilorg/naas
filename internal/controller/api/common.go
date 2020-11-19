@@ -12,7 +12,7 @@ type common struct {
 }
 
 // SelectQueryChildren 查询方法
-// @Tags 		Role（角色）
+// @Tags 		Common（通用）
 // @Summary		查询角色
 // @Description	org:组织
 // @Description	xxxx:其他
@@ -28,6 +28,7 @@ func (c *common) SelectQueryChildren() gin.HandlerFunc {
 		"organization":    c.SelectOrganizationList,
 		"resource_server": c.SelectResourceServerList,
 		"role":            c.SelectRoleList,
+		"oauth2_scope":    c.SelectOAuth2ScopeList,
 	})
 }
 
@@ -136,5 +137,27 @@ func (*common) SelectRoleList(ctx *gin.Context) {
 			}
 			writeData(ctx, results)
 		}
+	}
+}
+
+// SelectOAuth2ScopeList OAuth2范围列表
+func (*common) SelectOAuth2ScopeList(ctx *gin.Context) {
+	parentCtx := contexts.WithGinContext(ctx)
+	var (
+		list []*model.OAuth2Scope
+		err  error
+	)
+	list, err = service.OAuth2.AllScope(parentCtx)
+	if err != nil {
+		writeError(ctx, err)
+	} else {
+		var results []*model.ResultSelect
+		for _, item := range list {
+			results = append(results, &model.ResultSelect{
+				Label: item.Name,
+				Value: item.Code,
+			})
+		}
+		writeData(ctx, results)
 	}
 }

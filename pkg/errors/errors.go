@@ -46,4 +46,6 @@ var (
 	ErrRoleParentNotExist = errors.New("role_parent_not_exist")
 	// ErrRoleUpdate 修改角色错误
 	ErrRoleUpdate = errors.New("role_update")
+	// ErrOAuth2CleintNotFound 客户端不存在
+	ErrOAuth2CleintNotFound = errors.New("oauth2_client_notfound")
 )

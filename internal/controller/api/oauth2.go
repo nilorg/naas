@@ -239,3 +239,33 @@ func (*oauth2) ClientListByPaged(ctx *gin.Context) {
 	}
 	writeData(ctx, model.NewTableListData(*pagination, result))
 }
+
+// UpdateClientScopes 修改一个客户端的范围
+// @Tags 		OAuth2
+// @Summary		修改一个客户端的范围
+// @Description	根据客户端ID,修改一个客户端的范围
+// @Accept  json
+// @Produce	json
+// @Param 	client_id	path	string	true	"client id"
+// @Param 	body	body	service.UserUpdateRoleModel	true	"用户需要修改的角色"
+// @Success 200	{object}	Result
+// @Router /oauth2/clients/{client_id}/scopes [PUT]
+// @Security OAuth2AccessCode
+func (*oauth2) UpdateClientScopes(ctx *gin.Context) {
+	var (
+		scope service.ClientUpdateScopesModel
+		err   error
+	)
+	clientID := model.ConvertStringToID(ctx.Param("client_id"))
+	err = ctx.ShouldBindJSON(&scope)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.OAuth2.UpdateCleintScope(contexts.WithGinContext(ctx), clientID, &scope)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}

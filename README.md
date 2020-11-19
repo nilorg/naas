@@ -26,9 +26,12 @@ Authentication authorization server（认证授权服务器）
    * ✅ [自定义naas-casbin-adapter](./pkg/casbin/adapter/adapter.go)
 5. ♻️ [NAAS后台管理系统](https://github.com/nilorg/naas-web)
    * ✅ 集成OAuth2认证
-   * ✅ 用户管理
+   * ✅ 基础数据
+     * ✅ 组织
+     * ✅ 角色
+     * ✅ 用户
    * ♻️ OAuth2
-     * ♻️ 客户端
+     * ✅ 客户端
      * ♻️ 范围
    * ❗️ Casbin
      * ❗️租户

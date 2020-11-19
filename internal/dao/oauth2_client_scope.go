@@ -20,6 +20,7 @@ type OAuth2ClientScoper interface {
 	SelectByOAuth2ClientID(ctx context.Context, clientID model.ID) (scopes []*model.OAuth2ClientScope, err error)
 	Insert(ctx context.Context, mc *model.OAuth2ClientScope) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteByClientID(ctx context.Context, clientID model.ID) (err error)
 	Update(ctx context.Context, mc *model.OAuth2ClientScope) (err error)
 }
 
@@ -144,5 +145,24 @@ func (o *oauth2ClientScope) scanCacheID(ctx context.Context, items []*model.Cach
 		}
 		scopes = append(scopes, i)
 	}
+	return
+}
+
+func (o *oauth2ClientScope) delete(ctx context.Context, query interface{}, args ...interface{}) (err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where(query, args...).Delete(model.OAuth2ClientScope{}).Error
+	return
+}
+
+func (o *oauth2ClientScope) DeleteByClientID(ctx context.Context, clientID model.ID) (err error) {
+	err = o.delete(ctx, "oauth2_client_id = ?", clientID)
+	if err != nil {
+		return
+	}
+	err = o.cache.Remove(ctx, o.formatClientListKey(clientID))
 	return
 }

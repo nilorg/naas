@@ -22,6 +22,7 @@ type OAuth2Clienter interface {
 	UpdateRedirectURI(ctx context.Context, id model.ID, redirectURI string) (err error)
 	SelectByID(ctx context.Context, clientID model.ID) (mc *model.OAuth2Client, err error)
 	ListPaged(ctx context.Context, start, limit int) (clientList []*model.OAuth2Client, total int64, err error)
+	ExistByID(ctx context.Context, clientID model.ID) (exist bool, err error)
 }
 
 type oauth2Client struct {
@@ -153,4 +154,26 @@ func (*oauth2Client) ListPaged(ctx context.Context, start, limit int) (clientLis
 	expression.Count(&total)
 	err = expression.Offset(start).Limit(limit).Find(&clientList).Error
 	return
+}
+
+func (*oauth2Client) exist(ctx context.Context, query interface{}, args ...interface{}) (exist bool, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	var count int64
+	err = gdb.Model(&model.OAuth2Client{}).Where(query, args...).Count(&count).Error
+	if err != nil {
+		return
+	}
+	if count > 0 {
+		exist = true
+	}
+	return
+}
+
+// ExistByID 判断ID是否存在
+func (o *oauth2Client) ExistByID(ctx context.Context, id model.ID) (exist bool, err error) {
+	return o.exist(ctx, "client_id = ?", id)
 }

@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/contexts"
+	"github.com/nilorg/naas/pkg/errors"
 	"github.com/nilorg/sdk/convert"
 	"gorm.io/gorm"
 )
@@ -242,6 +242,12 @@ func (o *oauth2) AllScope(ctx context.Context) (scopes []*model.OAuth2Scope, err
 	return
 }
 
+// ScopeListByBasic 基础范围
+func (o *oauth2) ScopeListByBasic(ctx context.Context) (scopes []*model.OAuth2Scope, err error) {
+	scopes, err = dao.OAuth2Scope.SelectByAllBasic(ctx)
+	return
+}
+
 // GetScopeOne 根据code获取scope
 func (o *oauth2) GetScopeOne(ctx context.Context, code model.Code) (scope *model.OAuth2Scope, err error) {
 	return dao.OAuth2Scope.Select(ctx, code)
@@ -302,5 +308,48 @@ func (o *oauth2) AllScopeCode(ctx context.Context) (scopeCodes []model.Code, err
 	for _, scope := range scopes {
 		scopeCodes = append(scopeCodes, scope.Code)
 	}
+	return
+}
+
+// ClientUpdateScopesModel ...
+type ClientUpdateScopesModel struct {
+	Scopes []model.Code `json:"scopes"`
+}
+
+// UpdateCleintScope 修改客户端范围
+func (*oauth2) UpdateCleintScope(ctx context.Context, cleintID model.ID, update *ClientUpdateScopesModel) (err error) {
+	var (
+		exist bool
+	)
+	exist, err = dao.OAuth2Client.ExistByID(ctx, cleintID)
+	if err != nil {
+		return
+	}
+	if !exist {
+		err = errors.ErrOAuth2CleintNotFound
+		return
+	}
+	// TODO: 这地方有待优化
+	tran := store.DB.Begin()
+	ctx = contexts.NewGormTranContext(ctx, tran)
+	defer func() {
+		if err != nil {
+			tran.Rollback()
+		}
+	}()
+	err = dao.OAuth2ClientScope.DeleteByClientID(ctx, cleintID)
+	if err != nil {
+		return
+	}
+	for _, scope := range update.Scopes {
+		err = dao.OAuth2ClientScope.Insert(ctx, &model.OAuth2ClientScope{
+			OAuth2ClientID: cleintID,
+			ScopeCode:      scope,
+		})
+		if err != nil {
+			return
+		}
+	}
+	err = tran.Commit().Error
 	return
 }
