@@ -3,10 +3,11 @@ package model
 // Role 角色
 type Role struct {
 	CodeModel
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	ParentCode  Code    `json:"parent_code"`
-	ChildRoles  []*Role `json:"child_roles" gorm:"-"`
+	Name           string  `json:"name"`
+	Description    string  `json:"description"`
+	ParentCode     Code    `json:"parent_code"`
+	OrganizationID ID      `json:"organization_id" gorm:"column:organization_id"`
+	ChildRoles     []*Role `json:"child_roles" gorm:"-"`
 }
 
 // RoleResourceWebFunction ...
@@ -32,6 +33,7 @@ type RoleResourceWebRoute struct {
 
 // ResultRole 角色
 type ResultRole struct {
-	Role       *Role `json:"role"`
-	ParentRole *Role `json:"parent_role"`
+	Role         *Role         `json:"role"`
+	ParentRole   *Role         `json:"parent_role"`
+	Organization *Organization `json:"organization"`
 }

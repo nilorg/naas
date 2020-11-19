@@ -150,3 +150,83 @@ func (*user) ListByPaged(ctx *gin.Context) {
 	}
 	writeData(ctx, model.NewTableListData(*pagination, result))
 }
+
+// GetOrganizationList 获取一个用户的组织
+// @Tags 		User（用户）
+// @Summary		获取一个用户的组织
+// @Description	根据用户ID,获取一个用户的组织
+// @Accept  json
+// @Produce	json
+// @Param 	user_id	path	string	true	"user id"
+// @Success 200	{object}	Result
+// @Router /users/{user_id}/organizations [GET]
+// @Security OAuth2AccessCode
+func (*user) GetOrganizationList(ctx *gin.Context) {
+	var (
+		list []*model.Organization
+		err  error
+	)
+	userID := model.ConvertStringToID(ctx.Param("user_id"))
+	list, err = service.Organization.ListByUserID(contexts.WithGinContext(ctx), userID)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, list)
+}
+
+// GetRoleList 获取一个用户某个组织的角色
+// @Tags 		User（用户）
+// @Summary		获取一个用户的某个组织的角色
+// @Description	根据用户ID,获取一个用户的某个组织的角色
+// @Accept  json
+// @Produce	json
+// @Param 	user_id	path	string	true	"user id"
+// @Param 	organization_id	path	string	true	"organization id"
+// @Success 200	{object}	Result
+// @Router /users/{user_id}/organizations/{organization_id}/roles [GET]
+// @Security OAuth2AccessCode
+func (*user) GetRoleList(ctx *gin.Context) {
+	var (
+		list []*model.Role
+		err  error
+	)
+	userID := model.ConvertStringToID(ctx.Param("user_id"))
+	organizationID := model.ConvertStringToID(ctx.Param("organization_id"))
+	list, err = service.Role.ListByUserIDAndOrganizationID(contexts.WithGinContext(ctx), userID, organizationID)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, list)
+}
+
+// UpdateRole 修改一个用户的角色
+// @Tags 		User（用户）
+// @Summary		修改一个用户的角色
+// @Description	根据用户ID,修改一个用户的角色
+// @Accept  json
+// @Produce	json
+// @Param 	user_id	path	string	true	"user id"
+// @Param 	body	body	service.UserUpdateRoleModel	true	"用户需要修改的角色"
+// @Success 200	{object}	Result
+// @Router /users/{user_id}/roles [PUT]
+// @Security OAuth2AccessCode
+func (*user) UpdateRole(ctx *gin.Context) {
+	var (
+		role service.UserUpdateRoleModel
+		err  error
+	)
+	userID := model.ConvertStringToID(ctx.Param("user_id"))
+	err = ctx.ShouldBindJSON(&role)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.User.UpdateRole(contexts.WithGinContext(ctx), userID, &role)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}

@@ -27,15 +27,48 @@ type role struct {
 // @Security OAuth2AccessCode
 func (r *role) QueryChildren() gin.HandlerFunc {
 	return QueryChildren(map[string]gin.HandlerFunc{
-		"recursive": r.Recursive,
-		"list":      r.List,
+		"recursive":   r.Recursive,
+		"tree_select": r.RecursiveTreeSelect,
+		"tree_node":   r.RecursiveTreeNode,
+		"list":        r.List,
 	})
 }
 
 // Recursive 递归
 func (*role) Recursive(ctx *gin.Context) {
-	roles := service.Role.Recursive(contexts.WithGinContext(ctx))
+	organizationID := model.ConvertStringToID(ctx.Query("organization_id"))
+	roles := service.Role.Recursive(contexts.WithGinContext(ctx), organizationID)
 	ctx.JSON(http.StatusOK, roles)
+}
+
+// RecursiveTreeSelect 递归 tree select
+func (*role) RecursiveTreeSelect(ctx *gin.Context) {
+	organizationID := model.ConvertStringToID(ctx.Query("organization_id"))
+	roles := service.Role.Recursive(contexts.WithGinContext(ctx), organizationID)
+	treeSelects := model.RecursiveRoleToTreeSelect(roles)
+	writeData(ctx, treeSelects)
+}
+
+// RecursiveTreeNode 递归 tree node
+func (*role) RecursiveTreeNode(ctx *gin.Context) {
+	organizationID := model.ConvertStringToID(ctx.Query("organization_id"))
+	parentCtx := contexts.WithGinContext(ctx)
+	roles := service.Role.Recursive(parentCtx, organizationID)
+	nodes := model.RecursiveRoleToTreeNode(roles)
+	id := model.ConvertStringToCode(ctx.Query("id"))
+	if id != "" {
+		role, err := service.Role.GetOneByCode(parentCtx, id)
+		if err == nil {
+			nodes = append(nodes, &model.ResultTreeNode{
+				ID:     string(role.Code),
+				PID:    string(role.ParentCode),
+				Title:  role.Name,
+				Value:  role.Code,
+				IsLeaf: len(role.ChildRoles) == 0,
+			})
+		}
+	}
+	writeData(ctx, nodes)
 }
 
 // List 查询列表

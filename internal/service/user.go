@@ -250,3 +250,46 @@ func (u *user) DeleteByIDs(ctx context.Context, ids ...model.ID) (err error) {
 	err = tran.Commit().Error
 	return
 }
+
+// UserUpdateRoleModel ...
+type UserUpdateRoleModel struct {
+	Roles []string `json:"roles"`
+}
+
+// UpdateRole 修改用户角色
+func (u *user) UpdateRole(ctx context.Context, userID model.ID, update *UserUpdateRoleModel) (err error) {
+	var (
+		exist bool
+	)
+	exist, err = dao.User.ExistByID(ctx, userID)
+	if err != nil {
+		return
+	}
+	if !exist {
+		err = errors.ErrUserNotFound
+		return
+	}
+	// TODO: 这地方有待优化
+	tran := store.DB.Begin()
+	ctx = contexts.NewGormTranContext(ctx, tran)
+	defer func() {
+		if err != nil {
+			tran.Rollback()
+		}
+	}()
+	err = dao.UserRole.DeleteByUserID(ctx, userID)
+	if err != nil {
+		return
+	}
+	for _, r := range update.Roles {
+		err = dao.UserRole.Insert(ctx, &model.UserRole{
+			UserID:   userID,
+			RoleCode: model.Code(r),
+		})
+		if err != nil {
+			return
+		}
+	}
+	err = tran.Commit().Error
+	return
+}

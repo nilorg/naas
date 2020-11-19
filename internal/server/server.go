@@ -153,6 +153,9 @@ func RunHTTP() {
 			apiGroup.POST("/users", api.User.Create)
 			apiGroup.PUT("/users/:user_id", api.User.Update)
 			apiGroup.DELETE("/users/:user_id", api.User.Delete)
+			apiGroup.GET("/users/:user_id/organizations", api.User.GetOrganizationList)
+			apiGroup.GET("/users/:user_id/organizations/:organization_id/roles", api.User.GetRoleList)
+			apiGroup.PUT("/users/:user_id/roles", api.User.UpdateRole)
 
 			apiGroup.GET("/roles", api.Role.QueryChildren())
 			apiGroup.GET("/roles/:role_code", api.Role.GetOne)

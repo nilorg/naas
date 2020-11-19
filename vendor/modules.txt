@@ -15,7 +15,7 @@ github.com/aliyun/aliyun-oss-go-sdk/oss
 github.com/appleboy/gin-jwt/v2
 # github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff
 github.com/boj/redistore
-# github.com/casbin/casbin/v2 v2.16.0
+# github.com/casbin/casbin/v2 v2.17.0
 github.com/casbin/casbin/v2
 github.com/casbin/casbin/v2/config
 github.com/casbin/casbin/v2/effect
@@ -70,7 +70,7 @@ github.com/go-playground/locales/currency
 github.com/go-playground/universal-translator
 # github.com/go-playground/validator/v10 v10.2.0
 github.com/go-playground/validator/v10
-# github.com/go-redis/redis/v8 v8.3.3
+# github.com/go-redis/redis/v8 v8.3.4
 github.com/go-redis/redis/v8
 github.com/go-redis/redis/v8/internal
 github.com/go-redis/redis/v8/internal/hashtag

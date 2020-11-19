@@ -143,3 +143,21 @@ func (o *organization) GetOneByID(ctx context.Context, id model.ID) (org *model.
 	org, err = dao.Organization.Select(ctx, id)
 	return
 }
+
+// ListByUserID 根据用户ID查询列表
+func (o *organization) ListByUserID(ctx context.Context, userID model.ID) (list []*model.Organization, err error) {
+	var userOrganization []*model.UserOrganization
+	userOrganization, err = dao.UserOrganization.SelectAllByUserID(ctx, userID)
+	if err != nil {
+		return
+	}
+	for _, uo := range userOrganization {
+		var org *model.Organization
+		org, err = dao.Organization.Select(ctx, uo.OrganizationID)
+		if err != nil {
+			return
+		}
+		list = append(list, org)
+	}
+	return
+}

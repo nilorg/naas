@@ -95,3 +95,44 @@ func scanByCache(ctx context.Context, cacheKey string, table interface{}, values
 	}
 	return
 }
+
+// ExpressionByCacheID ...
+func ExpressionByCacheID(ctx context.Context, cacheKey string, expression *gorm.DB) (items []*model.CacheIDPrimaryKey, err error) {
+	err = expressionByCache(ctx, cacheKey, expression, &items)
+	return
+}
+
+// ExpressionByCacheCode ...
+func ExpressionByCacheCode(ctx context.Context, cacheKey string, expression *gorm.DB) (items []*model.CacheCodePrimaryKey, err error) {
+	err = expressionByCache(ctx, cacheKey, expression, &items)
+	return
+}
+
+// ExpressionByCache ...
+func ExpressionByCache(ctx context.Context, cacheKey string, expression *gorm.DB, values interface{}) (err error) {
+	err = expressionByCache(ctx, cacheKey, expression, values)
+	return
+}
+
+// scanByCache ...
+func expressionByCache(ctx context.Context, cacheKey string, expression *gorm.DB, values interface{}) (err error) {
+	var cache cache.Cacher
+	cache, err = FromCacheContext(ctx)
+	if err != nil {
+		return
+	}
+	err = cache.Get(ctx, cacheKey, values)
+	if err != nil {
+		if err == redis.Nil {
+			if err = expression.Scan(values).Error; err != nil {
+				return
+			}
+			if err = cache.Set(ctx, cacheKey, values, random.TimeDuration(300, 600)); err != nil {
+				return
+			}
+		} else {
+			return
+		}
+	}
+	return
+}

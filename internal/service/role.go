@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nilorg/naas/pkg/errors"
 
@@ -15,14 +16,21 @@ import (
 type role struct {
 }
 
-func (r *role) Recursive(ctx context.Context) []*model.Role {
+func (r *role) Recursive(ctx context.Context, organizationID model.ID) []*model.Role {
 	var (
 		rootRoles []*model.Role
 		err       error
 	)
-	rootRoles, err = dao.Role.SelectByRoot(ctx)
-	if err != nil {
-		logrus.Errorf("dao.Role.SelectByRoot: %s", err)
+	if organizationID == 0 {
+		rootRoles, err = dao.Role.SelectByRoot(ctx)
+		if err != nil {
+			logrus.Errorf("dao.Role.SelectByRoot: %s", err)
+		}
+	} else {
+		rootRoles, err = dao.Role.SelectByRootAndOrganizationID(ctx, organizationID)
+		if err != nil {
+			logrus.Errorf("dao.Role.SelectByRootAndOrganizationID(%v): %s", organizationID, err)
+		}
 	}
 	r.recursive(ctx, rootRoles)
 	return rootRoles
@@ -39,7 +47,7 @@ func (r *role) recursive(ctx context.Context, roles []*model.Role) {
 	for _, role := range roles {
 		childRoles, err = dao.Role.SelectByParentCode(ctx, role.Code)
 		if err != nil {
-			logrus.Errorf("dao.Role.SelectByRoot: %s", err)
+			logrus.Errorf("dao.Role.SelectByParentCode(%v): %s", role.Code, err)
 		}
 		r.recursive(ctx, childRoles)
 		role.ChildRoles = childRoles
@@ -110,7 +118,12 @@ func (r *role) GetOneByCode(ctx context.Context, code model.Code) (role *model.R
 
 // ListByName 根据名称查询列表
 func (r *role) ListByName(ctx context.Context, name string, limit int) (list []*model.Role, err error) {
-	return dao.Role.ListByName(ctx, name, limit)
+	return dao.Role.ListByNameAndOrganizationID(ctx, 0, name, limit)
+}
+
+// ListByNameForOrganization 根据名称查询列表
+func (r *role) ListByNameForOrganization(ctx context.Context, organizationID model.ID, name string, limit int) (list []*model.Role, err error) {
+	return dao.Role.ListByNameAndOrganizationID(ctx, organizationID, name, limit)
 }
 
 func (r *role) ListPaged(ctx context.Context, start, limit int) (result []*model.ResultRole, total int64, err error) {
@@ -131,6 +144,9 @@ func (r *role) ListPaged(ctx context.Context, start, limit int) (result []*model
 		if role.ParentCode != "" {
 			resultRole.ParentRole, _ = dao.Role.SelectByCode(ctx, role.ParentCode)
 		}
+		if role.OrganizationID > 0 {
+			resultRole.Organization, _ = dao.Organization.Select(ctx, role.OrganizationID)
+		}
 		result = append(result, resultRole)
 	}
 	return
@@ -138,16 +154,35 @@ func (r *role) ListPaged(ctx context.Context, start, limit int) (result []*model
 
 // RoleEditModel ...
 type RoleEditModel struct {
-	Code        model.Code `json:"code"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	ParentCode  model.Code `json:"parent_code"`
+	Code           model.Code `json:"code"`
+	Name           string     `json:"name"`
+	Description    string     `json:"description"`
+	ParentCode     model.Code `json:"parent_code"`
+	OrganizationID model.ID   `json:"organization_id"`
 }
 
 // Create 创建权限
 func (r *role) Create(ctx context.Context, create *RoleEditModel) (err error) {
+	if create.ParentCode != "" {
+		var role *model.Role
+		role, err = dao.Role.SelectByCode(ctx, create.ParentCode)
+		if err != nil {
+			return
+		}
+		if role.OrganizationID != create.OrganizationID {
+			err = errors.New("上级权限组织和创建组织不相同")
+			return
+		}
+	}
+
+	var organization *model.Organization
+	organization, err = dao.Organization.Select(ctx, create.OrganizationID)
+	if err != nil {
+		return
+	}
+	createCode := model.Code(fmt.Sprintf("%s_%s", organization.Code, create.Code))
 	var exist bool
-	exist, err = dao.Role.ExistByCode(ctx, create.Code)
+	exist, err = dao.Role.ExistByCode(ctx, createCode)
 	if err != nil {
 		return
 	}
@@ -155,23 +190,13 @@ func (r *role) Create(ctx context.Context, create *RoleEditModel) (err error) {
 		err = errors.ErrRoleCodeExist
 		return
 	}
-	if create.ParentCode != "" {
-		var existParentCode bool
-		existParentCode, err = dao.Role.ExistByCode(ctx, create.ParentCode)
-		if err != nil {
-			return
-		}
-		if !existParentCode {
-			err = errors.ErrRoleNotFound
-			return
-		}
-	}
 	role := &model.Role{
-		Name:        create.Name,
-		Description: create.Description,
-		ParentCode:  create.ParentCode,
+		Name:           create.Name,
+		Description:    create.Description,
+		ParentCode:     create.ParentCode,
+		OrganizationID: create.OrganizationID,
 	}
-	role.Code = create.Code
+	role.Code = createCode
 	err = dao.Role.Insert(ctx, role)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
@@ -189,20 +214,17 @@ func (r *role) Update(ctx context.Context, update *RoleEditModel) (err error) {
 		return
 	}
 	if update.ParentCode != "" {
-		if update.ParentCode == update.Code {
-			err = errors.ErrRoleCurrentAndParentEqual
-			return
-		}
-		var existParentCode bool
-		existParentCode, err = dao.Role.ExistByCode(ctx, update.ParentCode)
+		var parentRole *model.Role
+		parentRole, err = dao.Role.SelectByCode(ctx, update.ParentCode)
 		if err != nil {
 			return
 		}
-		if !existParentCode {
-			err = errors.ErrRoleParentNotExist
+		if role.OrganizationID != parentRole.OrganizationID {
+			err = errors.New("上级权限组织和修改组织不相同")
 			return
 		}
 	}
+
 	role.Name = update.Name
 	role.Description = update.Description
 	role.ParentCode = update.ParentCode
@@ -218,5 +240,23 @@ func (r *role) Update(ctx context.Context, update *RoleEditModel) (err error) {
 // DeleteByCodes 根据Code删除角色
 func (r *role) DeleteByCodes(ctx context.Context, codes ...model.Code) (err error) {
 	err = dao.Role.DeleteInCodes(ctx, codes...)
+	return
+}
+
+// ListByUserIDAndOrganizationID ...
+func (r *role) ListByUserIDAndOrganizationID(ctx context.Context, userID model.ID, organizationID model.ID) (list []*model.Role, err error) {
+	var userRoles []*model.UserRole
+	userRoles, err = dao.UserRole.ListByUserIDAndOrganizationID(ctx, userID, organizationID)
+	if err != nil {
+		return
+	}
+	for _, userRole := range userRoles {
+		var role *model.Role
+		role, err = dao.Role.SelectByCode(ctx, userRole.RoleCode)
+		if err != nil {
+			return
+		}
+		list = append(list, role)
+	}
 	return
 }

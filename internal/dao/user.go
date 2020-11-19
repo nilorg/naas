@@ -25,7 +25,7 @@ type Userer interface {
 	ListPaged(ctx context.Context, start, limit int) (user []*model.User, total int64, err error)
 	ExistByUsername(ctx context.Context, username string) (exist bool, err error)
 	ExistByWxUnionID(ctx context.Context, wxUnionID string) (exist bool, err error)
-	ExistByID(ctx context.Context, id string) (exist bool, err error)
+	ExistByID(ctx context.Context, id model.ID) (exist bool, err error)
 }
 
 type user struct {
@@ -202,6 +202,6 @@ func (u *user) ExistByWxUnionID(ctx context.Context, wxUnionID string) (exist bo
 }
 
 // ExistByID 判断ID是否存在
-func (u *user) ExistByID(ctx context.Context, id string) (exist bool, err error) {
+func (u *user) ExistByID(ctx context.Context, id model.ID) (exist bool, err error) {
 	return u.exist(ctx, "id = ?", id)
 }

@@ -15,9 +15,9 @@ var (
 	User                 Userer
 	UserInfo             UserInfoer
 	Organization         Organizationer
-	OrganizationRole     OrganizationRoleer
 	Role                 Roleer
 	UserRole             UserRoleer
+	UserOrganization     UserOrganizationer
 	RoleResourceWebRoute RoleResourceWebRouter
 )
 
@@ -31,9 +31,9 @@ func Init() {
 	User = &user{cache: cache.NewRedisCache(store.RedisClient, "naas:user:")}
 	UserInfo = &userInfo{cache: cache.NewRedisCache(store.RedisClient, "naas:user_info:")}
 	Organization = &organization{}
-	OrganizationRole = &organizationRole{}
 	Role = &role{}
 	Resource = &resource{cache: cache.NewRedisCache(store.RedisClient, "naas:resource:")}
 	UserRole = &userRole{cache: cache.NewRedisCache(store.RedisClient, "naas:user_role:")}
+	UserOrganization = &userOrganization{cache: cache.NewRedisCache(store.RedisClient, "naas:user_organization:")}
 	RoleResourceWebRoute = &roleResourceWebRoute{}
 }

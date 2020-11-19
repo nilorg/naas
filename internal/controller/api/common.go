@@ -113,8 +113,17 @@ func (*common) SelectRoleList(ctx *gin.Context) {
 		}
 	} else {
 		name := ctx.Query("name")
+		organizationID := model.ConvertStringToID(ctx.Query("organization_id"))
 		limit := convert.ToInt(ctx.Query("limit"))
-		list, err := service.Role.ListByName(parentCtx, name, limit)
+		var (
+			list []*model.Role
+			err  error
+		)
+		if organizationID > 0 {
+			list, err = service.Role.ListByNameForOrganization(parentCtx, organizationID, name, limit)
+		} else {
+			list, err = service.Role.ListByName(parentCtx, name, limit)
+		}
 		if err != nil {
 			writeError(ctx, err)
 		} else {

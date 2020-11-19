@@ -121,17 +121,24 @@ func (*organization) Update(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
-// ListByPaged 查询组织
+// QueryChildren 查询方法
 // @Tags 		Organization（组织）
 // @Summary		查询组织
-// @Description	查询组织翻页数据
+// @Description	recursive:递归获取所有组织
+// @Description	list:查询列表
 // @Accept  json
 // @Produce	json
-// @Param	current		query	int	true	"当前页"
-// @Param	pageSize	query	int	true	"页大小"
+// @Param q query string true "查询参数" Enums(recursive,list)
 // @Success 200	{object}	Result{data=model.TableListData}
+// @Success 200	{object}	Result{data=[]model.Organization}
 // @Router /organizations [GET]
 // @Security OAuth2AccessCode
+func (o *organization) QueryChildren() gin.HandlerFunc {
+	return QueryChildren(map[string]gin.HandlerFunc{
+		"list": o.ListByPaged,
+	})
+}
+
 func (*organization) ListByPaged(ctx *gin.Context) {
 	var (
 		result []*model.ResultOrganization

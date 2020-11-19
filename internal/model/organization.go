@@ -9,15 +9,15 @@ type Organization struct {
 	ParentID    ID     `json:"parent_id" gorm:"column:parent_id"`
 }
 
+// UserOrganization 用户组织
+type UserOrganization struct {
+	Model
+	UserID         ID `json:"user_id" gorm:"column:user_id"`
+	OrganizationID ID `json:"organization_id" gorm:"column:organization_id"`
+}
+
 // ResultOrganization 返回组织信息
 type ResultOrganization struct {
 	Organization       *Organization `json:"organization"`
 	ParentOrganization *Organization `json:"parent_organization"`
-}
-
-// OrganizationRole 组织权限
-type OrganizationRole struct {
-	Model
-	OrganizationID ID   `json:"organization_id" gorm:"column:organization_id"`
-	RoleCode       Code `json:"role_code" gorm:"column:role_code"`
 }

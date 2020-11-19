@@ -17,9 +17,12 @@ import (
 type UserRoleer interface {
 	Insert(ctx context.Context, m *model.UserRole) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteByUserID(ctx context.Context, userID model.ID) (err error)
 	Select(ctx context.Context, id model.ID) (m *model.UserRole, err error)
 	Update(ctx context.Context, m *model.UserRole) (err error)
 	SelectAllByUserID(ctx context.Context, userID model.ID) (m []*model.UserRole, err error)
+	ListByUserIDAndOrganizationID(ctx context.Context, userID model.ID, organizationID model.ID) (list []*model.UserRole, err error)
+	ExistByUserIDAndRoleCode(ctx context.Context, userID model.ID, roleCode model.Code) (exist bool, err error)
 }
 
 type userRole struct {
@@ -32,6 +35,10 @@ func (*userRole) formatOneKey(id model.ID) string {
 
 func (*userRole) formatUserListKey(userID model.ID) string {
 	return fmt.Sprintf("list:user:%d", userID)
+}
+
+func (*userRole) formatUserAndOrgListKey(userID model.ID, orgID model.ID) string {
+	return fmt.Sprintf("list:user:%d:org:%d", userID, orgID)
 }
 
 func (u *userRole) Insert(ctx context.Context, m *model.UserRole) (err error) {
@@ -48,6 +55,16 @@ func (u *userRole) Insert(ctx context.Context, m *model.UserRole) (err error) {
 	return
 }
 
+func (u *userRole) delete(ctx context.Context, query interface{}, args ...interface{}) (err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where(query, args...).Delete(model.UserRole{}).Error
+	return
+}
+
 func (u *userRole) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
@@ -59,6 +76,15 @@ func (u *userRole) Delete(ctx context.Context, id model.ID) (err error) {
 		return
 	}
 	err = u.cache.Remove(ctx, u.formatOneKey(id))
+	return
+}
+
+func (u *userRole) DeleteByUserID(ctx context.Context, userID model.ID) (err error) {
+	err = u.delete(ctx, "user_id = ?", userID)
+	if err != nil {
+		return
+	}
+	err = u.cache.Remove(ctx, u.formatUserListKey(userID))
 	return
 }
 
@@ -152,4 +178,43 @@ func (u *userRole) SelectAllByUserIDFromCache(ctx context.Context, userID model.
 		return
 	}
 	return u.scanCacheID(ctx, items)
+}
+
+func (u *userRole) ListByUserIDAndOrganizationID(ctx context.Context, userID model.ID, organizationID model.ID) (list []*model.UserRole, err error) {
+	var (
+		gdb *gorm.DB
+	)
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	expression := gdb.Table("user_role").Select("user_role.id").Joins("left join role on user_role.role_code = role.code").Where("user_role.user_id = ? and role.organization_id = ?", userID, organizationID)
+	key := u.formatUserAndOrgListKey(userID, organizationID)
+	var items []*model.CacheIDPrimaryKey
+	items, err = store.ExpressionByCacheID(store.NewCacheContext(ctx, u.cache), key, expression)
+	if err != nil {
+		return
+	}
+	return u.scanCacheID(ctx, items)
+}
+
+func (u *userRole) exist(ctx context.Context, query interface{}, args ...interface{}) (exist bool, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	var count int64
+	err = gdb.Model(&model.UserRole{}).Where(query, args...).Count(&count).Error
+	if err != nil {
+		return
+	}
+	if count > 0 {
+		exist = true
+	}
+	return
+}
+
+func (u *userRole) ExistByUserIDAndRoleCode(ctx context.Context, userID model.ID, roleCode model.Code) (exist bool, err error) {
+	return u.exist(ctx, "user_id = ? and role_code = ?", userID, roleCode)
 }

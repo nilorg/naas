@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
@@ -16,10 +17,12 @@ type Roleer interface {
 	DeleteInCodes(ctx context.Context, codes ...model.Code) (err error)
 	SelectByCode(ctx context.Context, code model.Code) (m *model.Role, err error)
 	SelectByRoot(ctx context.Context) (results []*model.Role, err error)
+	SelectByRootAndOrganizationID(ctx context.Context, organizationID model.ID) (results []*model.Role, err error)
 	SelectByParentCode(ctx context.Context, parentCode model.Code) (results []*model.Role, err error)
 	Update(ctx context.Context, m *model.Role) (err error)
 	ListPaged(ctx context.Context, start, limit int) (list []*model.Role, total int64, err error)
-	ListByName(ctx context.Context, name string, limit int) (list []*model.Role, err error)
+	ListPagedByOrganizationID(ctx context.Context, organizationID model.ID, start, limit int) (list []*model.Role, total int64, err error)
+	ListByNameAndOrganizationID(ctx context.Context, organizationID model.ID, name string, limit int) (list []*model.Role, err error)
 	ExistByCode(ctx context.Context, code model.Code) (exist bool, err error)
 }
 
@@ -71,6 +74,16 @@ func (r *role) SelectByRoot(ctx context.Context) (results []*model.Role, err err
 	return
 }
 
+func (r *role) SelectByRootAndOrganizationID(ctx context.Context, organizationID model.ID) (results []*model.Role, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where("(ISNULL(parent_code) OR parent_code = '') and organization_id = ?", organizationID).Find(&results).Error
+	return
+}
+
 func (r *role) SelectByParentCode(ctx context.Context, parentCode model.Code) (results []*model.Role, err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
@@ -103,13 +116,23 @@ func (r *role) ListPaged(ctx context.Context, start, limit int) (list []*model.R
 	return
 }
 
-func (r *role) ListByName(ctx context.Context, name string, limit int) (list []*model.Role, err error) {
+func (r *role) ListByNameAndOrganizationID(ctx context.Context, organizationID model.ID, name string, limit int) (list []*model.Role, err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(&model.Role{}).Where("name like ?", fmt.Sprintf("%%%s%%", name)).Offset(0).Limit(limit).Find(&list).Error
+	var whereSQL strings.Builder
+	var whereValues []interface{}
+
+	whereSQL.WriteString("name like ?")
+	whereValues = append(whereValues, fmt.Sprintf("%%%s%%", name))
+
+	if organizationID > 0 {
+		whereSQL.WriteString("organization_id = ?")
+		whereValues = append(whereValues, organizationID)
+	}
+	err = gdb.Model(&model.Role{}).Where(whereSQL.String(), whereValues...).Offset(0).Limit(limit).Find(&list).Error
 	return
 }
 
@@ -141,5 +164,17 @@ func (r *role) DeleteInCodes(ctx context.Context, codes ...model.Code) (err erro
 		return
 	}
 	err = gdb.Where("code in ?", codes).Delete(model.Role{}).Error
+	return
+}
+
+func (r *role) ListPagedByOrganizationID(ctx context.Context, organizationID model.ID, start, limit int) (list []*model.Role, total int64, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	expression := gdb.Model(&model.Role{}).Where("organization_id = ?", organizationID)
+	expression.Count(&total)
+	err = expression.Offset(start).Limit(limit).Find(&list).Error
 	return
 }
