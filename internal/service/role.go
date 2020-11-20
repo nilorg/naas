@@ -71,15 +71,17 @@ func (r *role) AddResourceWebRoute(ctx context.Context, roleCode model.Code, res
 		err = errors.New("Web Routing conditions exist")
 		return
 	}
+	var resourceWebRoute *model.ResourceWebRoute
+	resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, resourceWebRouteID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
 	err = dao.RoleResourceWebRoute.Insert(ctx, &model.RoleResourceWebRoute{
 		RoleCode:           roleCode,
 		ResourceWebRouteID: resourceWebRouteID,
+		ResourceServerID:   resourceWebRoute.ResourceServerID,
 	})
-	if err != nil {
-		return
-	}
-	var resourceWebRoute *model.ResourceWebRoute
-	resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, resourceWebRouteID)
 	if err != nil {
 		return
 	}

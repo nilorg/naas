@@ -18,6 +18,7 @@ type ResourceWebRouter interface {
 	ListByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceWebRoute, err error)
 	ListInIDs(ctx context.Context, ids ...model.ID) (list []*model.ResourceWebRoute, err error)
 	ListPaged(ctx context.Context, start, limit int) (list []*model.ResourceWebRoute, total int64, err error)
+	ListPagedByResourceServerID(ctx context.Context, start, limit int, resourceServerID model.ID) (list []*model.ResourceWebRoute, total int64, err error)
 }
 
 type resourceWebRoute struct {
@@ -105,6 +106,18 @@ func (r *resourceWebRoute) ListPaged(ctx context.Context, start, limit int) (lis
 		return
 	}
 	expression := gdb.Model(&model.ResourceWebRoute{})
+	expression.Count(&total)
+	err = expression.Offset(start).Limit(limit).Find(&list).Error
+	return
+}
+
+func (r *resourceWebRoute) ListPagedByResourceServerID(ctx context.Context, start, limit int, resourceServerID model.ID) (list []*model.ResourceWebRoute, total int64, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	expression := gdb.Model(&model.ResourceWebRoute{}).Where("resource_server_id = ?", resourceServerID)
 	expression.Count(&total)
 	err = expression.Offset(start).Limit(limit).Find(&list).Error
 	return

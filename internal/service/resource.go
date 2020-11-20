@@ -246,3 +246,26 @@ func (*resource) GetResourceWebRoute(ctx context.Context, resourceWebRouteID mod
 	resource, err = dao.ResourceWebRoute.Select(ctx, resourceWebRouteID)
 	return
 }
+
+// ListWebRoutePagedByRoleCode ...
+func (r *resource) ListWebRoutePagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (result []*model.ResourceWebRoute, total int64, err error) {
+	var (
+		rrwrList []*model.RoleResourceWebRoute
+	)
+	rrwrList, total, err = dao.RoleResourceWebRoute.ListPagedByRoleCode(ctx, start, limit, roleCode)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+		return
+	}
+	for _, rrwr := range rrwrList {
+		var rwr *model.ResourceWebRoute
+		rwr, err = dao.ResourceWebRoute.Select(ctx, rrwr.ResourceWebRouteID)
+		if err != nil {
+			return
+		}
+		result = append(result, rwr)
+	}
+	return
+}

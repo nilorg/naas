@@ -195,6 +195,8 @@ func RunHTTP() {
 			apiGroup.PUT("/organizations/:org_id", api.Organization.Update)
 			apiGroup.DELETE("/organizations/:org_id", api.Organization.Delete)
 
+			apiGroup.GET("/casbin/resource/:resource_server_id/web_routes", api.Casbin.ListResourceWebRoutes)
+			apiGroup.GET("/casbin/role/:role_code/resource/:resource_server_id/web_routes", api.Casbin.ListRoleResourceWebRoutes)
 			apiGroup.GET("/common/select", api.Common.SelectQueryChildren())
 		}
 	}

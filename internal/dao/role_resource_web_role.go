@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
@@ -12,15 +13,23 @@ import (
 type RoleResourceWebRouter interface {
 	Insert(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
+	DeleteByRoleCode(ctx context.Context, roleCode model.Code) (err error)
 	Select(ctx context.Context, id model.ID) (roleResourceWebRoute *model.RoleResourceWebRoute, err error)
 	SelectAll(ctx context.Context) (roleResourceWebRoutes []*model.RoleResourceWebRoute, err error)
 	Update(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error)
 	ExistByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (exist bool, err error)
 	ExistByResourceWebRouteID(ctx context.Context, resourceWebRouteID model.ID) (exist bool, err error)
 	ListByRoleCode(ctx context.Context, roleCode model.Code, limit int) (list []*model.RoleResourceWebRoute, err error)
+	ListPagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (list []*model.RoleResourceWebRoute, total int64, err error)
+	ListPagedByRoleCodeAndResourceServerID(ctx context.Context, start, limit int, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceWebRoute, total int64, err error)
+	ListByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceWebRoute, err error)
 }
 
 type roleResourceWebRoute struct {
+}
+
+func (*roleResourceWebRoute) formatRoleListKey(roleCode model.Code) string {
+	return fmt.Sprintf("list:role:%s", roleCode)
 }
 
 func (*roleResourceWebRoute) Insert(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error) {
@@ -113,5 +122,57 @@ func (r *roleResourceWebRoute) ListByRoleCode(ctx context.Context, roleCode mode
 		exp = exp.Offset(0).Limit(limit)
 	}
 	err = exp.Find(&list).Error
+	return
+}
+
+func (r *roleResourceWebRoute) ListPagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (list []*model.RoleResourceWebRoute, total int64, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	expression := gdb.Model(&model.RoleResourceWebRoute{}).Where("role_code = ?", roleCode)
+	expression.Count(&total)
+	err = expression.Offset(start).Limit(limit).Find(&list).Error
+	return
+}
+
+func (r *roleResourceWebRoute) ListPagedByRoleCodeAndResourceServerID(ctx context.Context, start, limit int, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceWebRoute, total int64, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	expression := gdb.Model(&model.RoleResourceWebRoute{}).Where("role_code = ? and resource_server_id = ?", roleCode, resourceServerID)
+	expression.Count(&total)
+	err = expression.Offset(start).Limit(limit).Find(&list).Error
+	return
+}
+
+func (r *roleResourceWebRoute) ListByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceWebRoute, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Model(&model.RoleResourceWebRoute{}).Where("role_code = ? and resource_server_id = ?", roleCode, resourceServerID).Find(&list).Error
+	return
+}
+
+func (r *roleResourceWebRoute) delete(ctx context.Context, query interface{}, args ...interface{}) (err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	err = gdb.Where(query, args...).Delete(model.RoleResourceWebRoute{}).Error
+	return
+}
+
+func (r *roleResourceWebRoute) DeleteByRoleCode(ctx context.Context, roleCode model.Code) (err error) {
+	err = r.delete(ctx, "role_code = ?", roleCode)
+	if err != nil {
+		return
+	}
 	return
 }

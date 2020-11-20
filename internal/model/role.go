@@ -29,6 +29,7 @@ type RoleResourceWebRoute struct {
 	Model
 	RoleCode           Code `json:"role_code" gorm:"column:role_code"`
 	ResourceWebRouteID ID   `json:"resource_web_route_id" gorm:"column:resource_web_route_id"`
+	ResourceServerID   ID   `json:"resource_server_id" gorm:"column:resource_server_id"`
 }
 
 // ResultRole 角色
