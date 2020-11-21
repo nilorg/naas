@@ -18,6 +18,7 @@ type casbinService struct{}
 
 func (cs *casbinService) InitLoadAllPolicy() {
 	ctx := contexts.WithContext(context.Background())
+	cs.initRoleForUser(ctx)
 	cs.initRoleResourceWebRoute(ctx)
 }
 
@@ -40,7 +41,7 @@ func (*casbinService) initRoleResourceWebRoute(ctx context.Context) {
 			logrus.Errorf("dao.ResourceWebRoute.Select: %s", err)
 			return
 		}
-		sub, dom, obj, act := formatPolicy(roleResourceWebRoute.RoleCode, resourceWebRoute)
+		sub, dom, obj, act := formatWebRoutePolicy(roleResourceWebRoute.RoleCode, resourceWebRoute)
 		flag, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
 		if err != nil {
 			logrus.Errorf("casbin.Enforcer.AddPolicy: %s", err)
@@ -54,11 +55,45 @@ func (*casbinService) initRoleResourceWebRoute(ctx context.Context) {
 	}
 }
 
-func formatPolicy(roleCode model.Code, roleResourceWebRoute *model.ResourceWebRoute) (sub, dom, obj, act string) {
+func (*casbinService) initRoleForUser(ctx context.Context) {
+	var (
+		err       error
+		userRoles []*model.UserRole
+		flag      bool
+	)
+	// 获取所有用户的角色
+	userRoles, err = dao.UserRole.SelectAll(ctx)
+	if err != nil {
+		logrus.Errorf("dao.UserRole.SelectAll: %s", err)
+		return
+	}
+	for _, userRole := range userRoles {
+		user, role, domain := formatRoleForUserInDomain(userRole.UserID, userRole.OrganizationID, userRole.RoleCode)
+		flag, err = casbin.Enforcer.AddRoleForUserInDomain(user, role, domain)
+		if err != nil {
+			logrus.Errorf("casbin.Enforcer.AddRoleForUserInDomain: %s", err)
+			continue
+		}
+		logrus.Infof("casbin.Enforcer.AddRoleForUserInDomain-Flag: %v", flag)
+	}
+	err = casbin.Enforcer.SavePolicy()
+	if err != nil {
+		logrus.Errorf("casbin.Enforcer.SavePolicy: %s", err)
+	}
+}
+
+func formatWebRoutePolicy(roleCode model.Code, roleResourceWebRoute *model.ResourceWebRoute) (sub, dom, obj, act string) {
 	sub = fmt.Sprintf("role:%s", roleCode)                                            // 希望访问资源的用户
 	dom = fmt.Sprintf("resource:%d:web_route", roleResourceWebRoute.ResourceServerID) // 域/域租户,这里以资源为单位
 	obj = roleResourceWebRoute.Path                                                   // 要访问的资源
 	act = roleResourceWebRoute.Method                                                 // 用户对资源执行的操作
+	return
+}
+
+func formatRoleForUserInDomain(userID, organizationID model.ID, roleCode model.Code) (user, role, domain string) {
+	user = fmt.Sprintf("user:%v", userID)
+	role = fmt.Sprintf("role:%v", roleCode)
+	domain = fmt.Sprintf("resource:%v", organizationID)
 	return
 }
 
@@ -120,7 +155,7 @@ func (cs *casbinService) AddResourceWebRoute(ctx context.Context, roleCode model
 			logrus.WithContext(ctx).Errorln(err)
 			return
 		}
-		sub, dom, obj, act := formatPolicy(roleCode, resourceWebRoute)
+		sub, dom, obj, act := formatWebRoutePolicy(roleCode, resourceWebRoute)
 		_, err = casbin.Enforcer.DeletePermission(sub, dom, obj, act)
 		if err != nil {
 			logrus.Errorf("casbin.Enforcer.DeletePermission: %s", err)
@@ -142,7 +177,7 @@ func (cs *casbinService) AddResourceWebRoute(ctx context.Context, roleCode model
 		if err != nil {
 			return
 		}
-		sub, dom, obj, act := formatPolicy(roleCode, resourceWebRoute)
+		sub, dom, obj, act := formatWebRoutePolicy(roleCode, resourceWebRoute)
 		_, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
 		if err != nil {
 			logrus.Errorf("casbin.Enforcer.AddPolicy: %s", err)

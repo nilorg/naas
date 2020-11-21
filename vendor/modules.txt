@@ -381,7 +381,7 @@ gorm.io/driver/mysql
 gorm.io/driver/postgres
 # gorm.io/driver/sqlserver v0.2.4
 gorm.io/driver/sqlserver
-# gorm.io/gorm v1.20.7
+# gorm.io/gorm v1.20.6
 gorm.io/gorm
 gorm.io/gorm/callbacks
 gorm.io/gorm/clause

@@ -20,8 +20,9 @@ type RoleResourceWebFunction struct {
 // UserRole 用户权限
 type UserRole struct {
 	Model
-	UserID   ID   `json:"user_id" gorm:"column:user_id"`
-	RoleCode Code `json:"role_code" gorm:"column:role_code"`
+	UserID         ID   `json:"user_id" gorm:"column:user_id"`
+	RoleCode       Code `json:"role_code" gorm:"column:role_code"`
+	OrganizationID ID   `json:"organization_id" gorm:"column:organization_id"`
 }
 
 // RoleResourceWebRoute 角色资源web路由

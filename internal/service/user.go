@@ -13,6 +13,7 @@ import (
 
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/pkg/errors"
@@ -253,7 +254,8 @@ func (u *user) DeleteByIDs(ctx context.Context, ids ...model.ID) (err error) {
 
 // UserUpdateRoleModel ...
 type UserUpdateRoleModel struct {
-	Roles []string `json:"roles"`
+	Roles          []model.Code `json:"roles"`
+	OrganizationID model.ID     `json:"organization_id"`
 }
 
 // UpdateRole 修改用户角色
@@ -269,7 +271,13 @@ func (u *user) UpdateRole(ctx context.Context, userID model.ID, update *UserUpda
 		err = errors.ErrUserNotFound
 		return
 	}
-	// TODO: 这地方有待优化
+	var routeCodes []model.Code
+	routeCodes, err = dao.UserRole.ListForRoleCodeByUserIDAndOrganizationID(ctx, userID, update.OrganizationID)
+	if err != nil {
+		return
+	}
+	added, deleted := model.DiffCodeSlice(routeCodes, update.Roles)
+
 	tran := store.DB.Begin()
 	ctx = contexts.NewGormTranContext(ctx, tran)
 	defer func() {
@@ -277,15 +285,30 @@ func (u *user) UpdateRole(ctx context.Context, userID model.ID, update *UserUpda
 			tran.Rollback()
 		}
 	}()
-	err = dao.UserRole.DeleteByUserID(ctx, userID)
-	if err != nil {
-		return
+
+	for _, r := range deleted {
+		err = dao.UserRole.DeleteByRoleCodeAndUserIDAndOrganizationID(ctx, r, userID, update.OrganizationID)
+		if err != nil {
+			return
+		}
+		user, role, domain := formatRoleForUserInDomain(userID, update.OrganizationID, r)
+		_, err = casbin.Enforcer.DeleteRoleForUserInDomain(user, role, domain)
+		if err != nil {
+			return
+		}
 	}
-	for _, r := range update.Roles {
+
+	for _, r := range added {
 		err = dao.UserRole.Insert(ctx, &model.UserRole{
-			UserID:   userID,
-			RoleCode: model.Code(r),
+			UserID:         userID,
+			RoleCode:       model.Code(r),
+			OrganizationID: update.OrganizationID,
 		})
+		if err != nil {
+			return
+		}
+		user, role, domain := formatRoleForUserInDomain(userID, update.OrganizationID, r)
+		_, err = casbin.Enforcer.AddRoleForUserInDomain(user, role, domain)
 		if err != nil {
 			return
 		}

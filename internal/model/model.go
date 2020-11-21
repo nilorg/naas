@@ -22,6 +22,14 @@ func ConvertCodeSliceToStringSlice(codes []Code) (v []string) {
 	return v
 }
 
+// ConvertStringSliceToCodeSlice string slice 转 code slice
+func ConvertStringSliceToCodeSlice(codes []string) (v []Code) {
+	for _, code := range codes {
+		v = append(v, Code(code))
+	}
+	return v
+}
+
 // ConvertIDSliceToInt64Slice id slice 转 int64 slice
 func ConvertIDSliceToInt64Slice(ids []ID) (v []int64) {
 	for _, id := range ids {
@@ -50,11 +58,21 @@ func ConvertStringToCode(code string) Code {
 
 // DiffIDSlice ...
 func DiffIDSlice(src []ID, in []ID) (added []ID, deleted []ID) {
-	srcInts := ConvertIDSliceToInt64Slice(src)
-	inInts := ConvertIDSliceToInt64Slice(in)
-	addedInts, deletedInts := diff.IntSlice(srcInts, inInts)
-	added = ConvertInt64SliceToIDSlice(addedInts)
-	deleted = ConvertInt64SliceToIDSlice(deletedInts)
+	srcSlice := ConvertIDSliceToInt64Slice(src)
+	inSlice := ConvertIDSliceToInt64Slice(in)
+	addedSlice, deletedSlice := diff.IntSlice(srcSlice, inSlice)
+	added = ConvertInt64SliceToIDSlice(addedSlice)
+	deleted = ConvertInt64SliceToIDSlice(deletedSlice)
+	return
+}
+
+// DiffCodeSlice ...
+func DiffCodeSlice(src []Code, in []Code) (added []Code, deleted []Code) {
+	srcSlice := ConvertCodeSliceToStringSlice(src)
+	inSlice := ConvertCodeSliceToStringSlice(in)
+	addedSlice, deletedSlice := diff.StringSlice(srcSlice, inSlice)
+	added = ConvertStringSliceToCodeSlice(addedSlice)
+	deleted = ConvertStringSliceToCodeSlice(deletedSlice)
 	return
 }
 

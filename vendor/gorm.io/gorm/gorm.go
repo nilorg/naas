@@ -63,8 +63,7 @@ type DB struct {
 type Session struct {
 	DryRun                 bool
 	PrepareStmt            bool
-	NewDB                  bool
-	SkipHooks              bool
+	WithConditions         bool
 	SkipDefaultTransaction bool
 	AllowGlobalUpdate      bool
 	FullSaveAssociations   bool
@@ -170,17 +169,15 @@ func (db *DB) Session(config *Session) *DB {
 		txConfig.FullSaveAssociations = true
 	}
 
-	if config.Context != nil || config.PrepareStmt || config.SkipHooks {
+	if config.Context != nil {
 		tx.Statement = tx.Statement.clone()
 		tx.Statement.DB = tx
-	}
-
-	if config.Context != nil {
 		tx.Statement.Context = config.Context
 	}
 
 	if config.PrepareStmt {
 		if v, ok := db.cacheStore.Load("preparedStmt"); ok {
+			tx.Statement = tx.Statement.clone()
 			preparedStmt := v.(*PreparedStmtDB)
 			tx.Statement.ConnPool = &PreparedStmtDB{
 				ConnPool: db.Config.ConnPool,
@@ -192,11 +189,7 @@ func (db *DB) Session(config *Session) *DB {
 		}
 	}
 
-	if config.SkipHooks {
-		tx.Statement.SkipHooks = true
-	}
-
-	if !config.NewDB {
+	if config.WithConditions {
 		tx.clone = 2
 	}
 
@@ -217,13 +210,14 @@ func (db *DB) Session(config *Session) *DB {
 
 // WithContext change current instance db's context to ctx
 func (db *DB) WithContext(ctx context.Context) *DB {
-	return db.Session(&Session{Context: ctx})
+	return db.Session(&Session{WithConditions: true, Context: ctx})
 }
 
 // Debug start debug mode
 func (db *DB) Debug() (tx *DB) {
 	return db.Session(&Session{
-		Logger: db.Logger.LogMode(logger.Info),
+		WithConditions: true,
+		Logger:         db.Logger.LogMode(logger.Info),
 	})
 }
 
@@ -292,7 +286,6 @@ func (db *DB) getInstance() *DB {
 				ConnPool: db.Statement.ConnPool,
 				Context:  db.Statement.Context,
 				Clauses:  map[string]clause.Clause{},
-				Vars:     make([]interface{}, 0, 8),
 			}
 		} else {
 			// with clone statement

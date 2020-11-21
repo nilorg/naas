@@ -43,6 +43,7 @@ func (*roleResourceWebRoute) Insert(ctx context.Context, roleResourceWebRoute *m
 	err = gdb.Create(roleResourceWebRoute).Error
 	return
 }
+
 func (*roleResourceWebRoute) Delete(ctx context.Context, id model.ID) (err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
@@ -52,6 +53,7 @@ func (*roleResourceWebRoute) Delete(ctx context.Context, id model.ID) (err error
 	err = gdb.Delete(&model.RoleResourceWebRoute{}, id).Error
 	return
 }
+
 func (*roleResourceWebRoute) Select(ctx context.Context, id model.ID) (roleResourceWebRoute *model.RoleResourceWebRoute, err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
@@ -169,7 +171,7 @@ func (r *roleResourceWebRoute) ListForResourceWebRouteIDByRoleCodeAndResourceSer
 	}
 	// resultResourceWebRouteID ...
 	type resultResourceWebRouteID struct {
-		ResourceWebRouteID model.ID `json:"resource_web_route_id" gorm:"column:resource_web_route_id"`
+		ResourceWebRouteID model.ID `gorm:"column:resource_web_route_id"`
 	}
 
 	var items []*resultResourceWebRouteID

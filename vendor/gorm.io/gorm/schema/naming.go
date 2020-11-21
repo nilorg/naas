@@ -95,7 +95,7 @@ func toDBName(name string) string {
 	if name == "" {
 		return ""
 	} else if v, ok := smap.Load(name); ok {
-		return v.(string)
+		return fmt.Sprint(v)
 	}
 
 	var (
@@ -134,7 +134,6 @@ func toDBName(name string) string {
 	} else {
 		buf.WriteByte(value[len(value)-1])
 	}
-	ret := buf.String()
-	smap.Store(name, ret)
-	return ret
+
+	return buf.String()
 }
