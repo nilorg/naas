@@ -7,6 +7,7 @@ import (
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/casbin"
+	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -80,5 +81,73 @@ func (cs *casbinService) ListRoleResourceWebRouteByRoleCodeAndResourceServerID(c
 			err = nil
 		}
 	}
+	return
+}
+
+// CasbinAddResourceWebRouteModel ...
+type CasbinAddResourceWebRouteModel struct {
+	ResourceWebRouteIDs []model.ID `json:"resource_web_route_ids"`
+	ResourceServerID    model.ID   `json:"resource_server_id"`
+}
+
+// AddResourceWebRoute 添加web路由资源角色
+func (cs *casbinService) AddResourceWebRoute(ctx context.Context, roleCode model.Code, create *CasbinAddResourceWebRouteModel) (err error) {
+	tran := store.DB.Begin()
+	ctx = contexts.NewGormTranContext(ctx, tran)
+	defer func() {
+		if err != nil {
+			tran.Rollback()
+		}
+	}()
+
+	// 查询原有的
+	var ids []model.ID
+	ids, err = dao.RoleResourceWebRoute.ListForResourceWebRouteIDByRoleCodeAndResourceServerID(ctx, roleCode, create.ResourceServerID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	added, deleted := model.DiffIDSlice(ids, create.ResourceWebRouteIDs)
+	for _, resourceWebRouteID := range deleted {
+		var resourceWebRoute *model.ResourceWebRoute
+		resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, resourceWebRouteID)
+		if err != nil {
+			logrus.WithContext(ctx).Errorln(err)
+			return
+		}
+		err = dao.RoleResourceWebRoute.DeleteByRoleCodeAndResourceWebRouteID(ctx, roleCode, resourceWebRouteID)
+		if err != nil {
+			logrus.WithContext(ctx).Errorln(err)
+			return
+		}
+		sub, dom, obj, act := formatPolicy(roleCode, resourceWebRoute)
+		_, err = casbin.Enforcer.DeletePermission(sub, dom, obj, act)
+		if err != nil {
+			logrus.Errorf("casbin.Enforcer.DeletePermission: %s", err)
+			return
+		}
+	}
+	for _, resourceWebRouteID := range added {
+		var resourceWebRoute *model.ResourceWebRoute
+		resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, resourceWebRouteID)
+		if err != nil {
+			logrus.WithContext(ctx).Errorln(err)
+			return
+		}
+		err = dao.RoleResourceWebRoute.Insert(ctx, &model.RoleResourceWebRoute{
+			RoleCode:           roleCode,
+			ResourceWebRouteID: resourceWebRouteID,
+			ResourceServerID:   resourceWebRoute.ResourceServerID,
+		})
+		if err != nil {
+			return
+		}
+		sub, dom, obj, act := formatPolicy(roleCode, resourceWebRoute)
+		_, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
+		if err != nil {
+			logrus.Errorf("casbin.Enforcer.AddPolicy: %s", err)
+		}
+	}
+	err = tran.Commit().Error
 	return
 }

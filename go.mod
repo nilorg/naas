@@ -9,6 +9,7 @@ require (
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/casbin/casbin/v2 v2.17.0
 	github.com/casbin/gorm-adapter/v3 v3.0.3
+	github.com/deckarep/golang-set v1.7.1
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-openapi/swag v0.19.9 // indirect

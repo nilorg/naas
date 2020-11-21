@@ -160,7 +160,6 @@ func RunHTTP() {
 
 			apiGroup.GET("/roles", api.Role.QueryChildren())
 			apiGroup.GET("/roles/:role_code", api.Role.GetOne)
-			apiGroup.POST("/roles/:role_code/resource_web_route/:resource_web_route_id", api.Role.AddResourceWebRoute)
 			apiGroup.POST("/roles", api.Role.Create)
 			apiGroup.PUT("/roles", api.Role.Update)
 			apiGroup.DELETE("/roles", api.Role.Delete)
@@ -197,6 +196,7 @@ func RunHTTP() {
 
 			apiGroup.GET("/casbin/resource/:resource_server_id/web_routes", api.Casbin.ListResourceWebRoutes)
 			apiGroup.GET("/casbin/role/:role_code/resource/:resource_server_id/web_routes", api.Casbin.ListRoleResourceWebRoutes)
+			apiGroup.PUT("/casbin/role/:role_code/resource_web_route", api.Casbin.AddResourceWebRoute)
 			apiGroup.GET("/common/select", api.Common.SelectQueryChildren())
 		}
 	}

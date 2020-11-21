@@ -8,7 +8,6 @@ import (
 
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -57,39 +56,6 @@ func (r *role) recursive(ctx context.Context, roles []*model.Role) {
 // GetAllRoleByUserID ...
 func (r *role) GetAllRoleByUserID(ctx context.Context, userID model.ID) (roles []*model.UserRole, err error) {
 	roles, err = dao.UserRole.SelectAllByUserID(ctx, userID)
-	return
-}
-
-// AddResourceWebRoute 添加web路由资源角色
-func (r *role) AddResourceWebRoute(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (err error) {
-	var exist bool
-	exist, err = dao.RoleResourceWebRoute.ExistByRoleCodeAndResourceWebRouteID(ctx, roleCode, resourceWebRouteID)
-	if err != nil {
-		return
-	}
-	if exist {
-		err = errors.New("Web Routing conditions exist")
-		return
-	}
-	var resourceWebRoute *model.ResourceWebRoute
-	resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, resourceWebRouteID)
-	if err != nil {
-		logrus.WithContext(ctx).Errorln(err)
-		return
-	}
-	err = dao.RoleResourceWebRoute.Insert(ctx, &model.RoleResourceWebRoute{
-		RoleCode:           roleCode,
-		ResourceWebRouteID: resourceWebRouteID,
-		ResourceServerID:   resourceWebRoute.ResourceServerID,
-	})
-	if err != nil {
-		return
-	}
-	sub, dom, obj, act := formatPolicy(roleCode, resourceWebRoute)
-	_, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
-	if err != nil {
-		logrus.Errorf("casbin.Enforcer.AddPolicy: %s", err)
-	}
 	return
 }
 

@@ -84,27 +84,6 @@ func (*role) List(ctx *gin.Context) {
 	writeData(ctx, model.NewTableListData(*pagination, result))
 }
 
-// AddResourceWebRoute 添加资源web路由
-// @Tags 		Role（角色）
-// @Summary		添加资源web路由
-// @Accept  json
-// @Produce	json
-// @Param	role_code		path	string	true	"角色Code"
-// @Param	resource_web_route_id		path	string	true	"资源web路由ID"
-// @Success 200	{object}	Result
-// @Router /roles/{role_code}/resource_web_route/{resource_web_route_id} [POST]
-// @Security OAuth2AccessCode
-func (*role) AddResourceWebRoute(ctx *gin.Context) {
-	roleCode := ctx.Param("role_code")
-	resourceWebRouteID := model.ConvertStringToID(ctx.Param("resource_web_route_id"))
-	err := service.Role.AddResourceWebRoute(contexts.WithGinContext(ctx), model.Code(roleCode), resourceWebRouteID)
-	if err != nil {
-		writeError(ctx, err)
-		return
-	}
-	writeData(ctx, nil)
-}
-
 // Create 创建角色
 // @Tags 		Role（角色）
 // @Summary		创建角色

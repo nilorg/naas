@@ -38,3 +38,31 @@ func (*casbin) ListRoleResourceWebRoutes(ctx *gin.Context) {
 	}
 	writeData(ctx, list)
 }
+
+// AddResourceWebRoute 添加资源web路由
+// @Tags 		Casbin
+// @Summary		添加资源web路由
+// @Accept  json
+// @Produce	json
+// @Param	role_code		path	string	true	"角色Code"
+// @Success 200	{object}	Result
+// @Router /casbin/role/:role_code/resource_web_route [POST]
+// @Security OAuth2AccessCode
+func (*casbin) AddResourceWebRoute(ctx *gin.Context) {
+	roleCode := ctx.Param("role_code")
+	var (
+		req service.CasbinAddResourceWebRouteModel
+		err error
+	)
+	err = ctx.ShouldBindJSON(&req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Casbin.AddResourceWebRoute(contexts.WithGinContext(ctx), model.Code(roleCode), &req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}

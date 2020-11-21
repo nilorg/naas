@@ -14,6 +14,7 @@ type RoleResourceWebRouter interface {
 	Insert(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
 	DeleteByRoleCode(ctx context.Context, roleCode model.Code) (err error)
+	DeleteByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (err error)
 	Select(ctx context.Context, id model.ID) (roleResourceWebRoute *model.RoleResourceWebRoute, err error)
 	SelectAll(ctx context.Context) (roleResourceWebRoutes []*model.RoleResourceWebRoute, err error)
 	Update(ctx context.Context, roleResourceWebRoute *model.RoleResourceWebRoute) (err error)
@@ -23,6 +24,7 @@ type RoleResourceWebRouter interface {
 	ListPagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (list []*model.RoleResourceWebRoute, total int64, err error)
 	ListPagedByRoleCodeAndResourceServerID(ctx context.Context, start, limit int, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceWebRoute, total int64, err error)
 	ListByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceWebRoute, err error)
+	ListForResourceWebRouteIDByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (ids []model.ID, err error)
 }
 
 type roleResourceWebRoute struct {
@@ -159,6 +161,28 @@ func (r *roleResourceWebRoute) ListByRoleCodeAndResourceServerID(ctx context.Con
 	return
 }
 
+func (r *roleResourceWebRoute) ListForResourceWebRouteIDByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (ids []model.ID, err error) {
+	var gdb *gorm.DB
+	gdb, err = contexts.FromGormContext(ctx)
+	if err != nil {
+		return
+	}
+	// resultResourceWebRouteID ...
+	type resultResourceWebRouteID struct {
+		ResourceWebRouteID model.ID `json:"resource_web_route_id" gorm:"column:resource_web_route_id"`
+	}
+
+	var items []*resultResourceWebRouteID
+	err = gdb.Model(&model.RoleResourceWebRoute{}).Where("role_code = ? and resource_server_id = ?", roleCode, resourceServerID).Find(&items).Error
+	if err != nil {
+		return
+	}
+	for _, i := range items {
+		ids = append(ids, i.ResourceWebRouteID)
+	}
+	return
+}
+
 func (r *roleResourceWebRoute) delete(ctx context.Context, query interface{}, args ...interface{}) (err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
@@ -171,6 +195,14 @@ func (r *roleResourceWebRoute) delete(ctx context.Context, query interface{}, ar
 
 func (r *roleResourceWebRoute) DeleteByRoleCode(ctx context.Context, roleCode model.Code) (err error) {
 	err = r.delete(ctx, "role_code = ?", roleCode)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (r *roleResourceWebRoute) DeleteByRoleCodeAndResourceWebRouteID(ctx context.Context, roleCode model.Code, resourceWebRouteID model.ID) (err error) {
+	err = r.delete(ctx, "role_code = ? and resource_web_route_id = ?", roleCode, resourceWebRouteID)
 	if err != nil {
 		return
 	}
