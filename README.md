@@ -30,14 +30,12 @@ Authentication authorization server（认证授权服务器）
      * ✅ 组织
      * ✅ 角色
      * ✅ 用户
-   * ♻️ OAuth2
+   * ✅ OAuth2
      * ✅ 客户端
-     * ♻️ 范围
-   * ❗️ Casbin
-     * ❗️租户
-     * ❗️角色
-     * ❗️访问策略
-   * ❗️ 资源
+     * ✅ 范围
+   * ✅ Casbin
+     * ✅ WEB路由-访问策略
+   * ♻️ 资源
      * ✅ 资源服务器
      * ✅ WEB-路由
      * ❗️WEB-菜单
