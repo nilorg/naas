@@ -15,7 +15,7 @@ github.com/aliyun/aliyun-oss-go-sdk/oss
 github.com/appleboy/gin-jwt/v2
 # github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff
 github.com/boj/redistore
-# github.com/casbin/casbin/v2 v2.17.0
+# github.com/casbin/casbin/v2 v2.17.1
 github.com/casbin/casbin/v2
 github.com/casbin/casbin/v2/config
 github.com/casbin/casbin/v2/effect
@@ -381,7 +381,7 @@ gorm.io/driver/mysql
 gorm.io/driver/postgres
 # gorm.io/driver/sqlserver v0.2.4
 gorm.io/driver/sqlserver
-# gorm.io/gorm v1.20.6
+# gorm.io/gorm v1.20.7
 gorm.io/gorm
 gorm.io/gorm/callbacks
 gorm.io/gorm/clause

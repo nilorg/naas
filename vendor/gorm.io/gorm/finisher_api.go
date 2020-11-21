@@ -21,6 +21,29 @@ func (db *DB) Create(value interface{}) (tx *DB) {
 	return
 }
 
+// CreateInBatches insert the value in batches into database
+func (db *DB) CreateInBatches(value interface{}, batchSize int) (tx *DB) {
+	reflectValue := reflect.Indirect(reflect.ValueOf(value))
+
+	switch reflectValue.Kind() {
+	case reflect.Slice, reflect.Array:
+		tx = db.getInstance()
+		for i := 0; i < reflectValue.Len(); i += batchSize {
+			tx.AddError(tx.Transaction(func(tx *DB) error {
+				ends := i + batchSize
+				if ends > reflectValue.Len() {
+					ends = reflectValue.Len()
+				}
+
+				return tx.Create(reflectValue.Slice(i, ends).Interface()).Error
+			}))
+		}
+	default:
+		return db.Create(value)
+	}
+	return
+}
+
 // Save update value in database, if the value doesn't have primary key, will insert it
 func (db *DB) Save(value interface{}) (tx *DB) {
 	tx = db.getInstance()
@@ -29,7 +52,9 @@ func (db *DB) Save(value interface{}) (tx *DB) {
 	reflectValue := reflect.Indirect(reflect.ValueOf(value))
 	switch reflectValue.Kind() {
 	case reflect.Slice, reflect.Array:
-		tx.Statement.UpdatingColumn = true
+		if _, ok := tx.Statement.Clauses["ON CONFLICT"]; !ok {
+			tx = tx.Clauses(clause.OnConflict{UpdateAll: true})
+		}
 		tx.callbacks.Create().Execute(tx)
 	case reflect.Struct:
 		if err := tx.Statement.Parse(value); err == nil && tx.Statement.Schema != nil {
@@ -53,7 +78,7 @@ func (db *DB) Save(value interface{}) (tx *DB) {
 
 		if tx.Error == nil && tx.RowsAffected == 0 && !tx.DryRun && !selectedUpdate {
 			result := reflect.New(tx.Statement.Schema.ModelType).Interface()
-			if err := tx.Session(&Session{WithConditions: true}).First(result).Error; errors.Is(err, ErrRecordNotFound) {
+			if err := tx.Session(&Session{}).First(result).Error; errors.Is(err, ErrRecordNotFound) {
 				return tx.Create(value)
 			}
 		}
@@ -115,13 +140,18 @@ func (db *DB) Find(dest interface{}, conds ...interface{}) (tx *DB) {
 }
 
 // FindInBatches find records in batches
-func (db *DB) FindInBatches(dest interface{}, batchSize int, fc func(tx *DB, batch int) error) (tx *DB) {
-	tx = db.Session(&Session{WithConditions: true})
-	rowsAffected := int64(0)
-	batch := 0
+func (db *DB) FindInBatches(dest interface{}, batchSize int, fc func(tx *DB, batch int) error) *DB {
+	var (
+		tx = db.Order(clause.OrderByColumn{
+			Column: clause.Column{Table: clause.CurrentTable, Name: clause.PrimaryKey},
+		}).Session(&Session{})
+		queryDB      = tx
+		rowsAffected int64
+		batch        int
+	)
 
 	for {
-		result := tx.Limit(batchSize).Offset(batch * batchSize).Find(dest)
+		result := queryDB.Limit(batchSize).Find(dest)
 		rowsAffected += result.RowsAffected
 		batch++
 
@@ -131,11 +161,15 @@ func (db *DB) FindInBatches(dest interface{}, batchSize int, fc func(tx *DB, bat
 
 		if tx.Error != nil || int(result.RowsAffected) < batchSize {
 			break
+		} else {
+			resultsValue := reflect.Indirect(reflect.ValueOf(dest))
+			primaryValue, _ := result.Statement.Schema.PrioritizedPrimaryField.ValueOf(resultsValue.Index(resultsValue.Len() - 1))
+			queryDB = tx.Clauses(clause.Gt{Column: clause.Column{Table: clause.CurrentTable, Name: clause.PrimaryKey}, Value: primaryValue})
 		}
 	}
 
 	tx.RowsAffected = rowsAffected
-	return
+	return tx
 }
 
 func (tx *DB) assignInterfacesToValue(values ...interface{}) {
@@ -186,7 +220,11 @@ func (tx *DB) assignInterfacesToValue(values ...interface{}) {
 }
 
 func (db *DB) FirstOrInit(dest interface{}, conds ...interface{}) (tx *DB) {
-	if tx = db.First(dest, conds...); errors.Is(tx.Error, ErrRecordNotFound) {
+	queryTx := db.Limit(1).Order(clause.OrderByColumn{
+		Column: clause.Column{Table: clause.CurrentTable, Name: clause.PrimaryKey},
+	})
+
+	if tx = queryTx.Find(dest, conds...); queryTx.RowsAffected == 0 {
 		if c, ok := tx.Statement.Clauses["WHERE"]; ok {
 			if where, ok := c.Expression.(clause.Where); ok {
 				tx.assignInterfacesToValue(where.Exprs)
@@ -197,7 +235,6 @@ func (db *DB) FirstOrInit(dest interface{}, conds ...interface{}) (tx *DB) {
 		if len(tx.Statement.attrs) > 0 {
 			tx.assignInterfacesToValue(tx.Statement.attrs...)
 		}
-		tx.Error = nil
 	}
 
 	// initialize with attrs, conds
@@ -208,9 +245,11 @@ func (db *DB) FirstOrInit(dest interface{}, conds ...interface{}) (tx *DB) {
 }
 
 func (db *DB) FirstOrCreate(dest interface{}, conds ...interface{}) (tx *DB) {
-	if tx = db.First(dest, conds...); errors.Is(tx.Error, ErrRecordNotFound) {
-		tx.Error = nil
+	queryTx := db.Limit(1).Order(clause.OrderByColumn{
+		Column: clause.Column{Table: clause.CurrentTable, Name: clause.PrimaryKey},
+	})
 
+	if tx = queryTx.Find(dest, conds...); queryTx.RowsAffected == 0 {
 		if c, ok := tx.Statement.Clauses["WHERE"]; ok {
 			if where, ok := c.Expression.(clause.Where); ok {
 				tx.assignInterfacesToValue(where.Exprs)
@@ -268,7 +307,7 @@ func (db *DB) Updates(values interface{}) (tx *DB) {
 func (db *DB) UpdateColumn(column string, value interface{}) (tx *DB) {
 	tx = db.getInstance()
 	tx.Statement.Dest = map[string]interface{}{column: value}
-	tx.Statement.UpdatingColumn = true
+	tx.Statement.SkipHooks = true
 	tx.callbacks.Update().Execute(tx)
 	return
 }
@@ -276,7 +315,7 @@ func (db *DB) UpdateColumn(column string, value interface{}) (tx *DB) {
 func (db *DB) UpdateColumns(values interface{}) (tx *DB) {
 	tx = db.getInstance()
 	tx.Statement.Dest = values
-	tx.Statement.UpdatingColumn = true
+	tx.Statement.SkipHooks = true
 	tx.callbacks.Update().Execute(tx)
 	return
 }
@@ -433,7 +472,7 @@ func (db *DB) Transaction(fc func(tx *DB) error, opts ...*sql.TxOptions) (err er
 
 	if committer, ok := db.Statement.ConnPool.(TxCommitter); ok && committer != nil {
 		// nested transaction
-		db.SavePoint(fmt.Sprintf("sp%p", fc))
+		err = db.SavePoint(fmt.Sprintf("sp%p", fc)).Error
 		defer func() {
 			// Make sure to rollback when panic, Block error or Commit error
 			if panicked || err != nil {
@@ -441,7 +480,9 @@ func (db *DB) Transaction(fc func(tx *DB) error, opts ...*sql.TxOptions) (err er
 			}
 		}()
 
-		err = fc(db.Session(&Session{WithConditions: true}))
+		if err == nil {
+			err = fc(db.Session(&Session{}))
+		}
 	} else {
 		tx := db.Begin(opts...)
 
@@ -452,7 +493,9 @@ func (db *DB) Transaction(fc func(tx *DB) error, opts ...*sql.TxOptions) (err er
 			}
 		}()
 
-		err = fc(tx)
+		if err = tx.Error; err == nil {
+			err = fc(tx)
+		}
 
 		if err == nil {
 			err = tx.Commit().Error
@@ -467,7 +510,7 @@ func (db *DB) Transaction(fc func(tx *DB) error, opts ...*sql.TxOptions) (err er
 func (db *DB) Begin(opts ...*sql.TxOptions) *DB {
 	var (
 		// clone statement
-		tx  = db.Session(&Session{WithConditions: true, Context: db.Statement.Context})
+		tx  = db.Session(&Session{Context: db.Statement.Context})
 		opt *sql.TxOptions
 		err error
 	)

@@ -7,7 +7,7 @@ go 1.12
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.4
-	github.com/casbin/casbin/v2 v2.17.0
+	github.com/casbin/casbin/v2 v2.17.1
 	github.com/casbin/gorm-adapter/v3 v3.0.3
 	github.com/deckarep/golang-set v1.7.1
 	github.com/gin-contrib/sessions v0.0.3
@@ -39,5 +39,5 @@ require (
 	google.golang.org/grpc/examples v0.0.0-20200826230536-d31b6710005d // indirect
 	google.golang.org/protobuf v1.25.0
 	gorm.io/driver/mysql v1.0.3
-	gorm.io/gorm v1.20.6
+	gorm.io/gorm v1.20.7
 )
