@@ -2,7 +2,7 @@
 Authentication authorization server（认证授权服务器）
 
 # 功能
-✅ 以实现&emsp;&emsp;♻️ 实现中&emsp;&emsp;❗️待实现
+✅ 已实现&emsp;&emsp;♻️ 实现中&emsp;&emsp;❗️待实现
 
 1. ✅ [OAuth2](https://github.com/nilorg/oauth2)
     * ✅ 授权码模式（Authorization Code）
