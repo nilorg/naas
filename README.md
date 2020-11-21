@@ -20,9 +20,9 @@ Authentication authorization server（认证授权服务器）
    * ✅ Userinfo（用户信息端点）
 3. ♻️ [Swagger](https://github.com/swaggo/gin-swagger)
    * ✅ 集成OAuth2认证
-4. ♻️ [Casbin](https://github.com/casbin/casbin)
-   * ♻️ [RBAC](https://casbin.org/docs/zh-CN/rbac-api)
-   * ♻️ [多租户](https://casbin.org/docs/zh-CN/rbac-with-domains)
+4. ✅ [Casbin](https://github.com/casbin/casbin)
+   * ✅ [RBAC](https://casbin.org/docs/zh-CN/rbac-api)
+   * ✅ [多租户](https://casbin.org/docs/zh-CN/rbac-with-domains)
    * ✅ [自定义naas-casbin-adapter](./pkg/casbin/adapter/adapter.go)
 5. ♻️ [NAAS后台管理系统](https://github.com/nilorg/naas-web)
    * ✅ 集成OAuth2认证
@@ -38,7 +38,7 @@ Authentication authorization server（认证授权服务器）
    * ♻️ 资源
      * ✅ 资源服务器
      * ✅ WEB-路由
-     * ❗️WEB-菜单
+     * ❗️ WEB-菜单
 6. ❗️ 其他
      * ❗️手机验证码登录
      * ❗邮箱验证码登录
