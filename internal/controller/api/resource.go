@@ -177,16 +177,16 @@ func (*resource) AddWebRoute(ctx *gin.Context) {
 // @Security OAuth2AccessCode
 func (*resource) UpdateWebRoute(ctx *gin.Context) {
 	var (
-		org service.ResourceWebRouteEdit
-		err error
+		route service.ResourceWebRouteEdit
+		err   error
 	)
 	id := model.ConvertStringToID(ctx.Param("resource_web_route_id"))
-	err = ctx.ShouldBindJSON(&org)
+	err = ctx.ShouldBindJSON(&route)
 	if err != nil {
 		writeError(ctx, err)
 		return
 	}
-	err = service.Resource.UpdateWebRoute(contexts.WithGinContext(ctx), id, &org)
+	err = service.Resource.UpdateWebRoute(contexts.WithGinContext(ctx), id, &route)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -248,14 +248,139 @@ func (*resource) ListWebRoutePaged(ctx *gin.Context) {
 // @Security OAuth2AccessCode
 func (*resource) GetWebRouteOne(ctx *gin.Context) {
 	var (
-		rwr *model.ResourceWebRoute
-		err error
+		menu *model.ResourceWebRoute
+		err  error
 	)
 	id := model.ConvertStringToID(ctx.Param("resource_web_route_id"))
-	rwr, err = service.Resource.GetResourceWebRoute(contexts.WithGinContext(ctx), id)
+	menu, err = service.Resource.GetResourceWebRoute(contexts.WithGinContext(ctx), id)
 	if err != nil {
 		writeError(ctx, err)
 		return
 	}
-	writeData(ctx, rwr)
+	writeData(ctx, menu)
+}
+
+// ========================
+
+// AddWebMenu 添加web菜单
+// @Tags 		ResourceWebMenu（资源服务器Web路由）
+// @Summary		添加web菜单
+// @Accept  json
+// @Produce	json
+// @Param 	body	body	service.ResourceWebMenuEdit	true	"body"
+// @Success 200	{object}	Result
+// @Router /resource/web_menus [POST]
+// @Security OAuth2AccessCode
+func (*resource) AddWebMenu(ctx *gin.Context) {
+	var (
+		req service.ResourceWebMenuEdit
+		err error
+	)
+	err = ctx.ShouldBindJSON(&req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Resource.AddWebMenu(contexts.WithGinContext(ctx), &req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// UpdateWebMenu 修改资源web菜单
+// @Tags 		ResourceWebMenu（资源服务器Web菜单）
+// @Summary		修改一个资源web菜单
+// @Description	根据资源web菜单ID,修改一个资源web菜单
+// @Accept  json
+// @Produce	json
+// @Param 	resource_web_menu_id	path	string	true	"resource web menu id"
+// @Param 	body	body	service.ResourceWebMenuEdit	true	"Web路由需要修改的信息"
+// @Success 200	{object}	Result
+// @Router /resource/web_routes/:resource_web_menu_id [PUT]
+// @Security OAuth2AccessCode
+func (*resource) UpdateWebMenu(ctx *gin.Context) {
+	var (
+		menu service.ResourceWebMenuEdit
+		err  error
+	)
+	id := model.ConvertStringToID(ctx.Param("resource_web_menu_id"))
+	err = ctx.ShouldBindJSON(&menu)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Resource.UpdateWebMenu(contexts.WithGinContext(ctx), id, &menu)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+func (*resource) DeleteWebMenu(ctx *gin.Context) {
+	var (
+		err error
+	)
+	idsStringSplit := strings.Split(ctx.Query("ids"), ",")
+	var idsUint64Split []model.ID
+	for _, id := range idsStringSplit {
+		idsUint64Split = append(idsUint64Split, model.ConvertStringToID(id))
+	}
+	err = service.Resource.DeleteWebMenu(contexts.WithGinContext(ctx), idsUint64Split...)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// ListWebMenuPaged 查询资源服务器WebMenu
+// @Tags 		ResourceWebMenu（资源服务器Web菜单）
+// @Summary		查询资源服务器Web菜单
+// @Description	查询资源服务器Web菜单翻页数据
+// @Accept  json
+// @Produce	json
+// @Param	current		query	int	true	"当前页"
+// @Param	pageSize	query	int	true	"页大小"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Router /resource/web_menus [GET]
+// @Security OAuth2AccessCode
+func (*resource) ListWebMenuPaged(ctx *gin.Context) {
+	var (
+		result []*model.ResultResourceWebMenu
+		err    error
+	)
+	pagination := model.NewPagination(ctx)
+	result, pagination.Total, err = service.Resource.ListWebMenuPaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, model.NewTableListData(*pagination, result))
+}
+
+// GetWebMenuOne 获取一个Web菜单
+// @Tags 		ResourceWebMenu（资源服务器Web菜单）
+// @Summary		获取一个Web菜单
+// @Description	根据菜单ID,获取一个Web菜单
+// @Accept  json
+// @Produce	json
+// @Param 	resource_web_menu_id	path	string	true	"resource web menu id"
+// @Success 200	{object}	Result
+// @Router /resource/web_routes/{resource_web_menu_id} [GET]
+// @Security OAuth2AccessCode
+func (*resource) GetWebMenuOne(ctx *gin.Context) {
+	var (
+		menu *model.ResourceWebMenu
+		err  error
+	)
+	id := model.ConvertStringToID(ctx.Param("resource_web_menu_id"))
+	menu, err = service.Resource.GetResourceWebMenu(contexts.WithGinContext(ctx), id)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, menu)
 }

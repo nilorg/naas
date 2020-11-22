@@ -8,6 +8,9 @@ import (
 
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/casbin"
+	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -61,15 +64,15 @@ func (r *role) GetAllRoleByUserID(ctx context.Context, userID model.ID) (roles [
 
 // ListResourceWebRouteByRoleCode 根据RoleCode获取资源服务器Web路由
 func (r *role) ListResourceWebRouteByRoleCode(ctx context.Context, roleCode model.Code, limit int) (list []*model.ResourceWebRoute, err error) {
-	var rrwrList []*model.RoleResourceWebRoute
-	rrwrList, err = dao.RoleResourceWebRoute.ListByRoleCode(ctx, roleCode, limit)
+	var rrwrList []*model.RoleResourceRelation
+	rrwrList, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCode(ctx, model.RoleResourceRelationTypeWebRoute, roleCode, limit)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 		return
 	}
 	var ids []model.ID
 	for _, rrwr := range rrwrList {
-		ids = append(ids, rrwr.ResourceWebRouteID)
+		ids = append(ids, rrwr.RelationID)
 	}
 	list, err = dao.ResourceWebRoute.ListInIDs(ctx, ids...)
 	if err != nil {
@@ -226,5 +229,82 @@ func (r *role) ListByUserIDAndOrganizationID(ctx context.Context, userID model.I
 		}
 		list = append(list, role)
 	}
+	return
+}
+
+// AddRoleResourceRelation 添加角色资源关系
+func (r *role) AddRoleResourceRelation(
+	ctx context.Context,
+	roleCode model.Code,
+	relationType model.RoleResourceRelationType,
+	resourceServerID model.ID,
+	relationIDs ...model.ID,
+) (err error) {
+	tran := store.DB.Begin()
+	ctx = contexts.NewGormTranContext(ctx, tran)
+	defer func() {
+		if err != nil {
+			tran.Rollback()
+		}
+	}()
+
+	// 查询原有的
+	var ids []model.ID
+	ids, err = dao.RoleResourceRelation.ListForRelationIDByRelationTypeAndRoleCodeAndResourceServerID(ctx, relationType, roleCode, resourceServerID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	added, deleted := model.DiffIDSlice(ids, relationIDs)
+	for _, relationID := range deleted {
+		err = dao.RoleResourceRelation.DeleteByRelationTypeAndRoleCodeAndRelationID(ctx, relationType, roleCode, relationID)
+		if err != nil {
+			logrus.WithContext(ctx).Errorln(err)
+			return
+		}
+
+		if relationType == model.RoleResourceRelationTypeWebRoute {
+			var resourceWebRoute *model.ResourceWebRoute
+			resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, relationID)
+			if err != nil {
+				logrus.WithContext(ctx).Errorln(err)
+				return
+			}
+			sub, dom, obj, act := formatWebRoutePolicy(roleCode, resourceWebRoute)
+			_, casbinErr := casbin.Enforcer.DeletePermission(sub, dom, obj, act)
+			if casbinErr != nil {
+				logrus.Errorf("casbin.Enforcer.DeletePermission: %s", casbinErr)
+			}
+		}
+	}
+	for _, relationID := range added {
+		err = dao.RoleResourceRelation.Insert(ctx, &model.RoleResourceRelation{
+			RoleCode:         roleCode,
+			RelationID:       relationID,
+			ResourceServerID: resourceServerID,
+			RelationType:     relationType,
+		})
+		if err != nil {
+			return
+		}
+		if relationType == model.RoleResourceRelationTypeWebRoute {
+			var resourceWebRoute *model.ResourceWebRoute
+			resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, relationID)
+			if err != nil {
+				logrus.WithContext(ctx).Errorln(err)
+				return
+			}
+			if resourceWebRoute.ResourceServerID != resourceServerID {
+				err = errors.New("Web路由的资源服务器ID不匹配")
+				return
+			}
+			sub, dom, obj, act := formatWebRoutePolicy(roleCode, resourceWebRoute)
+			_, casbinErr := casbin.Enforcer.AddPolicy(sub, dom, obj, act)
+			if casbinErr != nil {
+				logrus.Errorf("casbin.Enforcer.AddPolicy: %s", casbinErr)
+			}
+		}
+	}
+	err = tran.Commit().Error
 	return
 }

@@ -20,3 +20,10 @@ type ResultResourceWebRoute struct {
 	ResourceServer   *Resource         `json:"resource_server"`
 	ResourceWebRoute *ResourceWebRoute `json:"resource_web_route"`
 }
+
+// ResultResourceWebMenu 返回资源服务器中的Web菜单
+type ResultResourceWebMenu struct {
+	ResourceServer        *Resource        `json:"resource_server"`
+	ResourceWebMenu       *ResourceWebMenu `json:"resource_web_menu"`
+	ParentResourceWebMenu *ResourceWebMenu `json:"parent_resource_web_menu"`
+}

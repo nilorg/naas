@@ -35,10 +35,11 @@ Authentication authorization server（认证授权服务器）
      * ✅ 范围
    * ✅ Casbin
      * ✅ WEB路由-访问策略
+     * ❗️ WEB菜单-访问策略
    * ♻️ 资源
      * ✅ 资源服务器
      * ✅ WEB-路由
-     * ❗️ WEB-菜单
+     * ✅ WEB-菜单
 6. ❗️ 其他
      * ❗️手机验证码登录
      * ❗邮箱验证码登录

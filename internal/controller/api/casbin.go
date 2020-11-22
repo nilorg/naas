@@ -26,7 +26,7 @@ func (*casbin) ListResourceWebRoutes(ctx *gin.Context) {
 }
 func (*casbin) ListRoleResourceWebRoutes(ctx *gin.Context) {
 	var (
-		list []*model.RoleResourceWebRoute
+		list []*model.RoleResourceRelation
 		err  error
 	)
 	roleCode := model.ConvertStringToCode(ctx.Param("role_code"))
@@ -46,7 +46,7 @@ func (*casbin) ListRoleResourceWebRoutes(ctx *gin.Context) {
 // @Produce	json
 // @Param	role_code		path	string	true	"角色Code"
 // @Success 200	{object}	Result
-// @Router /casbin/role/:role_code/resource_web_route [POST]
+// @Router /casbin/role/:role_code/resource_web_routes [POST]
 // @Security OAuth2AccessCode
 func (*casbin) AddResourceWebRoute(ctx *gin.Context) {
 	roleCode := ctx.Param("role_code")
@@ -60,6 +60,34 @@ func (*casbin) AddResourceWebRoute(ctx *gin.Context) {
 		return
 	}
 	err = service.Casbin.AddResourceWebRoute(contexts.WithGinContext(ctx), model.Code(roleCode), &req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// AddResourceWebMenu 添加资源web菜单
+// @Tags 		Casbin
+// @Summary		添加资源web菜单
+// @Accept  json
+// @Produce	json
+// @Param	role_code		path	string	true	"角色Code"
+// @Success 200	{object}	Result
+// @Router /casbin/role/:role_code/resource_web_menus [POST]
+// @Security OAuth2AccessCode
+func (*casbin) AddResourceWebMenu(ctx *gin.Context) {
+	roleCode := ctx.Param("role_code")
+	var (
+		req service.CasbinAddResourceWebMenuModel
+		err error
+	)
+	err = ctx.ShouldBindJSON(&req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Casbin.AddResourceWebMenu(contexts.WithGinContext(ctx), model.Code(roleCode), &req)
 	if err != nil {
 		writeError(ctx, err)
 		return

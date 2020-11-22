@@ -169,11 +169,17 @@ func RunHTTP() {
 			apiGroup.POST("/resource/servers", api.Resource.CreateServer)
 			apiGroup.PUT("/resource/servers/:resource_server_id", api.Resource.UpdateServer)
 			apiGroup.DELETE("/resource/servers", api.Resource.DeleteServer)
+
 			apiGroup.GET("/resource/web_routes", api.Resource.ListWebRoutePaged)
 			apiGroup.POST("/resource/web_routes", api.Resource.AddWebRoute)
 			apiGroup.PUT("/resource/web_routes/:resource_web_route_id", api.Resource.UpdateWebRoute)
 			apiGroup.DELETE("/resource/web_routes", api.Resource.DeleteWebRoute)
 			apiGroup.GET("/resource/web_routes/:resource_web_route_id", api.Resource.GetWebRouteOne)
+			apiGroup.GET("/resource/web_menus", api.Resource.ListWebMenuPaged)
+			apiGroup.POST("/resource/web_menus", api.Resource.AddWebMenu)
+			apiGroup.PUT("/resource/web_menus/:resource_web_menu_id", api.Resource.UpdateWebMenu)
+			apiGroup.DELETE("/resource/web_menus", api.Resource.DeleteWebMenu)
+			apiGroup.GET("/resource/web_menus/:resource_web_menu_id", api.Resource.GetWebMenuOne)
 
 			apiGroup.POST("/files", api.File.Upload)
 
@@ -196,8 +202,11 @@ func RunHTTP() {
 
 			apiGroup.GET("/casbin/resource/:resource_server_id/web_routes", api.Casbin.ListResourceWebRoutes)
 			apiGroup.GET("/casbin/role/:role_code/resource/:resource_server_id/web_routes", api.Casbin.ListRoleResourceWebRoutes)
-			apiGroup.PUT("/casbin/role/:role_code/resource_web_route", api.Casbin.AddResourceWebRoute)
+			apiGroup.PUT("/casbin/role/:role_code/resource_web_routes", api.Casbin.AddResourceWebRoute)
+			apiGroup.PUT("/casbin/role/:role_code/resource_web_menus", api.Casbin.AddResourceWebMenu)
+
 			apiGroup.GET("/common/select", api.Common.SelectQueryChildren())
+			apiGroup.GET("/common/tree", api.Common.TreeQueryChildren())
 		}
 	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080

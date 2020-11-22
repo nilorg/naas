@@ -191,11 +191,11 @@ func (u *userRole) listForRoleCodeByUserID(ctx context.Context, userID model.ID)
 	if err != nil {
 		return
 	}
-	// resultResourceWebRouteID ...
-	type resultResourceWebRouteID struct {
+	// result ...
+	type result struct {
 		RouteCode model.Code `gorm:"column:route_code"`
 	}
-	var items []*resultResourceWebRouteID
+	var items []*result
 	err = gdb.Model(model.UserRole{}).Where("user_id = ?", userID).Find(&items).Error
 	if err != nil {
 		return

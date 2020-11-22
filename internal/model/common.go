@@ -1,5 +1,7 @@
 package model
 
+import "github.com/nilorg/sdk/convert"
+
 // ResultSelect 返回select
 type ResultSelect struct {
 	Value interface{} `json:"value"`
@@ -23,6 +25,23 @@ func RecursiveRoleToTreeSelect(roles []*Role) (treeSelects []*ResultTreeSelect) 
 		treeSelect.Value = role.Code
 		if len(role.ChildRoles) > 0 {
 			treeSelect.Children = RecursiveRoleToTreeSelect(role.ChildRoles)
+		} else {
+			treeSelect.Children = make([]*ResultTreeSelect, 0)
+		}
+		treeSelects = append(treeSelects, treeSelect)
+	}
+	return
+}
+
+// RecursiveResourceWebMenuToTreeSelect 递归web菜单转tree select
+func RecursiveResourceWebMenuToTreeSelect(menus []*ResourceWebMenu) (treeSelects []*ResultTreeSelect) {
+	for _, menu := range menus {
+		treeSelect := new(ResultTreeSelect)
+		treeSelect.Title = menu.Name
+		treeSelect.Key = convert.ToString(menu.ID)
+		treeSelect.Value = menu.ID
+		if len(menu.ChildResourceWebMenus) > 0 {
+			treeSelect.Children = RecursiveResourceWebMenuToTreeSelect(menu.ChildResourceWebMenus)
 		} else {
 			treeSelect.Children = make([]*ResultTreeSelect, 0)
 		}

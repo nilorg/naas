@@ -12,13 +12,14 @@ var (
 	OAuth2Scope          OAuth2Scoper
 	Resource             Resourcer
 	ResourceWebRoute     ResourceWebRouter
+	ResourceWebMenu      ResourceWebMenuer
 	User                 Userer
 	UserInfo             UserInfoer
 	Organization         Organizationer
 	Role                 Roleer
 	UserRole             UserRoleer
 	UserOrganization     UserOrganizationer
-	RoleResourceWebRoute RoleResourceWebRouter
+	RoleResourceRelation RoleResourceRelationer
 )
 
 // Init 初始化...
@@ -28,6 +29,7 @@ func Init() {
 	OAuth2ClientScope = &oauth2ClientScope{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_client_scope:")}
 	OAuth2Scope = &oauth2Scope{cache: cache.NewRedisCache(store.RedisClient, "naas:oauth2_scope:")}
 	ResourceWebRoute = &resourceWebRoute{}
+	ResourceWebMenu = &resourceWebMenu{}
 	User = &user{cache: cache.NewRedisCache(store.RedisClient, "naas:user:")}
 	UserInfo = &userInfo{cache: cache.NewRedisCache(store.RedisClient, "naas:user_info:")}
 	Organization = &organization{}
@@ -35,5 +37,5 @@ func Init() {
 	Resource = &resource{cache: cache.NewRedisCache(store.RedisClient, "naas:resource:")}
 	UserRole = &userRole{cache: cache.NewRedisCache(store.RedisClient, "naas:user_role:")}
 	UserOrganization = &userOrganization{cache: cache.NewRedisCache(store.RedisClient, "naas:user_organization:")}
-	RoleResourceWebRoute = &roleResourceWebRoute{}
+	RoleResourceRelation = &roleResourceRelation{}
 }

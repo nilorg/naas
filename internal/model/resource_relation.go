@@ -9,6 +9,20 @@ type ResourceWebRoute struct {
 	ResourceServerID ID     `json:"resource_server_id"`
 }
 
+// ResourceWebMenu 资源Web菜单
+type ResourceWebMenu struct {
+	Model
+	Name                  string             `json:"name" gorm:"column:name"`
+	URL                   string             `json:"url" gorm:"column:url"`
+	Icon                  string             `json:"icon" gorm:"column:icon"`
+	Level                 int                `json:"level" gorm:"column:level"` // 等级、菜单深度
+	SerialNumber          int                `json:"serial_number" gorm:"column:serial_number"`
+	Leaf                  bool               `json:"leaf" gorm:"column:leaf"` // 是：子组件，否：是父组件
+	ParentID              ID                 `json:"parent_id" gorm:"column:parent_id"`
+	ResourceServerID      ID                 `json:"resource_server_id" gorm:"column:resource_server_id"`
+	ChildResourceWebMenus []*ResourceWebMenu `json:"child_resource_web_menus" gorm:"-"`
+}
+
 const (
 	// WebComponentTypeInput ...
 	WebComponentTypeInput = "input"
@@ -25,11 +39,6 @@ type ResourceWebComponent struct {
 	Description string `json:"description" gorm:"column:description"`
 	Extension   string `json:"extension" gorm:"column:extension"`
 }
-
-const (
-	// WebFunctionTypeMenu ...
-	WebFunctionTypeMenu = "menu"
-)
 
 // ResourceWebFunction web功能
 type ResourceWebFunction struct {

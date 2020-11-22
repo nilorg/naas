@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
@@ -29,6 +31,24 @@ func (c *common) SelectQueryChildren() gin.HandlerFunc {
 		"resource_server": c.SelectResourceServerList,
 		"role":            c.SelectRoleList,
 		"oauth2_scope":    c.SelectOAuth2ScopeList,
+	})
+}
+
+// TreeQueryChildren 查询方法
+// @Tags 		Common（通用）
+// @Summary		查询角色
+// @Description	resource_web_menu:web菜单
+// @Description	xxxx:其他
+// @Accept  json
+// @Produce	json
+// @Param q query string true "查询参数" Enums(resource_web_menu,xxxx)
+// @Param pageSize query int true "页大小"
+// @Success 200	{object}	Result{data=model.ResultSelect}
+// @Router /common/tree [GET]
+// @Security OAuth2AccessCode
+func (c *common) TreeQueryChildren() gin.HandlerFunc {
+	return QueryChildren(map[string]gin.HandlerFunc{
+		"resource_web_menu": c.TreeResourceWebMenu,
 	})
 }
 
@@ -160,4 +180,16 @@ func (*common) SelectOAuth2ScopeList(ctx *gin.Context) {
 		}
 		writeData(ctx, results)
 	}
+}
+
+// TreeResourceWebMenu web菜单Tree
+func (*common) TreeResourceWebMenu(ctx *gin.Context) {
+	resourceServerID := model.ConvertStringToID(ctx.Query("resource_server_id"))
+	if resourceServerID <= 0 {
+		writeError(ctx, errors.New("请输入资源服务器ID"))
+		return
+	}
+	menus := service.Resource.RecursiveResourceWebMenu(contexts.WithGinContext(ctx), resourceServerID)
+	tree := model.RecursiveResourceWebMenuToTreeSelect(menus)
+	writeData(ctx, tree)
 }
