@@ -94,3 +94,33 @@ func (*casbin) AddResourceWebMenu(ctx *gin.Context) {
 	}
 	writeData(ctx, nil)
 }
+
+func (*casbin) ListResourceWebMenus(ctx *gin.Context) {
+	var (
+		list []*model.ResourceWebMenu
+		err  error
+	)
+	resourceServerID := model.ConvertStringToID(ctx.Param("resource_server_id"))
+	pagination := model.NewPagination(ctx)
+	list, pagination.Total, err = service.Casbin.ListResourceWebMenuPagedByResourceServerID(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit(), resourceServerID)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, model.NewTableListData(*pagination, list))
+}
+
+func (*casbin) ListRoleResourceWebMenus(ctx *gin.Context) {
+	var (
+		list []*model.RoleResourceRelation
+		err  error
+	)
+	roleCode := model.ConvertStringToCode(ctx.Param("role_code"))
+	resourceServerID := model.ConvertStringToID(ctx.Param("resource_server_id"))
+	list, err = service.Casbin.ListRoleResourceWebMenuByRoleCodeAndResourceServerID(contexts.WithGinContext(ctx), roleCode, resourceServerID)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, list)
+}

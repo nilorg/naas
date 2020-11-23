@@ -151,3 +151,25 @@ func (cs *casbinService) AddResourceWebMenu(ctx context.Context, roleCode model.
 	err = Role.AddRoleResourceRelation(ctx, roleCode, model.RoleResourceRelationTypeWebMenu, create.ResourceServerID, create.ResourceWebMenuIDs...)
 	return
 }
+
+// ListResourceWebMenuPagedByResourceServerID ...
+func (cs *casbinService) ListResourceWebMenuPagedByResourceServerID(ctx context.Context, start, limit int, resourceServerID model.ID) (list []*model.ResourceWebMenu, total int64, err error) {
+	list, total, err = dao.ResourceWebMenu.ListPagedByResourceServerID(ctx, start, limit, resourceServerID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+	}
+	return
+}
+
+// ListRoleResourceWebMenuByRoleCodeAndResourceServerID ...
+func (cs *casbinService) ListRoleResourceWebMenuByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceRelation, err error) {
+	list, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCodeAndResourceServerID(ctx, model.RoleResourceRelationTypeWebMenu, roleCode, resourceServerID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+	}
+	return
+}

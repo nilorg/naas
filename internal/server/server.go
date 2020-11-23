@@ -203,6 +203,10 @@ func RunHTTP() {
 			apiGroup.GET("/casbin/resource/:resource_server_id/web_routes", api.Casbin.ListResourceWebRoutes)
 			apiGroup.GET("/casbin/role/:role_code/resource/:resource_server_id/web_routes", api.Casbin.ListRoleResourceWebRoutes)
 			apiGroup.PUT("/casbin/role/:role_code/resource_web_routes", api.Casbin.AddResourceWebRoute)
+
+			apiGroup.GET("/casbin/resource/:resource_server_id/web_menus", api.Casbin.ListResourceWebMenus)
+			apiGroup.GET("/casbin/role/:role_code/resource/:resource_server_id/web_menus", api.Casbin.ListRoleResourceWebMenus)
+
 			apiGroup.PUT("/casbin/role/:role_code/resource_web_menus", api.Casbin.AddResourceWebMenu)
 
 			apiGroup.GET("/common/select", api.Common.SelectQueryChildren())
