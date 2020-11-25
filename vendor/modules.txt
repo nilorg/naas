@@ -184,6 +184,9 @@ github.com/mitchellh/mapstructure
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
+# github.com/nilorg/geetest v1.0.0
+github.com/nilorg/geetest/gt3
+github.com/nilorg/geetest/pkg/util
 # github.com/nilorg/oauth2 v0.3.0
 github.com/nilorg/oauth2
 # github.com/nilorg/pkg v0.0.0-20200923011256-287aac349757

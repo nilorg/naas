@@ -213,6 +213,12 @@ func RunHTTP() {
 			apiGroup.GET("/common/tree", api.Common.TreeQueryChildren())
 		}
 	}
+	if viper.GetBool("geetest.enabled") {
+		geetestGroup := r.Group("/geetest")
+		{
+			geetestGroup.GET("/register", oauth2.GeetestRegister)
+		}
+	}
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
 }
 

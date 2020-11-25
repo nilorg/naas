@@ -1,15 +1,19 @@
 package oauth2
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/geetest/gt3"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/geetest"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 // LoginPage 登录页面
@@ -34,8 +38,10 @@ func LoginPage(ctx *gin.Context) {
 		})
 		return
 	}
+	geetestEnabled := viper.GetBool("geetest.enabled")
 	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"client_info": clientInfo,
+		"client_info":     clientInfo,
+		"geetest_enabled": geetestEnabled,
 	})
 }
 
@@ -56,6 +62,35 @@ func Login(ctx *gin.Context) {
 
 	session := sessions.Default(ctx)
 	session.Set(key.SessionAccount, suser)
+
+	if viper.GetBool("geetest.enabled") {
+		challenge := ctx.PostForm(gt3.GeetestChallenge)
+		seccode := ctx.PostForm(gt3.GeetestSeccode)
+		status := session.Get(gt3.GeetestServerStatusSessionKey)
+		if status == nil {
+			SetErrorMessage(ctx, "未找到极验验证授权信息")
+			ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
+			return
+		} else if status.(int) == 1 {
+			var res *gt3.ValidateResponse
+			res, err = geetest.GeetestClient.Validate(challenge, seccode)
+			if err != nil {
+				SetErrorMessage(ctx, err.Error())
+				ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
+				return
+			}
+			fmt.Printf("gt3.ValidateResponse: %+v\n", res)
+			if res.Seccode == "false" {
+				SetErrorMessage(ctx, "验证码未通过")
+				ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
+			}
+		} else {
+			err = SetErrorMessage(ctx, "极验验证授权状态错误")
+			ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
+			return
+		}
+	}
+
 	err = session.Save()
 	if err != nil {
 		logrus.Errorf("Login-Success-session.Save: %s", err)
