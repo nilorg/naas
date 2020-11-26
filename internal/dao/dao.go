@@ -20,6 +20,7 @@ var (
 	UserRole             UserRoleer
 	UserOrganization     UserOrganizationer
 	RoleResourceRelation RoleResourceRelationer
+	ResourceAction       ResourceActioner
 )
 
 // Init 初始化...
@@ -38,4 +39,5 @@ func Init() {
 	UserRole = &userRole{cache: cache.NewRedisCache(store.RedisClient, "naas:user_role:")}
 	UserOrganization = &userOrganization{cache: cache.NewRedisCache(store.RedisClient, "naas:user_organization:")}
 	RoleResourceRelation = &roleResourceRelation{}
+	ResourceAction = &resourceAction{}
 }

@@ -23,36 +23,12 @@ type ResourceWebMenu struct {
 	ChildResourceWebMenus []*ResourceWebMenu `json:"child_resource_web_menus" gorm:"-"`
 }
 
-const (
-	// WebComponentTypeInput ...
-	WebComponentTypeInput = "input"
-	// WebComponentTypeButton ...
-	WebComponentTypeButton = "button"
-)
-
-// ResourceWebComponent web组件
-type ResourceWebComponent struct {
+// ResourceAction web组件
+type ResourceAction struct {
 	Model
-	Name        string `json:"name" gorm:"column:name"`
-	Type        string `json:"type" gorm:"column:type"`
-	TypeValue   string `json:"type_value" gorm:"column:type_value"`
-	Description string `json:"description" gorm:"column:description"`
-	Extension   string `json:"extension" gorm:"column:extension"`
-}
-
-// ResourceWebFunction web功能
-type ResourceWebFunction struct {
-	Model
-	Name        string                 `json:"name" gorm:"column:name"`
-	Type        string                 `json:"type" gorm:"column:type"`
-	Description string                 `json:"description" gorm:"column:description"`
-	Components  []ResourceWebComponent `json:"components" gorm:"-"`
-	Extension   string                 `json:"extension" gorm:"column:extension"`
-}
-
-// ResourceWebFunctionComponent web功能中的组件
-type ResourceWebFunctionComponent struct {
-	Model
-	FunctionID  ID `json:"function_id" gorm:"column:function_id"`
-	ComponentID ID `json:"component_id" gorm:"column:component_id"`
+	Code             Code   `json:"code" gorm:"column:code"`
+	Name             string `json:"name" gorm:"column:name"`
+	Group            string `json:"group" gorm:"column:group"`
+	Description      string `json:"description" gorm:"column:description"`
+	ResourceServerID ID     `json:"resource_server_id" gorm:"column:resource_server_id"`
 }

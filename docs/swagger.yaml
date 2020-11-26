@@ -183,6 +183,19 @@ definitions:
       parent_id:
         type: integer
     type: object
+  service.ResourceActionEdit:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      group:
+        type: string
+      name:
+        type: string
+      resource_server_id:
+        type: integer
+    type: object
   service.ResourceEditModel:
     properties:
       description:
@@ -957,6 +970,128 @@ paths:
       summary: 修改一个组织
       tags:
       - Organization（组织）
+  /resource/actions:
+    get:
+      description: 查询资源服务器动作翻页数据
+      parameters:
+      - description: 当前页
+        in: query
+        name: current
+        required: true
+        type: integer
+      - description: 页大小
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 查询资源服务器动作
+      tags:
+      - ResourceAction（资源动作）
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceActionEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加动作
+      tags:
+      - ResourceAction（资源动作）
+  /resource/actions/{resource_action_id}:
+    delete:
+      description: 根据资源动作ID,修改一个资源动作
+      parameters:
+      - description: resource action id
+        in: path
+        name: resource_action_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 删除一个资源动作
+      tags:
+      - ResourceAction（资源动作）
+    get:
+      consumes:
+      - application/json
+      description: 根据菜单ID,获取一个动作
+      parameters:
+      - description: resource action id
+        in: path
+        name: resource_action_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个动作
+      tags:
+      - ResourceAction（资源动作）
+    put:
+      description: 根据资源动作ID,修改一个资源动作
+      parameters:
+      - description: resource action id
+        in: path
+        name: resource_action_id
+        required: true
+        type: string
+      - description: 资源动作需要修改的信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceActionEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个资源动作
+      tags:
+      - ResourceAction（资源动作）
   /resource/servers:
     get:
       consumes:
@@ -1118,7 +1253,7 @@ paths:
       - OAuth2AccessCode: []
       summary: 添加web菜单
       tags:
-      - ResourceWebMenu（资源服务器Web路由）
+      - ResourceWebRoute（资源服务器Web路由）
   /resource/web_routes:
     get:
       consumes:
@@ -1175,6 +1310,26 @@ paths:
       tags:
       - ResourceWebRoute（资源服务器Web路由）
   /resource/web_routes/{resource_web_menu_id}:
+    delete:
+      description: 根据资源web菜单ID,修改一个资源web菜单
+      parameters:
+      - description: resource web menu id
+        in: path
+        name: resource_web_menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 删除一个资源web菜单
+      tags:
+      - ResourceWebMenu（资源服务器Web菜单）
     get:
       consumes:
       - application/json
@@ -1198,8 +1353,6 @@ paths:
       tags:
       - ResourceWebMenu（资源服务器Web菜单）
     put:
-      consumes:
-      - application/json
       description: 根据资源web菜单ID,修改一个资源web菜单
       parameters:
       - description: resource web menu id
@@ -1226,6 +1379,28 @@ paths:
       tags:
       - ResourceWebMenu（资源服务器Web菜单）
   /resource/web_routes/{resource_web_route_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据资源web路由ID,删除一个资源web路由
+      parameters:
+      - description: resource web route id
+        in: path
+        name: resource_web_route_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 删除一个资源web路由
+      tags:
+      - ResourceWebRoute（资源服务器Web路由）
     get:
       consumes:
       - application/json

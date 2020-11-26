@@ -1148,6 +1148,205 @@ var doc = `{
                 }
             }
         },
+        "/resource/actions": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "查询资源服务器动作翻页数据",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceAction（资源动作）"
+                ],
+                "summary": "查询资源服务器动作",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "当前页",
+                        "name": "current",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceAction（资源动作）"
+                ],
+                "summary": "添加动作",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceActionEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/actions/{resource_action_id}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据菜单ID,获取一个动作",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceAction（资源动作）"
+                ],
+                "summary": "获取一个动作",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource action id",
+                        "name": "resource_action_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源动作ID,修改一个资源动作",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceAction（资源动作）"
+                ],
+                "summary": "修改一个资源动作",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource action id",
+                        "name": "resource_action_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "资源动作需要修改的信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceActionEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源动作ID,修改一个资源动作",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceAction（资源动作）"
+                ],
+                "summary": "删除一个资源动作",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource action id",
+                        "name": "resource_action_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
         "/resource/servers": {
             "get": {
                 "security": [
@@ -1390,7 +1589,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ResourceWebMenu（资源服务器Web路由）"
+                    "ResourceWebRoute（资源服务器Web路由）"
                 ],
                 "summary": "添加web菜单",
                 "parameters": [
@@ -1549,9 +1748,6 @@ var doc = `{
                     }
                 ],
                 "description": "根据资源web菜单ID,修改一个资源web菜单",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1575,6 +1771,38 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/service.ResourceWebMenuEdit"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源web菜单ID,修改一个资源web菜单",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebMenu（资源服务器Web菜单）"
+                ],
+                "summary": "删除一个资源web菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource web menu id",
+                        "name": "resource_web_menu_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1656,6 +1884,41 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/service.ResourceWebRouteEdit"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源web路由ID,删除一个资源web路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebRoute（资源服务器Web路由）"
+                ],
+                "summary": "删除一个资源web路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource web route id",
+                        "name": "resource_web_route_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2529,6 +2792,26 @@ var doc = `{
                     "type": "string"
                 },
                 "parent_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.ResourceActionEdit": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "resource_server_id": {
                     "type": "integer"
                 }
             }

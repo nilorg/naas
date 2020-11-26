@@ -27,3 +27,9 @@ type ResultResourceWebMenu struct {
 	ResourceWebMenu       *ResourceWebMenu `json:"resource_web_menu"`
 	ParentResourceWebMenu *ResourceWebMenu `json:"parent_resource_web_menu"`
 }
+
+// ResultResourceAction 返回资源服务器中的动作
+type ResultResourceAction struct {
+	ResourceServer *Resource       `json:"resource_server"`
+	ResourceAction *ResourceAction `json:"resource_action"`
+}

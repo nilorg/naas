@@ -500,3 +500,170 @@ func (r *resource) recursiveResourceWebMenu(ctx context.Context, webMenus []*mod
 		webMenu.ChildResourceWebMenus = childWebMenus
 	}
 }
+
+// ================
+
+// ResourceActionEdit ...
+type ResourceActionEdit struct {
+	Code             model.Code `json:"code"`
+	Name             string     `json:"name"`
+	Group            string     `json:"group"`
+	Description      string     `json:"description"`
+	ResourceServerID model.ID   `json:"resource_server_id"`
+}
+
+// AddAction 添加动作
+func (*resource) AddAction(ctx context.Context, req *ResourceActionEdit) (err error) {
+	var resourceExist bool
+	resourceExist, err = dao.Resource.ExistByID(ctx, req.ResourceServerID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	if !resourceExist {
+		err = errors.ErrResourceNotFound
+		return
+	}
+	codeExist := false
+	codeExist, err = dao.ResourceAction.ExistByCode(ctx, req.Code)
+	if err != nil {
+		return
+	}
+	if codeExist {
+		err = errors.New("资源动作Code已存在")
+		return
+	}
+
+	v := &model.ResourceAction{
+		Code:             req.Code,
+		Name:             req.Name,
+		Group:            req.Group,
+		Description:      req.Description,
+		ResourceServerID: req.ResourceServerID,
+	}
+	err = dao.ResourceAction.Insert(ctx, v)
+	return
+}
+
+// UpdateAction 修改动作
+func (*resource) UpdateAction(ctx context.Context, resourceActionID model.ID, req *ResourceActionEdit) (err error) {
+	var resourceExist bool
+	resourceExist, err = dao.Resource.ExistByID(ctx, req.ResourceServerID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	if !resourceExist {
+		err = errors.ErrResourceNotFound
+		return
+	}
+
+	var action *model.ResourceAction
+	action, err = dao.ResourceAction.Select(ctx, resourceActionID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	if action.Code != req.Code {
+		a, aerr := dao.ResourceAction.SelectByCode(ctx, req.Code)
+		if aerr != nil {
+			if !errors.Is(aerr, gorm.ErrRecordNotFound) {
+				err = aerr
+				return
+			}
+		} else {
+			if a.ID != action.ID {
+				err = errors.New("动作Code已被使用")
+				return
+			}
+		}
+	}
+
+	action.Code = req.Code
+	action.Name = req.Name
+	action.Group = req.Group
+	action.Description = req.Description
+	action.ResourceServerID = req.ResourceServerID
+	err = dao.ResourceAction.Update(ctx, action)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+	}
+	return
+}
+
+// DeleteAction 删除动作
+func (*resource) DeleteAction(ctx context.Context, resourceActionIDs ...model.ID) (err error) {
+	// 验证动作是否被使用，如果被使用不能删除
+	for _, resourceActionID := range resourceActionIDs {
+		var exist bool
+		exist, err = dao.RoleResourceRelation.ExistByRelationTypeAndRelationID(ctx, model.RoleResourceRelationTypeAction, resourceActionID)
+		if err != nil {
+			logrus.WithContext(ctx).Errorln(err)
+			return
+		}
+		if exist {
+			err = errors.New("资源已被使用不能删除")
+			return
+		}
+	}
+	err = dao.ResourceAction.DeleteInIDs(ctx, resourceActionIDs...)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+	}
+	return
+}
+
+// ListActionByResourceID 根据资源服务器ID获取动作
+func (r *resource) ListActionByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceAction, err error) {
+	return dao.ResourceAction.ListByResourceServerID(ctx, resourceID, limit)
+}
+
+// ListActionPaged ...
+func (r *resource) ListActionPaged(ctx context.Context, start, limit int) (list []*model.ResultResourceAction, total int64, err error) {
+	var actionList []*model.ResourceAction
+	actionList, total, err = dao.ResourceAction.ListPaged(ctx, start, limit)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+	}
+	for _, action := range actionList {
+		resultAction := &model.ResultResourceAction{
+			ResourceAction: action,
+		}
+		if action.ResourceServerID > 0 {
+			resultAction.ResourceServer, _ = dao.Resource.Select(ctx, action.ResourceServerID)
+		}
+		list = append(list, resultAction)
+	}
+	return
+}
+
+// GetResourceAction resource action
+func (*resource) GetResourceAction(ctx context.Context, resourceActionID model.ID) (resource *model.ResourceAction, err error) {
+	resource, err = dao.ResourceAction.Select(ctx, resourceActionID)
+	return
+}
+
+// ListActionPagedByRoleCode ...
+func (r *resource) ListActionPagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (result []*model.ResourceAction, total int64, err error) {
+	var (
+		relationList []*model.RoleResourceRelation
+	)
+	relationList, total, err = dao.RoleResourceRelation.ListPagedByRelationTypeAndRoleCode(ctx, start, limit, model.RoleResourceRelationTypeAction, roleCode)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+		return
+	}
+	for _, relation := range relationList {
+		var action *model.ResourceAction
+		action, err = dao.ResourceAction.Select(ctx, relation.RelationID)
+		if err != nil {
+			return
+		}
+		result = append(result, action)
+	}
+	return
+}

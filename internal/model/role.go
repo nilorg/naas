@@ -33,6 +33,8 @@ var (
 	RoleResourceRelationTypeWebRoute RoleResourceRelationType = 1
 	// RoleResourceRelationTypeWebMenu web菜单
 	RoleResourceRelationTypeWebMenu RoleResourceRelationType = 2
+	// RoleResourceRelationTypeAction 动作
+	RoleResourceRelationTypeAction RoleResourceRelationType = 3
 )
 
 // RoleResourceRelation 角色资源关系表

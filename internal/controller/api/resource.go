@@ -194,6 +194,16 @@ func (*resource) UpdateWebRoute(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// UpdateWebRoute 删除资源web路由
+// @Tags 		ResourceWebRoute（资源服务器Web路由）
+// @Summary		删除一个资源web路由
+// @Description	根据资源web路由ID,删除一个资源web路由
+// @Accept  json
+// @Produce	json
+// @Param 	resource_web_route_id	path	string	true	"resource web route id"
+// @Success 200	{object}	Result
+// @Router /resource/web_routes/{resource_web_route_id} [DELETE]
+// @Security OAuth2AccessCode
 func (*resource) DeleteWebRoute(ctx *gin.Context) {
 	var (
 		err error
@@ -263,7 +273,7 @@ func (*resource) GetWebRouteOne(ctx *gin.Context) {
 // ========================
 
 // AddWebMenu 添加web菜单
-// @Tags 		ResourceWebMenu（资源服务器Web路由）
+// @Tags 		ResourceWebRoute（资源服务器Web路由）
 // @Summary		添加web菜单
 // @Accept  json
 // @Produce	json
@@ -293,7 +303,6 @@ func (*resource) AddWebMenu(ctx *gin.Context) {
 // @Tags 		ResourceWebMenu（资源服务器Web菜单）
 // @Summary		修改一个资源web菜单
 // @Description	根据资源web菜单ID,修改一个资源web菜单
-// @Accept  json
 // @Produce	json
 // @Param 	resource_web_menu_id	path	string	true	"resource web menu id"
 // @Param 	body	body	service.ResourceWebMenuEdit	true	"Web路由需要修改的信息"
@@ -319,6 +328,15 @@ func (*resource) UpdateWebMenu(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// UpdateWebMenu 删除资源web菜单
+// @Tags 		ResourceWebMenu（资源服务器Web菜单）
+// @Summary		删除一个资源web菜单
+// @Description	根据资源web菜单ID,修改一个资源web菜单
+// @Produce	json
+// @Param 	resource_web_menu_id	path	string	true	"resource web menu id"
+// @Success 200	{object}	Result
+// @Router /resource/web_routes/{resource_web_menu_id} [DELETE]
+// @Security OAuth2AccessCode
 func (*resource) DeleteWebMenu(ctx *gin.Context) {
 	var (
 		err error
@@ -383,4 +401,136 @@ func (*resource) GetWebMenuOne(ctx *gin.Context) {
 		return
 	}
 	writeData(ctx, menu)
+}
+
+// ========================
+
+// AddAction 添加动作
+// @Tags 		ResourceAction（资源动作）
+// @Summary		添加动作
+// @Accept  json
+// @Produce	json
+// @Param 	body	body	service.ResourceActionEdit	true	"body"
+// @Success 200	{object}	Result
+// @Router /resource/actions [POST]
+// @Security OAuth2AccessCode
+func (*resource) AddAction(ctx *gin.Context) {
+	var (
+		req service.ResourceActionEdit
+		err error
+	)
+	err = ctx.ShouldBindJSON(&req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Resource.AddAction(contexts.WithGinContext(ctx), &req)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// UpdateAction 修改动作
+// @Tags 		ResourceAction（资源动作）
+// @Summary		修改一个资源动作
+// @Description	根据资源动作ID,修改一个资源动作
+// @Produce	json
+// @Param 	resource_action_id	path	string	true	"resource action id"
+// @Param 	body	body	service.ResourceActionEdit	true	"资源动作需要修改的信息"
+// @Success 200	{object}	Result
+// @Router /resource/actions/{resource_action_id} [PUT]
+// @Security OAuth2AccessCode
+func (*resource) UpdateAction(ctx *gin.Context) {
+	var (
+		action service.ResourceActionEdit
+		err    error
+	)
+	id := model.ConvertStringToID(ctx.Param("resource_action_id"))
+	err = ctx.ShouldBindJSON(&action)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	err = service.Resource.UpdateAction(contexts.WithGinContext(ctx), id, &action)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// DeleteAction 删除资源动作
+// @Tags 		ResourceAction（资源动作）
+// @Summary		删除一个资源动作
+// @Description	根据资源动作ID,修改一个资源动作
+// @Produce	json
+// @Param 	resource_action_id	path	string	true	"resource action id"
+// @Success 200	{object}	Result
+// @Router /resource/actions/{resource_action_id} [DELETE]
+// @Security OAuth2AccessCode
+func (*resource) DeleteAction(ctx *gin.Context) {
+	var (
+		err error
+	)
+	idsStringSplit := strings.Split(ctx.Query("ids"), ",")
+	var idsUint64Split []model.ID
+	for _, id := range idsStringSplit {
+		idsUint64Split = append(idsUint64Split, model.ConvertStringToID(id))
+	}
+	err = service.Resource.DeleteAction(contexts.WithGinContext(ctx), idsUint64Split...)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, nil)
+}
+
+// ListActionPaged 查询资源服务器动作
+// @Tags 		ResourceAction（资源动作）
+// @Summary		查询资源服务器动作
+// @Description	查询资源服务器动作翻页数据
+// @Produce	json
+// @Param	current		query	int	true	"当前页"
+// @Param	pageSize	query	int	true	"页大小"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Router /resource/actions [GET]
+// @Security OAuth2AccessCode
+func (*resource) ListActionPaged(ctx *gin.Context) {
+	var (
+		list []*model.ResultResourceAction
+		err  error
+	)
+	pagination := model.NewPagination(ctx)
+	list, pagination.Total, err = service.Resource.ListActionPaged(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit())
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, model.NewTableListData(*pagination, list))
+}
+
+// GetActionOne 获取一个动作
+// @Tags 		ResourceAction（资源动作）
+// @Summary		获取一个动作
+// @Description	根据菜单ID,获取一个动作
+// @Accept  json
+// @Produce	json
+// @Param 	resource_action_id	path	string	true	"resource action id"
+// @Success 200	{object}	Result
+// @Router /resource/actions/{resource_action_id} [GET]
+// @Security OAuth2AccessCode
+func (*resource) GetActionOne(ctx *gin.Context) {
+	var (
+		action *model.ResourceAction
+		err    error
+	)
+	id := model.ConvertStringToID(ctx.Param("resource_action_id"))
+	action, err = service.Resource.GetResourceAction(contexts.WithGinContext(ctx), id)
+	if err != nil {
+		writeError(ctx, err)
+		return
+	}
+	writeData(ctx, action)
 }

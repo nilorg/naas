@@ -111,9 +111,7 @@ func initMySQL() {
 		&model.Resource{},
 		&model.ResourceWebRoute{},
 		&model.ResourceWebMenu{},
-		&model.ResourceWebFunction{},
-		&model.ResourceWebComponent{},
-		&model.ResourceWebFunctionComponent{},
+		&model.ResourceAction{},
 	)
 }
 

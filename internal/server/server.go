@@ -181,6 +181,12 @@ func RunHTTP() {
 			apiGroup.DELETE("/resource/web_menus", api.Resource.DeleteWebMenu)
 			apiGroup.GET("/resource/web_menus/:resource_web_menu_id", api.Resource.GetWebMenuOne)
 
+			apiGroup.GET("/resource/actions", api.Resource.ListActionPaged)
+			apiGroup.POST("/resource/actions", api.Resource.AddAction)
+			apiGroup.PUT("/resource/actions/:resource_action_id", api.Resource.UpdateAction)
+			apiGroup.DELETE("/resource/actions", api.Resource.DeleteAction)
+			apiGroup.GET("/resource/actions/:resource_action_id", api.Resource.GetActionOne)
+
 			apiGroup.POST("/files", api.File.Upload)
 
 			apiGroup.GET("/oauth2/clients", api.OAuth2.ClientListByPaged)
