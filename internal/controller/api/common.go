@@ -39,17 +39,17 @@ func (c *common) SelectQueryChildren() gin.HandlerFunc {
 // TreeQueryChildren 查询方法
 // @Tags 		Common（通用）
 // @Summary		查询角色
-// @Description	resource_web_menu:web菜单
+// @Description	resource_menu:菜单
 // @Accept  json
 // @Produce	json
-// @Param q query string true "查询参数" Enums(resource_web_menu)
+// @Param q query string true "查询参数" Enums(resource_menu)
 // @Param pageSize query int true "页大小"
 // @Success 200	{object}	Result{data=model.ResultSelect}
 // @Router /common/tree [GET]
 // @Security OAuth2AccessCode
 func (c *common) TreeQueryChildren() gin.HandlerFunc {
 	return QueryChildren(map[string]gin.HandlerFunc{
-		"resource_web_menu": c.TreeResourceWebMenu,
+		"resource_menu": c.TreeResourceMenu,
 	})
 }
 
@@ -183,14 +183,14 @@ func (*common) SelectOAuth2ScopeList(ctx *gin.Context) {
 	}
 }
 
-// TreeResourceWebMenu web菜单Tree
-func (*common) TreeResourceWebMenu(ctx *gin.Context) {
+// TreeResourceMenu 菜单Tree
+func (*common) TreeResourceMenu(ctx *gin.Context) {
 	resourceServerID := model.ConvertStringToID(ctx.Query("resource_server_id"))
 	if resourceServerID <= 0 {
 		writeError(ctx, errors.New("请输入资源服务器ID"))
 		return
 	}
-	menus := service.Resource.RecursiveResourceWebMenu(contexts.WithGinContext(ctx), resourceServerID)
-	tree := model.RecursiveResourceWebMenuToTreeSelect(menus)
+	menus := service.Resource.RecursiveResourceMenu(contexts.WithGinContext(ctx), resourceServerID)
+	tree := model.RecursiveResourceMenuToTreeSelect(menus)
 	writeData(ctx, tree)
 }

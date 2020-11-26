@@ -10,23 +10,23 @@ import (
 type casbin struct {
 }
 
-// ListResourceWebRoutes 获取资源服务器Web路由
+// ListResourceRoutes 获取资源服务器路由
 // @Tags 		Casbin
-// @Summary		获取资源服务器Web路由翻页列表
+// @Summary		获取资源服务器路由翻页列表
 // @Accept  json
 // @Produce	json
 // @Param 	resource_server_id	path	string	true	"resource server id"
 // @Success 200	{object}	Result{data=model.TableListData}
-// @Router /casbin/resource/{resource_server_id}/web_routes [GET]
+// @Router /casbin/resource/{resource_server_id}/routes [GET]
 // @Security OAuth2AccessCode
-func (*casbin) ListResourceWebRoutes(ctx *gin.Context) {
+func (*casbin) ListResourceRoutes(ctx *gin.Context) {
 	var (
-		list []*model.ResourceWebRoute
+		list []*model.ResourceRoute
 		err  error
 	)
 	resourceServerID := model.ConvertStringToID(ctx.Param("resource_server_id"))
 	pagination := model.NewPagination(ctx)
-	list, pagination.Total, err = service.Casbin.ListResourceWebRoutePagedByResourceServerID(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit(), resourceServerID)
+	list, pagination.Total, err = service.Casbin.ListResourceRoutePagedByResourceServerID(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit(), resourceServerID)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -34,24 +34,24 @@ func (*casbin) ListResourceWebRoutes(ctx *gin.Context) {
 	writeData(ctx, model.NewTableListData(*pagination, list))
 }
 
-// ListRoleResourceWebRoutes 根据角色获取资源服务器Web路由
+// ListRoleResourceRoutes 根据角色获取资源服务器路由
 // @Tags 		Casbin
-// @Summary		根据角色获取资源服务器Web路由翻页列表
+// @Summary		根据角色获取资源服务器路由翻页列表
 // @Accept  json
 // @Produce	json
 // @Param 	role_code	path	string	true	"role code"
 // @Param 	resource_server_id	path	string	true	"resource server id"
 // @Success 200	{object}	Result{data=model.TableListData}
-// @Router /casbin/role/{role_code}/resource/{resource_server_id}/web_routes [GET]
+// @Router /casbin/role/{role_code}/resource/{resource_server_id}/routes [GET]
 // @Security OAuth2AccessCode
-func (*casbin) ListRoleResourceWebRoutes(ctx *gin.Context) {
+func (*casbin) ListRoleResourceRoutes(ctx *gin.Context) {
 	var (
 		list []*model.RoleResourceRelation
 		err  error
 	)
 	roleCode := model.ConvertStringToCode(ctx.Param("role_code"))
 	resourceServerID := model.ConvertStringToID(ctx.Param("resource_server_id"))
-	list, err = service.Casbin.ListRoleResourceWebRouteByRoleCodeAndResourceServerID(contexts.WithGinContext(ctx), roleCode, resourceServerID)
+	list, err = service.Casbin.ListRoleResourceRouteByRoleCodeAndResourceServerID(contexts.WithGinContext(ctx), roleCode, resourceServerID)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -59,19 +59,19 @@ func (*casbin) ListRoleResourceWebRoutes(ctx *gin.Context) {
 	writeData(ctx, list)
 }
 
-// AddResourceWebRoute 添加资源web路由
+// AddResourceRoute 添加资源路由
 // @Tags 		Casbin
-// @Summary		添加资源web路由
+// @Summary		添加资源路由
 // @Accept  json
 // @Produce	json
 // @Param	role_code		path	string	true	"角色Code"
 // @Success 200	{object}	Result
-// @Router /casbin/role/{role_code}/resource_web_routes [PUT]
+// @Router /casbin/role/{role_code}/resource_routes [PUT]
 // @Security OAuth2AccessCode
-func (*casbin) AddResourceWebRoute(ctx *gin.Context) {
+func (*casbin) AddResourceRoute(ctx *gin.Context) {
 	roleCode := ctx.Param("role_code")
 	var (
-		req service.CasbinAddResourceWebRouteModel
+		req service.CasbinAddResourceRouteModel
 		err error
 	)
 	err = ctx.ShouldBindJSON(&req)
@@ -79,7 +79,7 @@ func (*casbin) AddResourceWebRoute(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.Casbin.AddResourceWebRoute(contexts.WithGinContext(ctx), model.Code(roleCode), &req)
+	err = service.Casbin.AddResourceRoute(contexts.WithGinContext(ctx), model.Code(roleCode), &req)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -89,19 +89,19 @@ func (*casbin) AddResourceWebRoute(ctx *gin.Context) {
 
 // ===============
 
-// AddResourceWebMenu 添加资源web菜单
+// AddResourceMenu 添加资源菜单
 // @Tags 		Casbin
-// @Summary		添加资源web菜单
+// @Summary		添加资源菜单
 // @Accept  json
 // @Produce	json
 // @Param	role_code		path	string	true	"角色Code"
 // @Success 200	{object}	Result
-// @Router /casbin/role/{role_code}/resource_web_menus [PUT]
+// @Router /casbin/role/{role_code}/resource_menus [PUT]
 // @Security OAuth2AccessCode
-func (*casbin) AddResourceWebMenu(ctx *gin.Context) {
+func (*casbin) AddResourceMenu(ctx *gin.Context) {
 	roleCode := ctx.Param("role_code")
 	var (
-		req service.CasbinAddResourceWebMenuModel
+		req service.CasbinAddResourceMenuModel
 		err error
 	)
 	err = ctx.ShouldBindJSON(&req)
@@ -109,7 +109,7 @@ func (*casbin) AddResourceWebMenu(ctx *gin.Context) {
 		writeError(ctx, err)
 		return
 	}
-	err = service.Casbin.AddResourceWebMenu(contexts.WithGinContext(ctx), model.Code(roleCode), &req)
+	err = service.Casbin.AddResourceMenu(contexts.WithGinContext(ctx), model.Code(roleCode), &req)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -117,23 +117,23 @@ func (*casbin) AddResourceWebMenu(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
-// ListResourceWebMenus 获取资源服务器Web菜单
+// ListResourceMenus 获取资源服务器菜单
 // @Tags 		Casbin
-// @Summary		获取资源服务器Web菜单翻页列表
+// @Summary		获取资源服务器菜单翻页列表
 // @Accept  json
 // @Produce	json
 // @Param 	resource_server_id	path	string	true	"resource server id"
 // @Success 200	{object}	Result{data=model.TableListData}
-// @Router /casbin/resource/{resource_server_id}/web_menus [GET]
+// @Router /casbin/resource/{resource_server_id}/menus [GET]
 // @Security OAuth2AccessCode
-func (*casbin) ListResourceWebMenus(ctx *gin.Context) {
+func (*casbin) ListResourceMenus(ctx *gin.Context) {
 	var (
-		list []*model.ResourceWebMenu
+		list []*model.ResourceMenu
 		err  error
 	)
 	resourceServerID := model.ConvertStringToID(ctx.Param("resource_server_id"))
 	pagination := model.NewPagination(ctx)
-	list, pagination.Total, err = service.Casbin.ListResourceWebMenuPagedByResourceServerID(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit(), resourceServerID)
+	list, pagination.Total, err = service.Casbin.ListResourceMenuPagedByResourceServerID(contexts.WithGinContext(ctx), pagination.GetSkip(), pagination.GetLimit(), resourceServerID)
 	if err != nil {
 		writeError(ctx, err)
 		return
@@ -141,24 +141,24 @@ func (*casbin) ListResourceWebMenus(ctx *gin.Context) {
 	writeData(ctx, model.NewTableListData(*pagination, list))
 }
 
-// ListRoleResourceWebMenus 根据角色获取资源服务器Web菜单
+// ListRoleResourceMenus 根据角色获取资源服务器菜单
 // @Tags 		Casbin
-// @Summary		根据角色获取资源服务器Web菜单翻页列表
+// @Summary		根据角色获取资源服务器菜单翻页列表
 // @Accept  json
 // @Produce	json
 // @Param 	role_code	path	string	true	"role code"
 // @Param 	resource_server_id	path	string	true	"resource server id"
 // @Success 200	{object}	Result{data=model.TableListData}
-// @Router /casbin/role/{role_code}/resource/{resource_server_id}/web_menus [GET]
+// @Router /casbin/role/{role_code}/resource/{resource_server_id}/menus [GET]
 // @Security OAuth2AccessCode
-func (*casbin) ListRoleResourceWebMenus(ctx *gin.Context) {
+func (*casbin) ListRoleResourceMenus(ctx *gin.Context) {
 	var (
 		list []*model.RoleResourceRelation
 		err  error
 	)
 	roleCode := model.ConvertStringToCode(ctx.Param("role_code"))
 	resourceServerID := model.ConvertStringToID(ctx.Param("resource_server_id"))
-	list, err = service.Casbin.ListRoleResourceWebMenuByRoleCodeAndResourceServerID(contexts.WithGinContext(ctx), roleCode, resourceServerID)
+	list, err = service.Casbin.ListRoleResourceMenuByRoleCodeAndResourceServerID(contexts.WithGinContext(ctx), roleCode, resourceServerID)
 	if err != nil {
 		writeError(ctx, err)
 		return

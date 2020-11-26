@@ -11,13 +11,13 @@ import (
 
 // RoleResourceRelationer ...
 type RoleResourceRelationer interface {
-	Insert(ctx context.Context, roleResourceWebRoute *model.RoleResourceRelation) (err error)
+	Insert(ctx context.Context, roleResourceRoute *model.RoleResourceRelation) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
 	DeleteByRelationTypeAndRoleCode(ctx context.Context, relationType model.RoleResourceRelationType, roleCode model.Code) (err error)
 	DeleteByRelationTypeAndRoleCodeAndRelationID(ctx context.Context, relationType model.RoleResourceRelationType, roleCode model.Code, relationID model.ID) (err error)
-	Select(ctx context.Context, id model.ID) (roleResourceWebRoute *model.RoleResourceRelation, err error)
-	SelectAll(ctx context.Context, relationType model.RoleResourceRelationType) (roleResourceWebRoutes []*model.RoleResourceRelation, err error)
-	Update(ctx context.Context, roleResourceWebRoute *model.RoleResourceRelation) (err error)
+	Select(ctx context.Context, id model.ID) (roleResourceRoute *model.RoleResourceRelation, err error)
+	SelectAll(ctx context.Context, relationType model.RoleResourceRelationType) (roleResourceRoutes []*model.RoleResourceRelation, err error)
+	Update(ctx context.Context, roleResourceRoute *model.RoleResourceRelation) (err error)
 	ExistByRelationTypeAndRoleCodeAndRelationID(ctx context.Context, relationType model.RoleResourceRelationType, roleCode model.Code, relationID model.ID) (exist bool, err error)
 	ExistByRelationTypeAndRelationID(ctx context.Context, relationType model.RoleResourceRelationType, relationID model.ID) (exist bool, err error)
 	ListByRelationTypeAndRoleCode(ctx context.Context, relationType model.RoleResourceRelationType, roleCode model.Code, limit int) (list []*model.RoleResourceRelation, err error)
@@ -34,13 +34,13 @@ func (*roleResourceRelation) formatRoleListKey(roleCode model.Code) string {
 	return fmt.Sprintf("list:role:%s", roleCode)
 }
 
-func (*roleResourceRelation) Insert(ctx context.Context, roleResourceWebRoute *model.RoleResourceRelation) (err error) {
+func (*roleResourceRelation) Insert(ctx context.Context, roleResourceRoute *model.RoleResourceRelation) (err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Create(roleResourceWebRoute).Error
+	err = gdb.Create(roleResourceRoute).Error
 	return
 }
 
@@ -54,37 +54,37 @@ func (*roleResourceRelation) Delete(ctx context.Context, id model.ID) (err error
 	return
 }
 
-func (*roleResourceRelation) Select(ctx context.Context, id model.ID) (roleResourceWebRoute *model.RoleResourceRelation, err error) {
+func (*roleResourceRelation) Select(ctx context.Context, id model.ID) (roleResourceRoute *model.RoleResourceRelation, err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
-	roleResourceWebRoute = new(model.RoleResourceRelation)
-	err = gdb.Model(roleResourceWebRoute).Where("id = ?", id).Take(roleResourceWebRoute).Error
+	roleResourceRoute = new(model.RoleResourceRelation)
+	err = gdb.Model(roleResourceRoute).Where("id = ?", id).Take(roleResourceRoute).Error
 	if err != nil {
-		roleResourceWebRoute = nil
+		roleResourceRoute = nil
 		return
 	}
 	return
 }
-func (*roleResourceRelation) Update(ctx context.Context, roleResourceWebRoute *model.RoleResourceRelation) (err error) {
+func (*roleResourceRelation) Update(ctx context.Context, roleResourceRoute *model.RoleResourceRelation) (err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(roleResourceWebRoute).Save(roleResourceWebRoute).Error
+	err = gdb.Model(roleResourceRoute).Save(roleResourceRoute).Error
 	return
 }
 
-func (*roleResourceRelation) SelectAll(ctx context.Context, relationType model.RoleResourceRelationType) (roleResourceWebRoutes []*model.RoleResourceRelation, err error) {
+func (*roleResourceRelation) SelectAll(ctx context.Context, relationType model.RoleResourceRelationType) (roleResourceRoutes []*model.RoleResourceRelation, err error) {
 	var gdb *gorm.DB
 	gdb, err = contexts.FromGormContext(ctx)
 	if err != nil {
 		return
 	}
-	err = gdb.Model(model.RoleResourceRelation{}).Where("relation_type = ?", relationType).Find(&roleResourceWebRoutes).Error
+	err = gdb.Model(model.RoleResourceRelation{}).Where("relation_type = ?", relationType).Find(&roleResourceRoutes).Error
 	return
 }
 

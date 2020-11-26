@@ -32,7 +32,7 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 		allow := false
 		for _, role := range roles {
 			logrus.Debugf("openid: %d, role code: %s", openID, role.RoleCode)
-			check, checkErr := naasCasbin.EnforceWebRoute(role, viper.GetString("naas.resource.id"), ctx.Request, enforcer)
+			check, checkErr := naasCasbin.EnforceRoute(role, viper.GetString("naas.resource.id"), ctx.Request, enforcer)
 			if checkErr != nil {
 				logrus.Errorf("casbin enforce web route:", checkErr)
 				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{

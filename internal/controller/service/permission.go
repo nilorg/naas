@@ -72,10 +72,10 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 	res = new(proto.VerifyHttpRouteResponse)
 	roles, _ := service.Role.GetAllRoleByUserID(ctx, openID)
 	for _, role := range roles {
-		sub := fmt.Sprintf("role:%s", role.RoleCode)                 // 希望访问资源的用户
-		dom := fmt.Sprintf("resource:%s:web_route", req.Resource.Id) // 域/域租户,这里以资源为单位
-		obj := req.Path                                              // 要访问的资源
-		act := req.Method                                            // 用户对资源执行的操作
+		sub := fmt.Sprintf("role:%s", role.RoleCode)             // 希望访问资源的用户
+		dom := fmt.Sprintf("resource:%s:route", req.Resource.Id) // 域/域租户,这里以资源为单位
+		obj := req.Path                                          // 要访问的资源
+		act := req.Method                                        // 用户对资源执行的操作
 		check, checkErr := casbin.Enforcer.Enforce(sub, dom, obj, act)
 		if checkErr != nil {
 			err = status.Error(codes.Unavailable, checkErr.Error())

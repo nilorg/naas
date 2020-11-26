@@ -81,7 +81,7 @@ var doc = `{
                 }
             }
         },
-        "/casbin/resource/{resource_server_id}/web_menus": {
+        "/casbin/resource/{resource_server_id}/menus": {
             "get": {
                 "security": [
                     {
@@ -97,7 +97,7 @@ var doc = `{
                 "tags": [
                     "Casbin"
                 ],
-                "summary": "获取资源服务器Web菜单翻页列表",
+                "summary": "获取资源服务器菜单翻页列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -129,7 +129,7 @@ var doc = `{
                 }
             }
         },
-        "/casbin/resource/{resource_server_id}/web_routes": {
+        "/casbin/resource/{resource_server_id}/routes": {
             "get": {
                 "security": [
                     {
@@ -145,7 +145,7 @@ var doc = `{
                 "tags": [
                     "Casbin"
                 ],
-                "summary": "获取资源服务器Web路由翻页列表",
+                "summary": "获取资源服务器路由翻页列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -232,7 +232,7 @@ var doc = `{
                 }
             }
         },
-        "/casbin/role/{role_code}/resource/{resource_server_id}/web_menus": {
+        "/casbin/role/{role_code}/resource/{resource_server_id}/menus": {
             "get": {
                 "security": [
                     {
@@ -248,7 +248,7 @@ var doc = `{
                 "tags": [
                     "Casbin"
                 ],
-                "summary": "根据角色获取资源服务器Web菜单翻页列表",
+                "summary": "根据角色获取资源服务器菜单翻页列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -287,7 +287,7 @@ var doc = `{
                 }
             }
         },
-        "/casbin/role/{role_code}/resource/{resource_server_id}/web_routes": {
+        "/casbin/role/{role_code}/resource/{resource_server_id}/routes": {
             "get": {
                 "security": [
                     {
@@ -303,7 +303,7 @@ var doc = `{
                 "tags": [
                     "Casbin"
                 ],
-                "summary": "根据角色获取资源服务器Web路由翻页列表",
+                "summary": "根据角色获取资源服务器路由翻页列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -378,7 +378,7 @@ var doc = `{
                 }
             }
         },
-        "/casbin/role/{role_code}/resource_web_menus": {
+        "/casbin/role/{role_code}/resource_menus": {
             "put": {
                 "security": [
                     {
@@ -394,7 +394,7 @@ var doc = `{
                 "tags": [
                     "Casbin"
                 ],
-                "summary": "添加资源web菜单",
+                "summary": "添加资源菜单",
                 "parameters": [
                     {
                         "type": "string",
@@ -414,7 +414,7 @@ var doc = `{
                 }
             }
         },
-        "/casbin/role/{role_code}/resource_web_routes": {
+        "/casbin/role/{role_code}/resource_routes": {
             "put": {
                 "security": [
                     {
@@ -430,7 +430,7 @@ var doc = `{
                 "tags": [
                     "Casbin"
                 ],
-                "summary": "添加资源web路由",
+                "summary": "添加资源路由",
                 "parameters": [
                     {
                         "type": "string",
@@ -519,7 +519,7 @@ var doc = `{
                         "OAuth2AccessCode": []
                     }
                 ],
-                "description": "resource_web_menu:web菜单",
+                "description": "resource_menu:菜单",
                 "consumes": [
                     "application/json"
                 ],
@@ -533,7 +533,7 @@ var doc = `{
                 "parameters": [
                     {
                         "enum": [
-                            "resource_web_menu"
+                            "resource_menu"
                         ],
                         "type": "string",
                         "description": "查询参数",
@@ -1486,6 +1486,416 @@ var doc = `{
                 }
             }
         },
+        "/resource/menus": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "查询资源服务器菜单翻页数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu（资源服务器菜单）"
+                ],
+                "summary": "查询资源服务器菜单",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "当前页",
+                        "name": "current",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceRoute（资源服务器路由）"
+                ],
+                "summary": "添加菜单",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceMenuEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/routes": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "查询资源服务器Rule翻页数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceRoute（资源服务器路由）"
+                ],
+                "summary": "查询资源服务器Rule",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "当前页",
+                        "name": "current",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceRoute（资源服务器路由）"
+                ],
+                "summary": "添加路由",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceRouteEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/routes/{resource_menu_id}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据菜单ID,获取一个菜单",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu（资源服务器菜单）"
+                ],
+                "summary": "获取一个菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource menu id",
+                        "name": "resource_menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源菜单ID,修改一个资源菜单",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu（资源服务器菜单）"
+                ],
+                "summary": "修改一个资源菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource menu id",
+                        "name": "resource_menu_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "路由需要修改的信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceMenuEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源菜单ID,修改一个资源菜单",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceMenu（资源服务器菜单）"
+                ],
+                "summary": "删除一个资源菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource menu id",
+                        "name": "resource_menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/routes/{resource_route_id}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据路由ID,获取一个路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceRoute（资源服务器路由）"
+                ],
+                "summary": "获取一个路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource route id",
+                        "name": "resource_route_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源路由ID,修改一个资源路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceRoute（资源服务器路由）"
+                ],
+                "summary": "修改一个资源路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource route id",
+                        "name": "resource_route_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "路由需要修改的信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceRouteEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源路由ID,删除一个资源路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceRoute（资源服务器路由）"
+                ],
+                "summary": "删除一个资源路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource route id",
+                        "name": "resource_route_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
         "/resource/servers": {
             "get": {
                 "security": [
@@ -1648,416 +2058,6 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/service.ResourceEditModel"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/resource/web_menus": {
-            "get": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "description": "查询资源服务器Web菜单翻页数据",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebMenu（资源服务器Web菜单）"
-                ],
-                "summary": "查询资源服务器Web菜单",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "当前页",
-                        "name": "current",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页大小",
-                        "name": "pageSize",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.TableListData"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebRoute（资源服务器Web路由）"
-                ],
-                "summary": "添加web菜单",
-                "parameters": [
-                    {
-                        "description": "body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.ResourceWebMenuEdit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/resource/web_routes": {
-            "get": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "description": "查询资源服务器WebRule翻页数据",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebRoute（资源服务器Web路由）"
-                ],
-                "summary": "查询资源服务器WebRule",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "当前页",
-                        "name": "current",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页大小",
-                        "name": "pageSize",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.TableListData"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebRoute（资源服务器Web路由）"
-                ],
-                "summary": "添加web路由",
-                "parameters": [
-                    {
-                        "description": "body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.ResourceWebRouteEdit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/resource/web_routes/{resource_web_menu_id}": {
-            "get": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "description": "根据菜单ID,获取一个Web菜单",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebMenu（资源服务器Web菜单）"
-                ],
-                "summary": "获取一个Web菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "resource web menu id",
-                        "name": "resource_web_menu_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "description": "根据资源web菜单ID,修改一个资源web菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebMenu（资源服务器Web菜单）"
-                ],
-                "summary": "修改一个资源web菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "resource web menu id",
-                        "name": "resource_web_menu_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Web路由需要修改的信息",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.ResourceWebMenuEdit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "description": "根据资源web菜单ID,修改一个资源web菜单",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebMenu（资源服务器Web菜单）"
-                ],
-                "summary": "删除一个资源web菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "resource web menu id",
-                        "name": "resource_web_menu_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
-            }
-        },
-        "/resource/web_routes/{resource_web_route_id}": {
-            "get": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "description": "根据路由ID,获取一个Web路由",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebRoute（资源服务器Web路由）"
-                ],
-                "summary": "获取一个Web路由",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "resource web route id",
-                        "name": "resource_web_route_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "description": "根据资源web路由ID,修改一个资源web路由",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebRoute（资源服务器Web路由）"
-                ],
-                "summary": "修改一个资源web路由",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "resource web route id",
-                        "name": "resource_web_route_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Web路由需要修改的信息",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.ResourceWebRouteEdit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.Result"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    }
-                ],
-                "description": "根据资源web路由ID,删除一个资源web路由",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ResourceWebRoute（资源服务器Web路由）"
-                ],
-                "summary": "删除一个资源web路由",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "resource web route id",
-                        "name": "resource_web_route_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -2972,7 +2972,7 @@ var doc = `{
                 }
             }
         },
-        "service.ResourceWebMenuEdit": {
+        "service.ResourceMenuEdit": {
             "type": "object",
             "properties": {
                 "icon": {
@@ -2999,7 +2999,7 @@ var doc = `{
                 }
             }
         },
-        "service.ResourceWebRouteEdit": {
+        "service.ResourceRouteEdit": {
             "type": "object",
             "properties": {
                 "method": {

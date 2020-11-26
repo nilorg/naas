@@ -207,7 +207,7 @@ definitions:
       secret:
         type: string
     type: object
-  service.ResourceWebMenuEdit:
+  service.ResourceMenuEdit:
     properties:
       icon:
         type: string
@@ -225,7 +225,7 @@ definitions:
       url:
         type: string
     type: object
-  service.ResourceWebRouteEdit:
+  service.ResourceRouteEdit:
     properties:
       method:
         type: string
@@ -319,7 +319,7 @@ paths:
       summary: 获取资源服务器动作翻页列表
       tags:
       - Casbin
-  /casbin/resource/{resource_server_id}/web_menus:
+  /casbin/resource/{resource_server_id}/menus:
     get:
       consumes:
       - application/json
@@ -343,10 +343,10 @@ paths:
               type: object
       security:
       - OAuth2AccessCode: []
-      summary: 获取资源服务器Web菜单翻页列表
+      summary: 获取资源服务器菜单翻页列表
       tags:
       - Casbin
-  /casbin/resource/{resource_server_id}/web_routes:
+  /casbin/resource/{resource_server_id}/routes:
     get:
       consumes:
       - application/json
@@ -370,7 +370,7 @@ paths:
               type: object
       security:
       - OAuth2AccessCode: []
-      summary: 获取资源服务器Web路由翻页列表
+      summary: 获取资源服务器路由翻页列表
       tags:
       - Casbin
   /casbin/role/{role_code}/resource/{resource_server_id}/actions:
@@ -405,7 +405,7 @@ paths:
       summary: 根据角色获取资源服务器动作
       tags:
       - Casbin
-  /casbin/role/{role_code}/resource/{resource_server_id}/web_menus:
+  /casbin/role/{role_code}/resource/{resource_server_id}/menus:
     get:
       consumes:
       - application/json
@@ -434,10 +434,10 @@ paths:
               type: object
       security:
       - OAuth2AccessCode: []
-      summary: 根据角色获取资源服务器Web菜单翻页列表
+      summary: 根据角色获取资源服务器菜单翻页列表
       tags:
       - Casbin
-  /casbin/role/{role_code}/resource/{resource_server_id}/web_routes:
+  /casbin/role/{role_code}/resource/{resource_server_id}/routes:
     get:
       consumes:
       - application/json
@@ -466,7 +466,7 @@ paths:
               type: object
       security:
       - OAuth2AccessCode: []
-      summary: 根据角色获取资源服务器Web路由翻页列表
+      summary: 根据角色获取资源服务器路由翻页列表
       tags:
       - Casbin
   /casbin/role/{role_code}/resource_actions:
@@ -491,7 +491,7 @@ paths:
       summary: 添加资源动作
       tags:
       - Casbin
-  /casbin/role/{role_code}/resource_web_menus:
+  /casbin/role/{role_code}/resource_menus:
     put:
       consumes:
       - application/json
@@ -510,10 +510,10 @@ paths:
             $ref: '#/definitions/api.Result'
       security:
       - OAuth2AccessCode: []
-      summary: 添加资源web菜单
+      summary: 添加资源菜单
       tags:
       - Casbin
-  /casbin/role/{role_code}/resource_web_routes:
+  /casbin/role/{role_code}/resource_routes:
     put:
       consumes:
       - application/json
@@ -532,7 +532,7 @@ paths:
             $ref: '#/definitions/api.Result'
       security:
       - OAuth2AccessCode: []
-      summary: 添加资源web路由
+      summary: 添加资源路由
       tags:
       - Casbin
   /common/select:
@@ -581,11 +581,11 @@ paths:
     get:
       consumes:
       - application/json
-      description: resource_web_menu:web菜单
+      description: resource_menu:菜单
       parameters:
       - description: 查询参数
         enum:
-        - resource_web_menu
+        - resource_menu
         in: query
         name: q
         required: true
@@ -1173,6 +1173,258 @@ paths:
       summary: 修改一个资源动作
       tags:
       - ResourceAction（资源动作）
+  /resource/menus:
+    get:
+      consumes:
+      - application/json
+      description: 查询资源服务器菜单翻页数据
+      parameters:
+      - description: 当前页
+        in: query
+        name: current
+        required: true
+        type: integer
+      - description: 页大小
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 查询资源服务器菜单
+      tags:
+      - ResourceMenu（资源服务器菜单）
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceMenuEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加菜单
+      tags:
+      - ResourceRoute（资源服务器路由）
+  /resource/routes:
+    get:
+      consumes:
+      - application/json
+      description: 查询资源服务器Rule翻页数据
+      parameters:
+      - description: 当前页
+        in: query
+        name: current
+        required: true
+        type: integer
+      - description: 页大小
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 查询资源服务器Rule
+      tags:
+      - ResourceRoute（资源服务器路由）
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceRouteEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加路由
+      tags:
+      - ResourceRoute（资源服务器路由）
+  /resource/routes/{resource_menu_id}:
+    delete:
+      description: 根据资源菜单ID,修改一个资源菜单
+      parameters:
+      - description: resource menu id
+        in: path
+        name: resource_menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 删除一个资源菜单
+      tags:
+      - ResourceMenu（资源服务器菜单）
+    get:
+      consumes:
+      - application/json
+      description: 根据菜单ID,获取一个菜单
+      parameters:
+      - description: resource menu id
+        in: path
+        name: resource_menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个菜单
+      tags:
+      - ResourceMenu（资源服务器菜单）
+    put:
+      description: 根据资源菜单ID,修改一个资源菜单
+      parameters:
+      - description: resource menu id
+        in: path
+        name: resource_menu_id
+        required: true
+        type: string
+      - description: 路由需要修改的信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceMenuEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个资源菜单
+      tags:
+      - ResourceMenu（资源服务器菜单）
+  /resource/routes/{resource_route_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据资源路由ID,删除一个资源路由
+      parameters:
+      - description: resource route id
+        in: path
+        name: resource_route_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 删除一个资源路由
+      tags:
+      - ResourceRoute（资源服务器路由）
+    get:
+      consumes:
+      - application/json
+      description: 根据路由ID,获取一个路由
+      parameters:
+      - description: resource route id
+        in: path
+        name: resource_route_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个路由
+      tags:
+      - ResourceRoute（资源服务器路由）
+    put:
+      consumes:
+      - application/json
+      description: 根据资源路由ID,修改一个资源路由
+      parameters:
+      - description: resource route id
+        in: path
+        name: resource_route_id
+        required: true
+        type: string
+      - description: 路由需要修改的信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceRouteEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个资源路由
+      tags:
+      - ResourceRoute（资源服务器路由）
   /resource/servers:
     get:
       consumes:
@@ -1280,258 +1532,6 @@ paths:
       summary: 修改一个资源
       tags:
       - Resource（资源）
-  /resource/web_menus:
-    get:
-      consumes:
-      - application/json
-      description: 查询资源服务器Web菜单翻页数据
-      parameters:
-      - description: 当前页
-        in: query
-        name: current
-        required: true
-        type: integer
-      - description: 页大小
-        in: query
-        name: pageSize
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.Result'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.TableListData'
-              type: object
-      security:
-      - OAuth2AccessCode: []
-      summary: 查询资源服务器Web菜单
-      tags:
-      - ResourceWebMenu（资源服务器Web菜单）
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: body
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/service.ResourceWebMenuEdit'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.Result'
-      security:
-      - OAuth2AccessCode: []
-      summary: 添加web菜单
-      tags:
-      - ResourceWebRoute（资源服务器Web路由）
-  /resource/web_routes:
-    get:
-      consumes:
-      - application/json
-      description: 查询资源服务器WebRule翻页数据
-      parameters:
-      - description: 当前页
-        in: query
-        name: current
-        required: true
-        type: integer
-      - description: 页大小
-        in: query
-        name: pageSize
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.Result'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.TableListData'
-              type: object
-      security:
-      - OAuth2AccessCode: []
-      summary: 查询资源服务器WebRule
-      tags:
-      - ResourceWebRoute（资源服务器Web路由）
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: body
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/service.ResourceWebRouteEdit'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.Result'
-      security:
-      - OAuth2AccessCode: []
-      summary: 添加web路由
-      tags:
-      - ResourceWebRoute（资源服务器Web路由）
-  /resource/web_routes/{resource_web_menu_id}:
-    delete:
-      description: 根据资源web菜单ID,修改一个资源web菜单
-      parameters:
-      - description: resource web menu id
-        in: path
-        name: resource_web_menu_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.Result'
-      security:
-      - OAuth2AccessCode: []
-      summary: 删除一个资源web菜单
-      tags:
-      - ResourceWebMenu（资源服务器Web菜单）
-    get:
-      consumes:
-      - application/json
-      description: 根据菜单ID,获取一个Web菜单
-      parameters:
-      - description: resource web menu id
-        in: path
-        name: resource_web_menu_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.Result'
-      security:
-      - OAuth2AccessCode: []
-      summary: 获取一个Web菜单
-      tags:
-      - ResourceWebMenu（资源服务器Web菜单）
-    put:
-      description: 根据资源web菜单ID,修改一个资源web菜单
-      parameters:
-      - description: resource web menu id
-        in: path
-        name: resource_web_menu_id
-        required: true
-        type: string
-      - description: Web路由需要修改的信息
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/service.ResourceWebMenuEdit'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.Result'
-      security:
-      - OAuth2AccessCode: []
-      summary: 修改一个资源web菜单
-      tags:
-      - ResourceWebMenu（资源服务器Web菜单）
-  /resource/web_routes/{resource_web_route_id}:
-    delete:
-      consumes:
-      - application/json
-      description: 根据资源web路由ID,删除一个资源web路由
-      parameters:
-      - description: resource web route id
-        in: path
-        name: resource_web_route_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.Result'
-      security:
-      - OAuth2AccessCode: []
-      summary: 删除一个资源web路由
-      tags:
-      - ResourceWebRoute（资源服务器Web路由）
-    get:
-      consumes:
-      - application/json
-      description: 根据路由ID,获取一个Web路由
-      parameters:
-      - description: resource web route id
-        in: path
-        name: resource_web_route_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.Result'
-      security:
-      - OAuth2AccessCode: []
-      summary: 获取一个Web路由
-      tags:
-      - ResourceWebRoute（资源服务器Web路由）
-    put:
-      consumes:
-      - application/json
-      description: 根据资源web路由ID,修改一个资源web路由
-      parameters:
-      - description: resource web route id
-        in: path
-        name: resource_web_route_id
-        required: true
-        type: string
-      - description: Web路由需要修改的信息
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/service.ResourceWebRouteEdit'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.Result'
-      security:
-      - OAuth2AccessCode: []
-      summary: 修改一个资源web路由
-      tags:
-      - ResourceWebRoute（资源服务器Web路由）
   /roles:
     delete:
       consumes:

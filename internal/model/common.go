@@ -33,15 +33,15 @@ func RecursiveRoleToTreeSelect(roles []*Role) (treeSelects []*ResultTreeSelect) 
 	return
 }
 
-// RecursiveResourceWebMenuToTreeSelect 递归web菜单转tree select
-func RecursiveResourceWebMenuToTreeSelect(menus []*ResourceWebMenu) (treeSelects []*ResultTreeSelect) {
+// RecursiveResourceMenuToTreeSelect 递归菜单转tree select
+func RecursiveResourceMenuToTreeSelect(menus []*ResourceMenu) (treeSelects []*ResultTreeSelect) {
 	for _, menu := range menus {
 		treeSelect := new(ResultTreeSelect)
 		treeSelect.Title = menu.Name
 		treeSelect.Key = convert.ToString(menu.ID)
 		treeSelect.Value = menu.ID
-		if len(menu.ChildResourceWebMenus) > 0 {
-			treeSelect.Children = RecursiveResourceWebMenuToTreeSelect(menu.ChildResourceWebMenus)
+		if len(menu.ChildResourceMenus) > 0 {
+			treeSelect.Children = RecursiveResourceMenuToTreeSelect(menu.ChildResourceMenus)
 		} else {
 			treeSelect.Children = make([]*ResultTreeSelect, 0)
 		}

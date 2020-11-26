@@ -18,35 +18,35 @@ type casbinService struct{}
 func (cs *casbinService) InitLoadAllPolicy() {
 	ctx := contexts.WithContext(context.Background())
 	cs.initRoleForUser(ctx)
-	cs.initRoleResourceWebRoute(ctx)
+	cs.initRoleResourceRoute(ctx)
 }
 
-func (*casbinService) initRoleResourceWebRoute(ctx context.Context) {
+func (*casbinService) initRoleResourceRoute(ctx context.Context) {
 	var (
 		err       error
 		relations []*model.RoleResourceRelation
 		flag      bool
 	)
 	// 获取所有角色对应的资源路由
-	relations, err = dao.RoleResourceRelation.SelectAll(ctx, model.RoleResourceRelationTypeWebRoute)
+	relations, err = dao.RoleResourceRelation.SelectAll(ctx, model.RoleResourceRelationTypeRoute)
 	if err != nil {
-		logrus.Errorf("dao.RoleResourceWebRoute.SelectAll: %s", err)
+		logrus.Errorf("dao.RoleResourceRelation.SelectAll: %s", err)
 		return
 	}
 	for _, relation := range relations {
-		var resourceWebRoute *model.ResourceWebRoute
-		resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, relation.RelationID)
+		var resourceRoute *model.ResourceRoute
+		resourceRoute, err = dao.ResourceRoute.Select(ctx, relation.RelationID)
 		if err != nil {
-			logrus.Errorf("dao.ResourceWebRoute.Select: %s", err)
+			logrus.Errorf("dao.ResourceRoute.Select: %s", err)
 			return
 		}
-		sub, dom, obj, act := formatWebRoutePolicy(relation.RoleCode, resourceWebRoute)
+		sub, dom, obj, act := formatRoutePolicy(relation.RoleCode, resourceRoute)
 		flag, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
 		if err != nil {
 			logrus.Errorf("casbin.Enforcer.AddPolicy: %s", err)
 			continue
 		}
-		logrus.Infof("[ResourceWebRoute]casbin.Enforcer.AddPolicy-Flag: %v", flag)
+		logrus.Infof("[ResourceRoute]casbin.Enforcer.AddPolicy-Flag: %v", flag)
 	}
 	err = casbin.Enforcer.SavePolicy()
 	if err != nil {
@@ -82,11 +82,11 @@ func (*casbinService) initRoleForUser(ctx context.Context) {
 	}
 }
 
-func formatWebRoutePolicy(roleCode model.Code, resourceWebRoute *model.ResourceWebRoute) (sub, dom, obj, act string) {
-	sub = fmt.Sprintf("role:%s", roleCode)                                        // 希望访问资源的角色
-	dom = fmt.Sprintf("resource:%d:web_route", resourceWebRoute.ResourceServerID) // 域/域租户,这里以资源为单位
-	obj = resourceWebRoute.Path                                                   // 要访问的资源
-	act = resourceWebRoute.Method                                                 // 用户对资源执行的操作
+func formatRoutePolicy(roleCode model.Code, resourceRoute *model.ResourceRoute) (sub, dom, obj, act string) {
+	sub = fmt.Sprintf("role:%s", roleCode)                                 // 希望访问资源的角色
+	dom = fmt.Sprintf("resource:%d:route", resourceRoute.ResourceServerID) // 域/域租户,这里以资源为单位
+	obj = resourceRoute.Path                                               // 要访问的资源
+	act = resourceRoute.Method                                             // 用户对资源执行的操作
 	return
 }
 
@@ -97,18 +97,18 @@ func formatRoleForUserInDomain(userID, organizationID model.ID, roleCode model.C
 	return
 }
 
-func formatWebMenuPolicy(roleCode model.Code, resourceWebMenu *model.ResourceWebMenu) (sub, dom, obj, act string) {
+func formatMenuPolicy(roleCode model.Code, resourceMenu *model.ResourceMenu) (sub, dom, obj, act string) {
 	// Enforcer.AddPolicy("role:reader", "domain1", "data1", "read")
-	sub = fmt.Sprintf("role:%s", roleCode)                                      // 希望访问资源的角色
-	dom = fmt.Sprintf("resource:%d:web_menu", resourceWebMenu.ResourceServerID) // 域/域租户,这里以资源为单位
-	obj = fmt.Sprintf("web_menu:%v", resourceWebMenu.ID)                        // 要访问的资源
-	act = "show"                                                                // 角色对资源执行的操作
+	sub = fmt.Sprintf("role:%s", roleCode)                               // 希望访问资源的角色
+	dom = fmt.Sprintf("resource:%d:menu", resourceMenu.ResourceServerID) // 域/域租户,这里以资源为单位
+	obj = fmt.Sprintf("menu:%v", resourceMenu.ID)                        // 要访问的资源
+	act = "show"                                                         // 角色对资源执行的操作
 	return
 }
 
-// ListResourceWebRoutePaged ...
-func (cs *casbinService) ListResourceWebRoutePagedByResourceServerID(ctx context.Context, start, limit int, resourceServerID model.ID) (list []*model.ResourceWebRoute, total int64, err error) {
-	list, total, err = dao.ResourceWebRoute.ListPagedByResourceServerID(ctx, start, limit, resourceServerID)
+// ListResourceRoutePagedByResourceServerID ...
+func (cs *casbinService) ListResourceRoutePagedByResourceServerID(ctx context.Context, start, limit int, resourceServerID model.ID) (list []*model.ResourceRoute, total int64, err error) {
+	list, total, err = dao.ResourceRoute.ListPagedByResourceServerID(ctx, start, limit, resourceServerID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
@@ -117,9 +117,9 @@ func (cs *casbinService) ListResourceWebRoutePagedByResourceServerID(ctx context
 	return
 }
 
-// ListRoleResourceWebRouteByRoleCodeAndResourceServerID ...
-func (cs *casbinService) ListRoleResourceWebRouteByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceRelation, err error) {
-	list, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCodeAndResourceServerID(ctx, model.RoleResourceRelationTypeWebRoute, roleCode, resourceServerID)
+// ListRoleResourceRouteByRoleCodeAndResourceServerID ...
+func (cs *casbinService) ListRoleResourceRouteByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceRelation, err error) {
+	list, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCodeAndResourceServerID(ctx, model.RoleResourceRelationTypeRoute, roleCode, resourceServerID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
@@ -128,33 +128,33 @@ func (cs *casbinService) ListRoleResourceWebRouteByRoleCodeAndResourceServerID(c
 	return
 }
 
-// CasbinAddResourceWebRouteModel ...
-type CasbinAddResourceWebRouteModel struct {
-	ResourceWebRouteIDs []model.ID `json:"resource_web_route_ids"`
-	ResourceServerID    model.ID   `json:"resource_server_id"`
+// CasbinAddResourceRouteModel ...
+type CasbinAddResourceRouteModel struct {
+	ResourceRouteIDs []model.ID `json:"resource_route_ids"`
+	ResourceServerID model.ID   `json:"resource_server_id"`
 }
 
-// AddResourceWebRoute 添加web路由资源角色
-func (cs *casbinService) AddResourceWebRoute(ctx context.Context, roleCode model.Code, create *CasbinAddResourceWebRouteModel) (err error) {
-	err = Role.AddRoleResourceRelation(ctx, roleCode, model.RoleResourceRelationTypeWebRoute, create.ResourceServerID, create.ResourceWebRouteIDs...)
+// AddResourceRoute 添加路由资源角色
+func (cs *casbinService) AddResourceRoute(ctx context.Context, roleCode model.Code, create *CasbinAddResourceRouteModel) (err error) {
+	err = Role.AddRoleResourceRelation(ctx, roleCode, model.RoleResourceRelationTypeRoute, create.ResourceServerID, create.ResourceRouteIDs...)
 	return
 }
 
-// CasbinAddResourceWebMenuModel ...
-type CasbinAddResourceWebMenuModel struct {
-	ResourceWebMenuIDs []model.ID `json:"resource_web_menu_ids"`
-	ResourceServerID   model.ID   `json:"resource_server_id"`
+// CasbinAddResourceMenuModel ...
+type CasbinAddResourceMenuModel struct {
+	ResourceMenuIDs  []model.ID `json:"resource_menu_ids"`
+	ResourceServerID model.ID   `json:"resource_server_id"`
 }
 
-// AddResourceWebMenu 添加web菜单资源角色
-func (cs *casbinService) AddResourceWebMenu(ctx context.Context, roleCode model.Code, create *CasbinAddResourceWebMenuModel) (err error) {
-	err = Role.AddRoleResourceRelation(ctx, roleCode, model.RoleResourceRelationTypeWebMenu, create.ResourceServerID, create.ResourceWebMenuIDs...)
+// AddResourceMenu 添加菜单资源角色
+func (cs *casbinService) AddResourceMenu(ctx context.Context, roleCode model.Code, create *CasbinAddResourceMenuModel) (err error) {
+	err = Role.AddRoleResourceRelation(ctx, roleCode, model.RoleResourceRelationTypeMenu, create.ResourceServerID, create.ResourceMenuIDs...)
 	return
 }
 
-// ListResourceWebMenuPagedByResourceServerID ...
-func (cs *casbinService) ListResourceWebMenuPagedByResourceServerID(ctx context.Context, start, limit int, resourceServerID model.ID) (list []*model.ResourceWebMenu, total int64, err error) {
-	list, total, err = dao.ResourceWebMenu.ListPagedByResourceServerID(ctx, start, limit, resourceServerID)
+// ListResourceMenuPagedByResourceServerID ...
+func (cs *casbinService) ListResourceMenuPagedByResourceServerID(ctx context.Context, start, limit int, resourceServerID model.ID) (list []*model.ResourceMenu, total int64, err error) {
+	list, total, err = dao.ResourceMenu.ListPagedByResourceServerID(ctx, start, limit, resourceServerID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
@@ -163,9 +163,9 @@ func (cs *casbinService) ListResourceWebMenuPagedByResourceServerID(ctx context.
 	return
 }
 
-// ListRoleResourceWebMenuByRoleCodeAndResourceServerID ...
-func (cs *casbinService) ListRoleResourceWebMenuByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceRelation, err error) {
-	list, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCodeAndResourceServerID(ctx, model.RoleResourceRelationTypeWebMenu, roleCode, resourceServerID)
+// ListRoleResourceMenuByRoleCodeAndResourceServerID ...
+func (cs *casbinService) ListRoleResourceMenuByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceRelation, err error) {
+	list, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCodeAndResourceServerID(ctx, model.RoleResourceRelationTypeMenu, roleCode, resourceServerID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil

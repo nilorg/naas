@@ -10,13 +10,6 @@ type Role struct {
 	ChildRoles     []*Role `json:"child_roles" gorm:"-"`
 }
 
-// RoleResourceWebFunction ...
-type RoleResourceWebFunction struct {
-	Model
-	RoleCode              Code `json:"role_code" gorm:"column:role_code"`
-	ResourceWebFunctionID ID   `json:"resource_web_function_id" gorm:"column:resource_web_function_id"`
-}
-
 // UserRole 用户权限
 type UserRole struct {
 	Model
@@ -29,10 +22,10 @@ type UserRole struct {
 type RoleResourceRelationType int
 
 var (
-	// RoleResourceRelationTypeWebRoute web路由
-	RoleResourceRelationTypeWebRoute RoleResourceRelationType = 1
-	// RoleResourceRelationTypeWebMenu web菜单
-	RoleResourceRelationTypeWebMenu RoleResourceRelationType = 2
+	// RoleResourceRelationTypeRoute 路由
+	RoleResourceRelationTypeRoute RoleResourceRelationType = 1
+	// RoleResourceRelationTypeMenu 菜单
+	RoleResourceRelationTypeMenu RoleResourceRelationType = 2
 	// RoleResourceRelationTypeAction 动作
 	RoleResourceRelationTypeAction RoleResourceRelationType = 3
 )

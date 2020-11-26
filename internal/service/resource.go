@@ -130,16 +130,16 @@ func (r *resource) ListServerPaged(ctx context.Context, start, limit int) (resul
 	return
 }
 
-// ResourceWebRouteEdit ...
-type ResourceWebRouteEdit struct {
+// ResourceRouteEdit ...
+type ResourceRouteEdit struct {
 	Name             string   `json:"name"`
 	Path             string   `json:"path"`
 	Method           string   `json:"method"`
 	ResourceServerID model.ID `json:"resource_server_id"`
 }
 
-// AddWebRoute 添加web路由
-func (*resource) AddWebRoute(ctx context.Context, req *ResourceWebRouteEdit) (err error) {
+// AddRoute 添加路由
+func (*resource) AddRoute(ctx context.Context, req *ResourceRouteEdit) (err error) {
 	var resourceExist bool
 	resourceExist, err = dao.Resource.ExistByID(ctx, req.ResourceServerID)
 	if err != nil {
@@ -150,18 +150,18 @@ func (*resource) AddWebRoute(ctx context.Context, req *ResourceWebRouteEdit) (er
 		err = errors.ErrResourceNotFound
 		return
 	}
-	v := &model.ResourceWebRoute{
+	v := &model.ResourceRoute{
 		Name:             req.Name,
 		Path:             req.Path,
 		Method:           req.Method,
 		ResourceServerID: req.ResourceServerID,
 	}
-	err = dao.ResourceWebRoute.Insert(ctx, v)
+	err = dao.ResourceRoute.Insert(ctx, v)
 	return
 }
 
-// UpdateWebRoute 修改web路由
-func (*resource) UpdateWebRoute(ctx context.Context, resourceWebRouteID model.ID, req *ResourceWebRouteEdit) (err error) {
+// UpdateRoute 修改路由
+func (*resource) UpdateRoute(ctx context.Context, resourceRouteID model.ID, req *ResourceRouteEdit) (err error) {
 	var resourceExist bool
 	resourceExist, err = dao.Resource.ExistByID(ctx, req.ResourceServerID)
 	if err != nil {
@@ -173,8 +173,8 @@ func (*resource) UpdateWebRoute(ctx context.Context, resourceWebRouteID model.ID
 		return
 	}
 
-	var rwr *model.ResourceWebRoute
-	rwr, err = dao.ResourceWebRoute.Select(ctx, resourceWebRouteID)
+	var rwr *model.ResourceRoute
+	rwr, err = dao.ResourceRoute.Select(ctx, resourceRouteID)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 		return
@@ -183,19 +183,19 @@ func (*resource) UpdateWebRoute(ctx context.Context, resourceWebRouteID model.ID
 	rwr.Path = req.Path
 	rwr.Method = req.Method
 	rwr.ResourceServerID = req.ResourceServerID
-	err = dao.ResourceWebRoute.Update(ctx, rwr)
+	err = dao.ResourceRoute.Update(ctx, rwr)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 	}
 	return
 }
 
-// DeleteWebRoute 删除web路由
-func (*resource) DeleteWebRoute(ctx context.Context, resourceWebRouteIDs ...model.ID) (err error) {
-	// 验证Web路由是否被使用，如果被使用不能删除
-	for _, resourceWebRouteID := range resourceWebRouteIDs {
+// DeleteRoute 删除路由
+func (*resource) DeleteRoute(ctx context.Context, resourceRouteIDs ...model.ID) (err error) {
+	// 验证路由是否被使用，如果被使用不能删除
+	for _, resourceRouteID := range resourceRouteIDs {
 		var exist bool
-		exist, err = dao.RoleResourceRelation.ExistByRelationTypeAndRelationID(ctx, model.RoleResourceRelationTypeWebRoute, resourceWebRouteID)
+		exist, err = dao.RoleResourceRelation.ExistByRelationTypeAndRelationID(ctx, model.RoleResourceRelationTypeRoute, resourceRouteID)
 		if err != nil {
 			logrus.WithContext(ctx).Errorln(err)
 			return
@@ -205,24 +205,24 @@ func (*resource) DeleteWebRoute(ctx context.Context, resourceWebRouteIDs ...mode
 			return
 		}
 	}
-	err = dao.ResourceWebRoute.DeleteInIDs(ctx, resourceWebRouteIDs...)
+	err = dao.ResourceRoute.DeleteInIDs(ctx, resourceRouteIDs...)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 	}
 	return
 }
 
-// ListWebRouteByResourceID 根据资源服务器ID获取Web路由
-func (r *resource) ListWebRouteByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceWebRoute, err error) {
-	return dao.ResourceWebRoute.ListByResourceID(ctx, resourceID, limit)
+// ListRouteByResourceID 根据资源服务器ID获取路由
+func (r *resource) ListRouteByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceRoute, err error) {
+	return dao.ResourceRoute.ListByResourceID(ctx, resourceID, limit)
 }
 
-// ListWebRoutePaged ...
-func (r *resource) ListWebRoutePaged(ctx context.Context, start, limit int) (result []*model.ResultResourceWebRoute, total int64, err error) {
+// ListRoutePaged ...
+func (r *resource) ListRoutePaged(ctx context.Context, start, limit int) (result []*model.ResultResourceRoute, total int64, err error) {
 	var (
-		rwrList []*model.ResourceWebRoute
+		rwrList []*model.ResourceRoute
 	)
-	rwrList, total, err = dao.ResourceWebRoute.ListPaged(ctx, start, limit)
+	rwrList, total, err = dao.ResourceRoute.ListPaged(ctx, start, limit)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
@@ -230,8 +230,8 @@ func (r *resource) ListWebRoutePaged(ctx context.Context, start, limit int) (res
 		return
 	}
 	for _, rwr := range rwrList {
-		resultRes := &model.ResultResourceWebRoute{
-			ResourceWebRoute: rwr,
+		resultRes := &model.ResultResourceRoute{
+			ResourceRoute: rwr,
 		}
 		if rwr.ResourceServerID > 0 {
 			resultRes.ResourceServer, _ = dao.Resource.Select(ctx, rwr.ResourceServerID)
@@ -241,18 +241,18 @@ func (r *resource) ListWebRoutePaged(ctx context.Context, start, limit int) (res
 	return
 }
 
-// GetResourceWebRoute resource web route
-func (*resource) GetResourceWebRoute(ctx context.Context, resourceWebRouteID model.ID) (resource *model.ResourceWebRoute, err error) {
-	resource, err = dao.ResourceWebRoute.Select(ctx, resourceWebRouteID)
+// GetResourceRoute resource  route
+func (*resource) GetResourceRoute(ctx context.Context, resourceRouteID model.ID) (resource *model.ResourceRoute, err error) {
+	resource, err = dao.ResourceRoute.Select(ctx, resourceRouteID)
 	return
 }
 
-// ListWebRoutePagedByRoleCode ...
-func (r *resource) ListWebRoutePagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (result []*model.ResourceWebRoute, total int64, err error) {
+// ListRoutePagedByRoleCode ...
+func (r *resource) ListRoutePagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (result []*model.ResourceRoute, total int64, err error) {
 	var (
 		rrwrList []*model.RoleResourceRelation
 	)
-	rrwrList, total, err = dao.RoleResourceRelation.ListPagedByRelationTypeAndRoleCode(ctx, start, limit, model.RoleResourceRelationTypeWebRoute, roleCode)
+	rrwrList, total, err = dao.RoleResourceRelation.ListPagedByRelationTypeAndRoleCode(ctx, start, limit, model.RoleResourceRelationTypeRoute, roleCode)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
@@ -260,8 +260,8 @@ func (r *resource) ListWebRoutePagedByRoleCode(ctx context.Context, start, limit
 		return
 	}
 	for _, rrwr := range rrwrList {
-		var rwr *model.ResourceWebRoute
-		rwr, err = dao.ResourceWebRoute.Select(ctx, rrwr.RelationID)
+		var rwr *model.ResourceRoute
+		rwr, err = dao.ResourceRoute.Select(ctx, rrwr.RelationID)
 		if err != nil {
 			return
 		}
@@ -272,8 +272,8 @@ func (r *resource) ListWebRoutePagedByRoleCode(ctx context.Context, start, limit
 
 // ================
 
-// ResourceWebMenuEdit ...
-type ResourceWebMenuEdit struct {
+// ResourceMenuEdit ...
+type ResourceMenuEdit struct {
 	Name             string   `json:"name"`
 	URL              string   `json:"url"`
 	Icon             string   `json:"icon"`
@@ -283,8 +283,8 @@ type ResourceWebMenuEdit struct {
 	ResourceServerID model.ID `json:"resource_server_id"`
 }
 
-// AddWebMenu 添加web菜单
-func (*resource) AddWebMenu(ctx context.Context, req *ResourceWebMenuEdit) (err error) {
+// AddMenu 添加菜单
+func (*resource) AddMenu(ctx context.Context, req *ResourceMenuEdit) (err error) {
 	var resourceExist bool
 	resourceExist, err = dao.Resource.ExistByID(ctx, req.ResourceServerID)
 	if err != nil {
@@ -297,8 +297,8 @@ func (*resource) AddWebMenu(ctx context.Context, req *ResourceWebMenuEdit) (err 
 	}
 	level := 0
 	if req.ParentID > 0 {
-		var menu *model.ResourceWebMenu
-		menu, err = dao.ResourceWebMenu.Select(ctx, req.ParentID)
+		var menu *model.ResourceMenu
+		menu, err = dao.ResourceMenu.Select(ctx, req.ParentID)
 		if err != nil {
 			return
 		}
@@ -309,7 +309,7 @@ func (*resource) AddWebMenu(ctx context.Context, req *ResourceWebMenuEdit) (err 
 		level = menu.Level + 1
 	}
 
-	v := &model.ResourceWebMenu{
+	v := &model.ResourceMenu{
 		Name:             req.Name,
 		URL:              req.URL,
 		Icon:             req.Icon,
@@ -319,12 +319,12 @@ func (*resource) AddWebMenu(ctx context.Context, req *ResourceWebMenuEdit) (err 
 		ParentID:         req.ParentID,
 		ResourceServerID: req.ResourceServerID,
 	}
-	err = dao.ResourceWebMenu.Insert(ctx, v)
+	err = dao.ResourceMenu.Insert(ctx, v)
 	return
 }
 
-// UpdateWebMenu 修改web菜单
-func (*resource) UpdateWebMenu(ctx context.Context, resourceWebMenuID model.ID, req *ResourceWebMenuEdit) (err error) {
+// UpdateMenu 修改菜单
+func (*resource) UpdateMenu(ctx context.Context, resourceMenuID model.ID, req *ResourceMenuEdit) (err error) {
 	var resourceExist bool
 	resourceExist, err = dao.Resource.ExistByID(ctx, req.ResourceServerID)
 	if err != nil {
@@ -336,16 +336,16 @@ func (*resource) UpdateWebMenu(ctx context.Context, resourceWebMenuID model.ID, 
 		return
 	}
 
-	var rwr *model.ResourceWebMenu
-	rwr, err = dao.ResourceWebMenu.Select(ctx, resourceWebMenuID)
+	var rwr *model.ResourceMenu
+	rwr, err = dao.ResourceMenu.Select(ctx, resourceMenuID)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 		return
 	}
 	level := 0
 	if req.ParentID > 0 {
-		var menu *model.ResourceWebMenu
-		menu, err = dao.ResourceWebMenu.Select(ctx, req.ParentID)
+		var menu *model.ResourceMenu
+		menu, err = dao.ResourceMenu.Select(ctx, req.ParentID)
 		if err != nil {
 			return
 		}
@@ -359,7 +359,7 @@ func (*resource) UpdateWebMenu(ctx context.Context, resourceWebMenuID model.ID, 
 	leaf := req.Leaf == 1
 	if leaf { // 检查是否有子菜单，如果有提示用户不能设置为叶子菜单
 		var count int64
-		count, err = dao.ResourceWebMenu.CountByParentID(ctx, rwr.ID)
+		count, err = dao.ResourceMenu.CountByParentID(ctx, rwr.ID)
 		if err != nil {
 			return
 		}
@@ -377,19 +377,19 @@ func (*resource) UpdateWebMenu(ctx context.Context, resourceWebMenuID model.ID, 
 	rwr.Leaf = leaf
 	rwr.ParentID = req.ParentID
 	rwr.ResourceServerID = req.ResourceServerID
-	err = dao.ResourceWebMenu.Update(ctx, rwr)
+	err = dao.ResourceMenu.Update(ctx, rwr)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 	}
 	return
 }
 
-// DeleteWebMenu 删除web菜单
-func (*resource) DeleteWebMenu(ctx context.Context, resourceWebMenuIDs ...model.ID) (err error) {
-	// 验证Web路由是否被使用，如果被使用不能删除
-	for _, resourceWebMenuID := range resourceWebMenuIDs {
+// DeleteMenu 删除菜单
+func (*resource) DeleteMenu(ctx context.Context, resourceMenuIDs ...model.ID) (err error) {
+	// 验证路由是否被使用，如果被使用不能删除
+	for _, resourceMenuID := range resourceMenuIDs {
 		var exist bool
-		exist, err = dao.RoleResourceRelation.ExistByRelationTypeAndRelationID(ctx, model.RoleResourceRelationTypeWebMenu, resourceWebMenuID)
+		exist, err = dao.RoleResourceRelation.ExistByRelationTypeAndRelationID(ctx, model.RoleResourceRelationTypeMenu, resourceMenuID)
 		if err != nil {
 			logrus.WithContext(ctx).Errorln(err)
 			return
@@ -399,24 +399,24 @@ func (*resource) DeleteWebMenu(ctx context.Context, resourceWebMenuIDs ...model.
 			return
 		}
 	}
-	err = dao.ResourceWebMenu.DeleteInIDs(ctx, resourceWebMenuIDs...)
+	err = dao.ResourceMenu.DeleteInIDs(ctx, resourceMenuIDs...)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 	}
 	return
 }
 
-// ListWebMenuByResourceID 根据资源服务器ID获取Web路由
-func (r *resource) ListWebMenuByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceWebMenu, err error) {
-	return dao.ResourceWebMenu.ListByResourceServerID(ctx, resourceID, limit)
+// ListMenuByResourceID 根据资源服务器ID获取路由
+func (r *resource) ListMenuByResourceID(ctx context.Context, resourceID model.ID, limit int) (list []*model.ResourceMenu, err error) {
+	return dao.ResourceMenu.ListByResourceServerID(ctx, resourceID, limit)
 }
 
-// ListWebMenuPaged ...
-func (r *resource) ListWebMenuPaged(ctx context.Context, start, limit int) (result []*model.ResultResourceWebMenu, total int64, err error) {
+// ListMenuPaged ...
+func (r *resource) ListMenuPaged(ctx context.Context, start, limit int) (result []*model.ResultResourceMenu, total int64, err error) {
 	var (
-		rwmList []*model.ResourceWebMenu
+		rwmList []*model.ResourceMenu
 	)
-	rwmList, total, err = dao.ResourceWebMenu.ListPaged(ctx, start, limit)
+	rwmList, total, err = dao.ResourceMenu.ListPaged(ctx, start, limit)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
@@ -424,32 +424,32 @@ func (r *resource) ListWebMenuPaged(ctx context.Context, start, limit int) (resu
 		return
 	}
 	for _, rwm := range rwmList {
-		resultRes := &model.ResultResourceWebMenu{
-			ResourceWebMenu: rwm,
+		resultRes := &model.ResultResourceMenu{
+			ResourceMenu: rwm,
 		}
 		if rwm.ResourceServerID > 0 {
 			resultRes.ResourceServer, _ = dao.Resource.Select(ctx, rwm.ResourceServerID)
 		}
 		if rwm.ParentID > 0 {
-			resultRes.ParentResourceWebMenu, _ = dao.ResourceWebMenu.Select(ctx, rwm.ParentID)
+			resultRes.ParentResourceMenu, _ = dao.ResourceMenu.Select(ctx, rwm.ParentID)
 		}
 		result = append(result, resultRes)
 	}
 	return
 }
 
-// GetResourceWebMenu resource web menu
-func (*resource) GetResourceWebMenu(ctx context.Context, resourceWebMenuID model.ID) (resource *model.ResourceWebMenu, err error) {
-	resource, err = dao.ResourceWebMenu.Select(ctx, resourceWebMenuID)
+// GetResourceMenu resource  menu
+func (*resource) GetResourceMenu(ctx context.Context, resourceMenuID model.ID) (resource *model.ResourceMenu, err error) {
+	resource, err = dao.ResourceMenu.Select(ctx, resourceMenuID)
 	return
 }
 
-// ListWebMenuPagedByRoleCode ...
-func (r *resource) ListWebMenuPagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (result []*model.ResourceWebMenu, total int64, err error) {
+// ListMenuPagedByRoleCode ...
+func (r *resource) ListMenuPagedByRoleCode(ctx context.Context, start, limit int, roleCode model.Code) (result []*model.ResourceMenu, total int64, err error) {
 	var (
 		rrwrList []*model.RoleResourceRelation
 	)
-	rrwrList, total, err = dao.RoleResourceRelation.ListPagedByRelationTypeAndRoleCode(ctx, start, limit, model.RoleResourceRelationTypeWebMenu, roleCode)
+	rrwrList, total, err = dao.RoleResourceRelation.ListPagedByRelationTypeAndRoleCode(ctx, start, limit, model.RoleResourceRelationTypeMenu, roleCode)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
@@ -457,8 +457,8 @@ func (r *resource) ListWebMenuPagedByRoleCode(ctx context.Context, start, limit 
 		return
 	}
 	for _, rrwr := range rrwrList {
-		var rwr *model.ResourceWebMenu
-		rwr, err = dao.ResourceWebMenu.Select(ctx, rrwr.RelationID)
+		var rwr *model.ResourceMenu
+		rwr, err = dao.ResourceMenu.Select(ctx, rrwr.RelationID)
 		if err != nil {
 			return
 		}
@@ -467,37 +467,37 @@ func (r *resource) ListWebMenuPagedByRoleCode(ctx context.Context, start, limit 
 	return
 }
 
-func (r *resource) RecursiveResourceWebMenu(ctx context.Context, resourceServerID model.ID) []*model.ResourceWebMenu {
+func (r *resource) RecursiveResourceMenu(ctx context.Context, resourceServerID model.ID) []*model.ResourceMenu {
 	if resourceServerID <= 0 {
 		return nil
 	}
 	var (
-		rootResourceWebMenus []*model.ResourceWebMenu
-		err                  error
+		rootResourceMenus []*model.ResourceMenu
+		err               error
 	)
-	rootResourceWebMenus, err = dao.ResourceWebMenu.ListRootByResourceServerID(ctx, resourceServerID)
+	rootResourceMenus, err = dao.ResourceMenu.ListRootByResourceServerID(ctx, resourceServerID)
 	if err != nil {
-		logrus.Errorf("dao.ResourceWebMenu.ListRootByResourceServerID(%v): %s", resourceServerID, err)
+		logrus.Errorf("dao.ResourceMenu.ListRootByResourceServerID(%v): %s", resourceServerID, err)
 	}
-	r.recursiveResourceWebMenu(ctx, rootResourceWebMenus)
-	return rootResourceWebMenus
+	r.recursiveResourceMenu(ctx, rootResourceMenus)
+	return rootResourceMenus
 }
 
-func (r *resource) recursiveResourceWebMenu(ctx context.Context, webMenus []*model.ResourceWebMenu) {
-	if len(webMenus) == 0 {
+func (r *resource) recursiveResourceMenu(ctx context.Context, menus []*model.ResourceMenu) {
+	if len(menus) == 0 {
 		return
 	}
 	var (
-		childWebMenus []*model.ResourceWebMenu
-		err           error
+		childMenus []*model.ResourceMenu
+		err        error
 	)
-	for _, webMenu := range webMenus {
-		childWebMenus, err = dao.ResourceWebMenu.ListByResourceServerIDAndParentID(ctx, webMenu.ResourceServerID, webMenu.ID, -1)
+	for _, menu := range menus {
+		childMenus, err = dao.ResourceMenu.ListByResourceServerIDAndParentID(ctx, menu.ResourceServerID, menu.ID, -1)
 		if err != nil {
-			logrus.Errorf("dao.ResourceWebMenu.ListByResourceServerIDAndParentID(%v, %v, -1): %s", webMenu.ResourceServerID, webMenu.ID, err)
+			logrus.Errorf("dao.ResourceMenu.ListByResourceServerIDAndParentID(%v, %v, -1): %s", menu.ResourceServerID, menu.ID, err)
 		}
-		r.recursiveResourceWebMenu(ctx, childWebMenus)
-		webMenu.ChildResourceWebMenus = childWebMenus
+		r.recursiveResourceMenu(ctx, childMenus)
+		menu.ChildResourceMenus = childMenus
 	}
 }
 

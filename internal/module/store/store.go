@@ -103,14 +103,13 @@ func initMySQL() {
 		&model.Organization{},
 		&model.Role{},
 		&model.RoleResourceRelation{},
-		&model.RoleResourceWebFunction{},
 		&model.User{},
 		&model.UserInfo{},
 		&model.UserRole{},
 		&model.UserOrganization{},
 		&model.Resource{},
-		&model.ResourceWebRoute{},
-		&model.ResourceWebMenu{},
+		&model.ResourceRoute{},
+		&model.ResourceMenu{},
 		&model.ResourceAction{},
 	)
 }

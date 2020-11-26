@@ -15,17 +15,17 @@ type ResultResourceServer struct {
 	Organization   *Organization `json:"organization"`
 }
 
-// ResultResourceWebRoute 返回资源服务器中的Web路由
-type ResultResourceWebRoute struct {
-	ResourceServer   *Resource         `json:"resource_server"`
-	ResourceWebRoute *ResourceWebRoute `json:"resource_web_route"`
+// ResultResourceRoute 返回资源服务器中的路由
+type ResultResourceRoute struct {
+	ResourceServer *Resource      `json:"resource_server"`
+	ResourceRoute  *ResourceRoute `json:"resource_route"`
 }
 
-// ResultResourceWebMenu 返回资源服务器中的Web菜单
-type ResultResourceWebMenu struct {
-	ResourceServer        *Resource        `json:"resource_server"`
-	ResourceWebMenu       *ResourceWebMenu `json:"resource_web_menu"`
-	ParentResourceWebMenu *ResourceWebMenu `json:"parent_resource_web_menu"`
+// ResultResourceMenu 返回资源服务器中的菜单
+type ResultResourceMenu struct {
+	ResourceServer     *Resource     `json:"resource_server"`
+	ResourceMenu       *ResourceMenu `json:"resource_menu"`
+	ParentResourceMenu *ResourceMenu `json:"parent_resource_menu"`
 }
 
 // ResultResourceAction 返回资源服务器中的动作

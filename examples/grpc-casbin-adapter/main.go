@@ -39,7 +39,7 @@ func main() {
 	Enforcer.AddFunction("MyDomKeyMatch2", MyDomKeyMatch2Func)
 	Enforcer.AddFunction("MyRegexMatch", MyRegexMatchFunc)
 	// 验证
-	aaa, ww := Enforcer.Enforce("role:root", "resource:1:web_route", "/alice_data/111", "POST")
+	aaa, ww := Enforcer.Enforce("role:root", "resource:1:route", "/alice_data/111", "POST")
 	log.Println(aaa, ww)
 	signal.AwaitExit()
 }

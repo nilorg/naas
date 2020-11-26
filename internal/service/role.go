@@ -62,10 +62,10 @@ func (r *role) GetAllRoleByUserID(ctx context.Context, userID model.ID) (roles [
 	return
 }
 
-// ListResourceWebRouteByRoleCode 根据RoleCode获取资源服务器Web路由
-func (r *role) ListResourceWebRouteByRoleCode(ctx context.Context, roleCode model.Code, limit int) (list []*model.ResourceWebRoute, err error) {
+// ListResourceRouteByRoleCode 根据RoleCode获取资源服务器路由
+func (r *role) ListResourceRouteByRoleCode(ctx context.Context, roleCode model.Code, limit int) (list []*model.ResourceRoute, err error) {
 	var rrwrList []*model.RoleResourceRelation
-	rrwrList, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCode(ctx, model.RoleResourceRelationTypeWebRoute, roleCode, limit)
+	rrwrList, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCode(ctx, model.RoleResourceRelationTypeRoute, roleCode, limit)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 		return
@@ -74,7 +74,7 @@ func (r *role) ListResourceWebRouteByRoleCode(ctx context.Context, roleCode mode
 	for _, rrwr := range rrwrList {
 		ids = append(ids, rrwr.RelationID)
 	}
-	list, err = dao.ResourceWebRoute.ListInIDs(ctx, ids...)
+	list, err = dao.ResourceRoute.ListInIDs(ctx, ids...)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 	}
@@ -263,14 +263,14 @@ func (r *role) AddRoleResourceRelation(
 			return
 		}
 
-		if relationType == model.RoleResourceRelationTypeWebRoute {
-			var resourceWebRoute *model.ResourceWebRoute
-			resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, relationID)
+		if relationType == model.RoleResourceRelationTypeRoute {
+			var resourceRoute *model.ResourceRoute
+			resourceRoute, err = dao.ResourceRoute.Select(ctx, relationID)
 			if err != nil {
 				logrus.WithContext(ctx).Errorln(err)
 				return
 			}
-			sub, dom, obj, act := formatWebRoutePolicy(roleCode, resourceWebRoute)
+			sub, dom, obj, act := formatRoutePolicy(roleCode, resourceRoute)
 			_, casbinErr := casbin.Enforcer.DeletePermission(sub, dom, obj, act)
 			if casbinErr != nil {
 				logrus.Errorf("casbin.Enforcer.DeletePermission: %s", casbinErr)
@@ -287,18 +287,18 @@ func (r *role) AddRoleResourceRelation(
 		if err != nil {
 			return
 		}
-		if relationType == model.RoleResourceRelationTypeWebRoute {
-			var resourceWebRoute *model.ResourceWebRoute
-			resourceWebRoute, err = dao.ResourceWebRoute.Select(ctx, relationID)
+		if relationType == model.RoleResourceRelationTypeRoute {
+			var resourceRoute *model.ResourceRoute
+			resourceRoute, err = dao.ResourceRoute.Select(ctx, relationID)
 			if err != nil {
 				logrus.WithContext(ctx).Errorln(err)
 				return
 			}
-			if resourceWebRoute.ResourceServerID != resourceServerID {
-				err = errors.New("Web路由的资源服务器ID不匹配")
+			if resourceRoute.ResourceServerID != resourceServerID {
+				err = errors.New("路由的资源服务器ID不匹配")
 				return
 			}
-			sub, dom, obj, act := formatWebRoutePolicy(roleCode, resourceWebRoute)
+			sub, dom, obj, act := formatRoutePolicy(roleCode, resourceRoute)
 			_, casbinErr := casbin.Enforcer.AddPolicy(sub, dom, obj, act)
 			if casbinErr != nil {
 				logrus.Errorf("casbin.Enforcer.AddPolicy: %s", casbinErr)
