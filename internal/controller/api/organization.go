@@ -18,9 +18,9 @@ type organization struct {
 // @Description	根据组织ID,获取一个组织
 // @Accept  json
 // @Produce	json
-// @Param 	org_id	path	string	true	"org id"
+// @Param 	organization_id	path	string	true	"org id"
 // @Success 200	{object}	Result
-// @Router /organizations/{org_id} [GET]
+// @Router /organizations/{organization_id} [GET]
 // @Security OAuth2AccessCode
 func (*organization) GetOne(ctx *gin.Context) {
 	var (
@@ -70,15 +70,15 @@ func (*organization) Create(ctx *gin.Context) {
 // @Description	根据组织ID,删除一个组织
 // @Accept  json
 // @Produce	json
-// @Param 	org_id	path	string	true	"organization id"
+// @Param 	organization_id	path	string	true	"organization id"
 // @Success 200	{object}	Result
-// @Router /organizations/{org_id} [DELETE]
+// @Router /organizations/{organization_id} [DELETE]
 // @Security OAuth2AccessCode
 func (*organization) Delete(ctx *gin.Context) {
 	var (
 		err error
 	)
-	idsStringSplit := strings.Split(ctx.Param("org_id"), ",")
+	idsStringSplit := strings.Split(ctx.Param("organization_id"), ",")
 	var idsUint64Split []model.ID
 	for _, id := range idsStringSplit {
 		idsUint64Split = append(idsUint64Split, model.ConvertStringToID(id))
@@ -97,17 +97,17 @@ func (*organization) Delete(ctx *gin.Context) {
 // @Description	根据组织ID,修改一个组织
 // @Accept  json
 // @Produce	json
-// @Param 	org_id	path	string	true	"organization id"
+// @Param 	organization_id	path	string	true	"organization id"
 // @Param 	body	body	service.OrganizationEditModel	true	"组织需要修改的信息"
 // @Success 200	{object}	Result
-// @Router /organizations/{org_id} [PUT]
+// @Router /organizations/{organization_id} [PUT]
 // @Security OAuth2AccessCode
 func (*organization) Update(ctx *gin.Context) {
 	var (
 		org service.OrganizationEditModel
 		err error
 	)
-	orgID := model.ConvertStringToID(ctx.Param("org_id"))
+	orgID := model.ConvertStringToID(ctx.Param("organization_id"))
 	err = ctx.ShouldBindJSON(&org)
 	if err != nil {
 		writeError(ctx, err)

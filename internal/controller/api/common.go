@@ -16,11 +16,13 @@ type common struct {
 // SelectQueryChildren 查询方法
 // @Tags 		Common（通用）
 // @Summary		查询角色
-// @Description	org:组织
-// @Description	xxxx:其他
+// @Description	organization:组织
+// @Description	resource_server:资源服务器
+// @Description	role:角色
+// @Description	oauth2_scope:OAuth2Scope
 // @Accept  json
 // @Produce	json
-// @Param q query string true "查询参数" Enums(org,xxxx)
+// @Param q query string true "查询参数" Enums(organization,resource_server,role,oauth2_scope)
 // @Param pageSize query int true "页大小"
 // @Success 200	{object}	Result{data=model.ResultSelect}
 // @Router /common/select [GET]
@@ -38,10 +40,9 @@ func (c *common) SelectQueryChildren() gin.HandlerFunc {
 // @Tags 		Common（通用）
 // @Summary		查询角色
 // @Description	resource_web_menu:web菜单
-// @Description	xxxx:其他
 // @Accept  json
 // @Produce	json
-// @Param q query string true "查询参数" Enums(resource_web_menu,xxxx)
+// @Param q query string true "查询参数" Enums(resource_web_menu)
 // @Param pageSize query int true "页大小"
 // @Success 200	{object}	Result{data=model.ResultSelect}
 // @Router /common/tree [GET]

@@ -10,6 +10,15 @@ import (
 type casbin struct {
 }
 
+// GetScopeOne 获取资源服务器Web路由
+// @Tags 		Casbin
+// @Summary		获取资源服务器Web路由翻页列表
+// @Accept  json
+// @Produce	json
+// @Param 	resource_server_id	path	string	true	"resource server id"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Router /casbin/resource/{resource_server_id}/web_routes [GET]
+// @Security OAuth2AccessCode
 func (*casbin) ListResourceWebRoutes(ctx *gin.Context) {
 	var (
 		list []*model.ResourceWebRoute
@@ -24,6 +33,17 @@ func (*casbin) ListResourceWebRoutes(ctx *gin.Context) {
 	}
 	writeData(ctx, model.NewTableListData(*pagination, list))
 }
+
+// GetScopeOne 根据角色获取资源服务器Web路由
+// @Tags 		Casbin
+// @Summary		根据角色获取资源服务器Web路由翻页列表
+// @Accept  json
+// @Produce	json
+// @Param 	role_code	path	string	true	"role code"
+// @Param 	resource_server_id	path	string	true	"resource server id"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Router /casbin/role/{role_code}/resource/{resource_server_id}/web_routes [GET]
+// @Security OAuth2AccessCode
 func (*casbin) ListRoleResourceWebRoutes(ctx *gin.Context) {
 	var (
 		list []*model.RoleResourceRelation
@@ -46,7 +66,7 @@ func (*casbin) ListRoleResourceWebRoutes(ctx *gin.Context) {
 // @Produce	json
 // @Param	role_code		path	string	true	"角色Code"
 // @Success 200	{object}	Result
-// @Router /casbin/role/:role_code/resource_web_routes [POST]
+// @Router /casbin/role/{role_code}/resource_web_routes [PUT]
 // @Security OAuth2AccessCode
 func (*casbin) AddResourceWebRoute(ctx *gin.Context) {
 	roleCode := ctx.Param("role_code")
@@ -74,7 +94,7 @@ func (*casbin) AddResourceWebRoute(ctx *gin.Context) {
 // @Produce	json
 // @Param	role_code		path	string	true	"角色Code"
 // @Success 200	{object}	Result
-// @Router /casbin/role/:role_code/resource_web_menus [POST]
+// @Router /casbin/role/{role_code}/resource_web_menus [PUT]
 // @Security OAuth2AccessCode
 func (*casbin) AddResourceWebMenu(ctx *gin.Context) {
 	roleCode := ctx.Param("role_code")
@@ -95,6 +115,15 @@ func (*casbin) AddResourceWebMenu(ctx *gin.Context) {
 	writeData(ctx, nil)
 }
 
+// GetScopeOne 获取资源服务器Web菜单
+// @Tags 		Casbin
+// @Summary		获取资源服务器Web菜单翻页列表
+// @Accept  json
+// @Produce	json
+// @Param 	resource_server_id	path	string	true	"resource server id"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Router /casbin/resource/{resource_server_id}/web_menus [GET]
+// @Security OAuth2AccessCode
 func (*casbin) ListResourceWebMenus(ctx *gin.Context) {
 	var (
 		list []*model.ResourceWebMenu
@@ -110,6 +139,16 @@ func (*casbin) ListResourceWebMenus(ctx *gin.Context) {
 	writeData(ctx, model.NewTableListData(*pagination, list))
 }
 
+// GetScopeOne 根据角色获取资源服务器Web菜单
+// @Tags 		Casbin
+// @Summary		根据角色获取资源服务器Web菜单翻页列表
+// @Accept  json
+// @Produce	json
+// @Param 	role_code	path	string	true	"role code"
+// @Param 	resource_server_id	path	string	true	"resource server id"
+// @Success 200	{object}	Result{data=model.TableListData}
+// @Router /casbin/role/{role_code}/resource/{resource_server_id}/web_menus [GET]
+// @Security OAuth2AccessCode
 func (*casbin) ListRoleResourceWebMenus(ctx *gin.Context) {
 	var (
 		list []*model.RoleResourceRelation

@@ -195,10 +195,10 @@ func RunHTTP() {
 			apiGroup.PUT("/oauth2/scopes/:scop_code", api.OAuth2.EditScope)
 
 			apiGroup.GET("/organizations", api.Organization.QueryChildren())
-			apiGroup.GET("/organizations/:org_id", api.Organization.GetOne)
+			apiGroup.GET("/organizations/:organization_id", api.Organization.GetOne)
 			apiGroup.POST("/organizations", api.Organization.Create)
-			apiGroup.PUT("/organizations/:org_id", api.Organization.Update)
-			apiGroup.DELETE("/organizations/:org_id", api.Organization.Delete)
+			apiGroup.PUT("/organizations/:organization_id", api.Organization.Update)
+			apiGroup.DELETE("/organizations/:organization_id", api.Organization.Delete)
 
 			apiGroup.GET("/casbin/resource/:resource_server_id/web_routes", api.Casbin.ListResourceWebRoutes)
 			apiGroup.GET("/casbin/role/:role_code/resource/:resource_server_id/web_routes", api.Casbin.ListRoleResourceWebRoutes)
@@ -206,7 +206,6 @@ func RunHTTP() {
 
 			apiGroup.GET("/casbin/resource/:resource_server_id/web_menus", api.Casbin.ListResourceWebMenus)
 			apiGroup.GET("/casbin/role/:role_code/resource/:resource_server_id/web_menus", api.Casbin.ListRoleResourceWebMenus)
-
 			apiGroup.PUT("/casbin/role/:role_code/resource_web_menus", api.Casbin.AddResourceWebMenu)
 
 			apiGroup.GET("/common/select", api.Common.SelectQueryChildren())

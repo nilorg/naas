@@ -16,6 +16,15 @@ import (
 type file struct {
 }
 
+// Upload 文件上传
+// @Tags 		文件
+// @Summary		文件上传
+// @Accept multipart/form-data
+// @Produce	json
+// @Param file formData file true "upload file"
+// @Success 200	{object}	Result
+// @Router /files [POST]
+// @Security OAuth2AccessCode
 func (*file) Upload(ctx *gin.Context) {
 	var (
 		finfos []storage.UploadFileInfoer

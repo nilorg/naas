@@ -16,9 +16,11 @@ type role struct {
 // @Summary		查询角色
 // @Description	recursive:递归获取所有角色
 // @Description	list:查询列表
+// @Description	tree_select:选择列表
+// @Description	tree_node:选择列表节点
 // @Accept  json
 // @Produce	json
-// @Param q query string true "查询参数" Enums(recursive,list)
+// @Param q query string true "查询参数" Enums(recursive,list,tree_select,tree_node)
 // @Success 200	{object}	Result{data=model.TableListData}
 // @Success 200	{object}	Result{data=[]model.Role}
 // @Router /roles [GET]

@@ -59,6 +59,29 @@ definitions:
       updated_at:
         type: string
     type: object
+  model.Organization:
+    properties:
+      child_organizations:
+        items:
+          $ref: '#/definitions/model.Organization'
+        type: array
+      code:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
   model.Pagination:
     properties:
       current:
@@ -91,6 +114,8 @@ definitions:
         type: string
       name:
         type: string
+      organization_id:
+        type: integer
       parent_code:
         type: string
       updated_at:
@@ -169,6 +194,24 @@ definitions:
       secret:
         type: string
     type: object
+  service.ResourceWebMenuEdit:
+    properties:
+      icon:
+        type: string
+      leaf:
+        description: 是：子组件，否：是父组件
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      resource_server_id:
+        type: integer
+      serial_number:
+        type: integer
+      url:
+        type: string
+    type: object
   service.ResourceWebRouteEdit:
     properties:
       method:
@@ -195,11 +238,31 @@ definitions:
       website:
         type: string
     type: object
+  service.RoleEditModel:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: integer
+      parent_code:
+        type: string
+    type: object
   service.UserUpdateModel:
     properties:
       password:
         type: string
       username:
+        type: string
+    type: object
+  service.UserUpdateRoleModel:
+    properties:
+      organization_id:
+        type: integer
+      roles:
         type: string
     type: object
 host: localhost:8080
@@ -216,18 +279,184 @@ info:
   title: NilOrg认证授权服务
   version: "1.0"
 paths:
+  /casbin/resource/{resource_server_id}/web_menus:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: resource server id
+        in: path
+        name: resource_server_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取资源服务器Web菜单翻页列表
+      tags:
+      - Casbin
+  /casbin/resource/{resource_server_id}/web_routes:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: resource server id
+        in: path
+        name: resource_server_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取资源服务器Web路由翻页列表
+      tags:
+      - Casbin
+  /casbin/role/{role_code}/resource/{resource_server_id}/web_menus:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: role code
+        in: path
+        name: role_code
+        required: true
+        type: string
+      - description: resource server id
+        in: path
+        name: resource_server_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 根据角色获取资源服务器Web菜单翻页列表
+      tags:
+      - Casbin
+  /casbin/role/{role_code}/resource/{resource_server_id}/web_routes:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: role code
+        in: path
+        name: role_code
+        required: true
+        type: string
+      - description: resource server id
+        in: path
+        name: resource_server_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 根据角色获取资源服务器Web路由翻页列表
+      tags:
+      - Casbin
+  /casbin/role/{role_code}/resource_web_menus:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 角色Code
+        in: path
+        name: role_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加资源web菜单
+      tags:
+      - Casbin
+  /casbin/role/{role_code}/resource_web_routes:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 角色Code
+        in: path
+        name: role_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加资源web路由
+      tags:
+      - Casbin
   /common/select:
     get:
       consumes:
       - application/json
       description: |-
-        org:组织
-        xxxx:其他
+        organization:组织
+        resource_server:资源服务器
+        role:角色
+        oauth2_scope:OAuth2Scope
       parameters:
       - description: 查询参数
         enum:
-        - org
-        - xxxx
+        - organization
+        - resource_server
+        - role
+        - oauth2_scope
         in: query
         name: q
         required: true
@@ -253,7 +482,64 @@ paths:
       - OAuth2AccessCode: []
       summary: 查询角色
       tags:
-      - Role（角色）
+      - Common（通用）
+  /common/tree:
+    get:
+      consumes:
+      - application/json
+      description: resource_web_menu:web菜单
+      parameters:
+      - description: 查询参数
+        enum:
+        - resource_web_menu
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: 页大小
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResultSelect'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 查询角色
+      tags:
+      - Common（通用）
+  /files:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: upload file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 文件上传
+      tags:
+      - 文件
   /oauth2/clients:
     get:
       consumes:
@@ -398,6 +684,34 @@ paths:
       summary: scope
       tags:
       - OAuth2
+    put:
+      consumes:
+      - application/json
+      description: 根据客户端ID,修改一个客户端的范围
+      parameters:
+      - description: client id
+        in: path
+        name: client_id
+        required: true
+        type: string
+      - description: 用户需要修改的角色
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.UserUpdateRoleModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个客户端的范围
+      tags:
+      - OAuth2
   /oauth2/scopes:
     get:
       consumes:
@@ -516,18 +830,18 @@ paths:
     get:
       consumes:
       - application/json
-      description: 查询组织翻页数据
+      description: |-
+        recursive:递归获取所有组织
+        list:查询列表
       parameters:
-      - description: 当前页
+      - description: 查询参数
+        enum:
+        - recursive
+        - list
         in: query
-        name: current
+        name: q
         required: true
-        type: integer
-      - description: 页大小
-        in: query
-        name: pageSize
-        required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -538,7 +852,9 @@ paths:
             - $ref: '#/definitions/api.Result'
             - properties:
                 data:
-                  $ref: '#/definitions/model.TableListData'
+                  items:
+                    $ref: '#/definitions/model.Organization'
+                  type: array
               type: object
       security:
       - OAuth2AccessCode: []
@@ -568,7 +884,7 @@ paths:
       summary: 创建组织
       tags:
       - Organization（组织）
-  /organizations/{org_id}:
+  /organizations/{organization_id}:
     delete:
       consumes:
       - application/json
@@ -576,7 +892,7 @@ paths:
       parameters:
       - description: organization id
         in: path
-        name: org_id
+        name: organization_id
         required: true
         type: string
       produces:
@@ -598,7 +914,7 @@ paths:
       parameters:
       - description: org id
         in: path
-        name: org_id
+        name: organization_id
         required: true
         type: string
       produces:
@@ -620,7 +936,7 @@ paths:
       parameters:
       - description: organization id
         in: path
-        name: org_id
+        name: organization_id
         required: true
         type: string
       - description: 组织需要修改的信息
@@ -748,6 +1064,61 @@ paths:
       summary: 修改一个资源
       tags:
       - Resource（资源）
+  /resource/web_menus:
+    get:
+      consumes:
+      - application/json
+      description: 查询资源服务器Web菜单翻页数据
+      parameters:
+      - description: 当前页
+        in: query
+        name: current
+        required: true
+        type: integer
+      - description: 页大小
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 查询资源服务器Web菜单
+      tags:
+      - ResourceWebMenu（资源服务器Web菜单）
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceWebMenuEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加web菜单
+      tags:
+      - ResourceWebMenu（资源服务器Web路由）
   /resource/web_routes:
     get:
       consumes:
@@ -803,7 +1174,80 @@ paths:
       summary: 添加web路由
       tags:
       - ResourceWebRoute（资源服务器Web路由）
-  /resource/web_routes/:resource_web_route_id:
+  /resource/web_routes/{resource_web_menu_id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据菜单ID,获取一个Web菜单
+      parameters:
+      - description: resource web menu id
+        in: path
+        name: resource_web_menu_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个Web菜单
+      tags:
+      - ResourceWebMenu（资源服务器Web菜单）
+    put:
+      consumes:
+      - application/json
+      description: 根据资源web菜单ID,修改一个资源web菜单
+      parameters:
+      - description: resource web menu id
+        in: path
+        name: resource_web_menu_id
+        required: true
+        type: string
+      - description: Web路由需要修改的信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.ResourceWebMenuEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个资源web菜单
+      tags:
+      - ResourceWebMenu（资源服务器Web菜单）
+  /resource/web_routes/{resource_web_route_id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据路由ID,获取一个Web路由
+      parameters:
+      - description: resource web route id
+        in: path
+        name: resource_web_route_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个Web路由
+      tags:
+      - ResourceWebRoute（资源服务器Web路由）
     put:
       consumes:
       - application/json
@@ -832,15 +1276,15 @@ paths:
       summary: 修改一个资源web路由
       tags:
       - ResourceWebRoute（资源服务器Web路由）
-  /resource/web_routes/{resource_web_route_id}:
-    get:
+  /roles:
+    delete:
       consumes:
       - application/json
-      description: 根据路由ID,获取一个Web路由
+      description: 根据角色Code,删除一个角色
       parameters:
-      - description: resource web route id
-        in: path
-        name: resource_web_route_id
+      - description: role code
+        in: query
+        name: codes
         required: true
         type: string
       produces:
@@ -852,21 +1296,24 @@ paths:
             $ref: '#/definitions/api.Result'
       security:
       - OAuth2AccessCode: []
-      summary: 获取一个Web路由
+      summary: 删除一个角色
       tags:
-      - ResourceWebRoute（资源服务器Web路由）
-  /roles:
+      - Role（角色）
     get:
       consumes:
       - application/json
       description: |-
         recursive:递归获取所有角色
         list:查询列表
+        tree_select:选择列表
+        tree_node:选择列表节点
       parameters:
       - description: 查询参数
         enum:
         - recursive
         - list
+        - tree_select
+        - tree_node
         in: query
         name: q
         required: true
@@ -890,19 +1337,61 @@ paths:
       summary: 查询角色
       tags:
       - Role（角色）
-  /roles/{role_code}/resource_web_route/{resource_web_route_id}:
     post:
       consumes:
       - application/json
+      description: 创建角色
       parameters:
-      - description: 角色Code
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.RoleEditModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 创建角色
+      tags:
+      - Role（角色）
+    put:
+      consumes:
+      - application/json
+      description: 根据角色Code,修改一个角色
+      parameters:
+      - description: 角色需要修改的信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.RoleEditModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个角色
+      tags:
+      - Role（角色）
+  /roles/{role_code}:
+    get:
+      consumes:
+      - application/json
+      description: 根据角色Code,获取一个角色
+      parameters:
+      - description: role code
         in: path
         name: role_code
-        required: true
-        type: string
-      - description: 资源web路由ID
-        in: path
-        name: resource_web_route_id
         required: true
         type: string
       produces:
@@ -914,7 +1403,7 @@ paths:
             $ref: '#/definitions/api.Result'
       security:
       - OAuth2AccessCode: []
-      summary: 添加资源web路由
+      summary: 获取一个角色
       tags:
       - Role（角色）
   /users:
@@ -1044,6 +1533,114 @@ paths:
       security:
       - OAuth2AccessCode: []
       summary: 修改一个用户
+      tags:
+      - User（用户）
+  /users/{user_id}/organizations:
+    get:
+      consumes:
+      - application/json
+      description: 根据用户ID,获取一个用户的组织
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个用户的组织
+      tags:
+      - User（用户）
+    put:
+      consumes:
+      - application/json
+      description: 根据用户ID,修改一个用户的组织
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 用户需要修改的组织
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.UserUpdateRoleModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个用户的组织
+      tags:
+      - User（用户）
+  /users/{user_id}/organizations/{organization_id}/roles:
+    get:
+      consumes:
+      - application/json
+      description: 根据用户ID,获取一个用户的某个组织的角色
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: organization id
+        in: path
+        name: organization_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取一个用户的某个组织的角色
+      tags:
+      - User（用户）
+  /users/{user_id}/roles:
+    put:
+      consumes:
+      - application/json
+      description: 根据用户ID,修改一个用户的角色
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 用户需要修改的角色
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.UserUpdateRoleModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 修改一个用户的角色
       tags:
       - User（用户）
 securityDefinitions:

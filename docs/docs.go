@@ -33,14 +33,13 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/common/select": {
+        "/casbin/resource/{resource_server_id}/web_menus": {
             "get": {
                 "security": [
                     {
                         "OAuth2AccessCode": []
                     }
                 ],
-                "description": "org:组织\nxxxx:其他",
                 "consumes": [
                     "application/json"
                 ],
@@ -48,14 +47,295 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Role（角色）"
+                    "Casbin"
+                ],
+                "summary": "获取资源服务器Web菜单翻页列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource server id",
+                        "name": "resource_server_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/casbin/resource/{resource_server_id}/web_routes": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Casbin"
+                ],
+                "summary": "获取资源服务器Web路由翻页列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource server id",
+                        "name": "resource_server_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/casbin/role/{role_code}/resource/{resource_server_id}/web_menus": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Casbin"
+                ],
+                "summary": "根据角色获取资源服务器Web菜单翻页列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "role code",
+                        "name": "role_code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "resource server id",
+                        "name": "resource_server_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/casbin/role/{role_code}/resource/{resource_server_id}/web_routes": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Casbin"
+                ],
+                "summary": "根据角色获取资源服务器Web路由翻页列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "role code",
+                        "name": "role_code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "resource server id",
+                        "name": "resource_server_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/casbin/role/{role_code}/resource_web_menus": {
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Casbin"
+                ],
+                "summary": "添加资源web菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色Code",
+                        "name": "role_code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/casbin/role/{role_code}/resource_web_routes": {
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Casbin"
+                ],
+                "summary": "添加资源web路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色Code",
+                        "name": "role_code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/common/select": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "organization:组织\nresource_server:资源服务器\nrole:角色\noauth2_scope:OAuth2Scope",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Common（通用）"
                 ],
                 "summary": "查询角色",
                 "parameters": [
                     {
                         "enum": [
-                            "org",
-                            "xxxx"
+                            "organization",
+                            "resource_server",
+                            "role",
+                            "oauth2_scope"
                         ],
                         "type": "string",
                         "description": "查询参数",
@@ -88,6 +368,101 @@ var doc = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/common/tree": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "resource_web_menu:web菜单",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Common（通用）"
+                ],
+                "summary": "查询角色",
+                "parameters": [
+                    {
+                        "enum": [
+                            "resource_web_menu"
+                        ],
+                        "type": "string",
+                        "description": "查询参数",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResultSelect"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/files": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文件"
+                ],
+                "summary": "文件上传",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "upload file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
                         }
                     }
                 }
@@ -337,6 +712,50 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据客户端ID,修改一个客户端的范围",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth2"
+                ],
+                "summary": "修改一个客户端的范围",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "client id",
+                        "name": "client_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "用户需要修改的角色",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.UserUpdateRoleModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
             }
         },
         "/oauth2/scopes": {
@@ -527,7 +946,7 @@ var doc = `{
                         "OAuth2AccessCode": []
                     }
                 ],
-                "description": "查询组织翻页数据",
+                "description": "recursive:递归获取所有组织\nlist:查询列表",
                 "consumes": [
                     "application/json"
                 ],
@@ -540,16 +959,13 @@ var doc = `{
                 "summary": "查询组织",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "当前页",
-                        "name": "current",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页大小",
-                        "name": "pageSize",
+                        "enum": [
+                            "recursive",
+                            "list"
+                        ],
+                        "type": "string",
+                        "description": "查询参数",
+                        "name": "q",
                         "in": "query",
                         "required": true
                     }
@@ -566,7 +982,10 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.TableListData"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Organization"
+                                            }
                                         }
                                     }
                                 }
@@ -613,7 +1032,7 @@ var doc = `{
                 }
             }
         },
-        "/organizations/{org_id}": {
+        "/organizations/{organization_id}": {
             "get": {
                 "security": [
                     {
@@ -635,7 +1054,7 @@ var doc = `{
                     {
                         "type": "string",
                         "description": "org id",
-                        "name": "org_id",
+                        "name": "organization_id",
                         "in": "path",
                         "required": true
                     }
@@ -670,7 +1089,7 @@ var doc = `{
                     {
                         "type": "string",
                         "description": "organization id",
-                        "name": "org_id",
+                        "name": "organization_id",
                         "in": "path",
                         "required": true
                     },
@@ -714,7 +1133,7 @@ var doc = `{
                     {
                         "type": "string",
                         "description": "organization id",
-                        "name": "org_id",
+                        "name": "organization_id",
                         "in": "path",
                         "required": true
                     }
@@ -903,6 +1322,98 @@ var doc = `{
                 }
             }
         },
+        "/resource/web_menus": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "查询资源服务器Web菜单翻页数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebMenu（资源服务器Web菜单）"
+                ],
+                "summary": "查询资源服务器Web菜单",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "当前页",
+                        "name": "current",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebMenu（资源服务器Web路由）"
+                ],
+                "summary": "添加web菜单",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceWebMenuEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
         "/resource/web_routes": {
             "get": {
                 "security": [
@@ -995,14 +1506,14 @@ var doc = `{
                 }
             }
         },
-        "/resource/web_routes/:resource_web_route_id": {
-            "put": {
+        "/resource/web_routes/{resource_web_menu_id}": {
+            "get": {
                 "security": [
                     {
                         "OAuth2AccessCode": []
                     }
                 ],
-                "description": "根据资源web路由ID,修改一个资源web路由",
+                "description": "根据菜单ID,获取一个Web菜单",
                 "consumes": [
                     "application/json"
                 ],
@@ -1010,14 +1521,49 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ResourceWebRoute（资源服务器Web路由）"
+                    "ResourceWebMenu（资源服务器Web菜单）"
                 ],
-                "summary": "修改一个资源web路由",
+                "summary": "获取一个Web菜单",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "resource web route id",
-                        "name": "resource_web_route_id",
+                        "description": "resource web menu id",
+                        "name": "resource_web_menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源web菜单ID,修改一个资源web菜单",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebMenu（资源服务器Web菜单）"
+                ],
+                "summary": "修改一个资源web菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource web menu id",
+                        "name": "resource_web_menu_id",
                         "in": "path",
                         "required": true
                     },
@@ -1027,7 +1573,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.ResourceWebRouteEdit"
+                            "$ref": "#/definitions/service.ResourceWebMenuEdit"
                         }
                     }
                 ],
@@ -1076,6 +1622,50 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据资源web路由ID,修改一个资源web路由",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ResourceWebRoute（资源服务器Web路由）"
+                ],
+                "summary": "修改一个资源web路由",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource web route id",
+                        "name": "resource_web_route_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Web路由需要修改的信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ResourceWebRouteEdit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
             }
         },
         "/roles": {
@@ -1085,7 +1675,7 @@ var doc = `{
                         "OAuth2AccessCode": []
                     }
                 ],
-                "description": "recursive:递归获取所有角色\nlist:查询列表",
+                "description": "recursive:递归获取所有角色\nlist:查询列表\ntree_select:选择列表\ntree_node:选择列表节点",
                 "consumes": [
                     "application/json"
                 ],
@@ -1100,7 +1690,9 @@ var doc = `{
                     {
                         "enum": [
                             "recursive",
-                            "list"
+                            "list",
+                            "tree_select",
+                            "tree_node"
                         ],
                         "type": "string",
                         "description": "查询参数",
@@ -1132,15 +1724,14 @@ var doc = `{
                         }
                     }
                 }
-            }
-        },
-        "/roles/{role_code}/resource_web_route/{resource_web_route_id}": {
-            "post": {
+            },
+            "put": {
                 "security": [
                     {
                         "OAuth2AccessCode": []
                     }
                 ],
+                "description": "根据角色Code,修改一个角色",
                 "consumes": [
                     "application/json"
                 ],
@@ -1150,19 +1741,123 @@ var doc = `{
                 "tags": [
                     "Role（角色）"
                 ],
-                "summary": "添加资源web路由",
+                "summary": "修改一个角色",
+                "parameters": [
+                    {
+                        "description": "角色需要修改的信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.RoleEditModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "创建角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role（角色）"
+                ],
+                "summary": "创建角色",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.RoleEditModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据角色Code,删除一个角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role（角色）"
+                ],
+                "summary": "删除一个角色",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "角色Code",
-                        "name": "role_code",
-                        "in": "path",
+                        "description": "role code",
+                        "name": "codes",
+                        "in": "query",
                         "required": true
-                    },
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/roles/{role_code}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据角色Code,获取一个角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Role（角色）"
+                ],
+                "summary": "获取一个角色",
+                "parameters": [
                     {
                         "type": "string",
-                        "description": "资源web路由ID",
-                        "name": "resource_web_route_id",
+                        "description": "role code",
+                        "name": "role_code",
                         "in": "path",
                         "required": true
                     }
@@ -1385,6 +2080,177 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/users/{user_id}/organizations": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据用户ID,获取一个用户的组织",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User（用户）"
+                ],
+                "summary": "获取一个用户的组织",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据用户ID,修改一个用户的组织",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User（用户）"
+                ],
+                "summary": "修改一个用户的组织",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "用户需要修改的组织",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.UserUpdateRoleModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/organizations/{organization_id}/roles": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据用户ID,获取一个用户的某个组织的角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User（用户）"
+                ],
+                "summary": "获取一个用户的某个组织的角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "organization id",
+                        "name": "organization_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/roles": {
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "description": "根据用户ID,修改一个用户的角色",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User（用户）"
+                ],
+                "summary": "修改一个用户的角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "用户需要修改的角色",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.UserUpdateRoleModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1477,6 +2343,41 @@ var doc = `{
                 }
             }
         },
+        "model.Organization": {
+            "type": "object",
+            "properties": {
+                "child_organizations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Organization"
+                    }
+                },
+                "code": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Pagination": {
             "type": "object",
             "properties": {
@@ -1525,6 +2426,9 @@ var doc = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
                 },
                 "parent_code": {
                     "type": "string"
@@ -1646,6 +2550,33 @@ var doc = `{
                 }
             }
         },
+        "service.ResourceWebMenuEdit": {
+            "type": "object",
+            "properties": {
+                "icon": {
+                    "type": "string"
+                },
+                "leaf": {
+                    "description": "是：子组件，否：是父组件",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "resource_server_id": {
+                    "type": "integer"
+                },
+                "serial_number": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "service.ResourceWebRouteEdit": {
             "type": "object",
             "properties": {
@@ -1686,6 +2617,26 @@ var doc = `{
                 }
             }
         },
+        "service.RoleEditModel": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "parent_code": {
+                    "type": "string"
+                }
+            }
+        },
         "service.UserUpdateModel": {
             "type": "object",
             "properties": {
@@ -1693,6 +2644,17 @@ var doc = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.UserUpdateRoleModel": {
+            "type": "object",
+            "properties": {
+                "organization_id": {
+                    "type": "integer"
+                },
+                "roles": {
                     "type": "string"
                 }
             }

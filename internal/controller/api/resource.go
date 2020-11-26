@@ -173,7 +173,7 @@ func (*resource) AddWebRoute(ctx *gin.Context) {
 // @Param 	resource_web_route_id	path	string	true	"resource web route id"
 // @Param 	body	body	service.ResourceWebRouteEdit	true	"Web路由需要修改的信息"
 // @Success 200	{object}	Result
-// @Router /resource/web_routes/:resource_web_route_id [PUT]
+// @Router /resource/web_routes/{resource_web_route_id} [PUT]
 // @Security OAuth2AccessCode
 func (*resource) UpdateWebRoute(ctx *gin.Context) {
 	var (
@@ -298,7 +298,7 @@ func (*resource) AddWebMenu(ctx *gin.Context) {
 // @Param 	resource_web_menu_id	path	string	true	"resource web menu id"
 // @Param 	body	body	service.ResourceWebMenuEdit	true	"Web路由需要修改的信息"
 // @Success 200	{object}	Result
-// @Router /resource/web_routes/:resource_web_menu_id [PUT]
+// @Router /resource/web_routes/{resource_web_menu_id} [PUT]
 // @Security OAuth2AccessCode
 func (*resource) UpdateWebMenu(ctx *gin.Context) {
 	var (
