@@ -33,6 +33,54 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/casbin/resource/{resource_server_id}/actions": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Casbin"
+                ],
+                "summary": "获取资源服务器动作翻页列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource server id",
+                        "name": "resource_server_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/casbin/resource/{resource_server_id}/web_menus": {
             "get": {
                 "security": [
@@ -99,6 +147,61 @@ var doc = `{
                 ],
                 "summary": "获取资源服务器Web路由翻页列表",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resource server id",
+                        "name": "resource_server_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.TableListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/casbin/role/{role_code}/resource/{resource_server_id}/actions": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Casbin"
+                ],
+                "summary": "根据角色获取资源服务器动作",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "role code",
+                        "name": "role_code",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "resource server id",
@@ -234,6 +337,42 @@ var doc = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/casbin/role/{role_code}/resource_actions": {
+            "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Casbin"
+                ],
+                "summary": "添加资源动作",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色Code",
+                        "name": "role_code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Result"
                         }
                     }
                 }

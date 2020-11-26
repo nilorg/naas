@@ -173,3 +173,37 @@ func (cs *casbinService) ListRoleResourceWebMenuByRoleCodeAndResourceServerID(ct
 	}
 	return
 }
+
+// CasbinAddResourceActionModel ...
+type CasbinAddResourceActionModel struct {
+	ResourceActionIDs []model.ID `json:"resource_action_ids"`
+	ResourceServerID  model.ID   `json:"resource_server_id"`
+}
+
+// AddResourceAction 添加资源动作
+func (cs *casbinService) AddResourceAction(ctx context.Context, roleCode model.Code, create *CasbinAddResourceActionModel) (err error) {
+	err = Role.AddRoleResourceRelation(ctx, roleCode, model.RoleResourceRelationTypeAction, create.ResourceServerID, create.ResourceActionIDs...)
+	return
+}
+
+// ListResourceActionPagedByResourceServerID ...
+func (cs *casbinService) ListResourceActionPagedByResourceServerID(ctx context.Context, start, limit int, resourceServerID model.ID) (list []*model.ResourceAction, total int64, err error) {
+	list, total, err = dao.ResourceAction.ListPagedByResourceServerID(ctx, resourceServerID, start, limit)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+	}
+	return
+}
+
+// ListRoleResourceActionByRoleCodeAndResourceServerID ...
+func (cs *casbinService) ListRoleResourceActionByRoleCodeAndResourceServerID(ctx context.Context, roleCode model.Code, resourceServerID model.ID) (list []*model.RoleResourceRelation, err error) {
+	list, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCodeAndResourceServerID(ctx, model.RoleResourceRelationTypeAction, roleCode, resourceServerID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+	}
+	return
+}

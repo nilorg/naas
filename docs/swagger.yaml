@@ -292,6 +292,33 @@ info:
   title: NilOrg认证授权服务
   version: "1.0"
 paths:
+  /casbin/resource/{resource_server_id}/actions:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: resource server id
+        in: path
+        name: resource_server_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 获取资源服务器动作翻页列表
+      tags:
+      - Casbin
   /casbin/resource/{resource_server_id}/web_menus:
     get:
       consumes:
@@ -344,6 +371,38 @@ paths:
       security:
       - OAuth2AccessCode: []
       summary: 获取资源服务器Web路由翻页列表
+      tags:
+      - Casbin
+  /casbin/role/{role_code}/resource/{resource_server_id}/actions:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: role code
+        in: path
+        name: role_code
+        required: true
+        type: string
+      - description: resource server id
+        in: path
+        name: resource_server_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.TableListData'
+              type: object
+      security:
+      - OAuth2AccessCode: []
+      summary: 根据角色获取资源服务器动作
       tags:
       - Casbin
   /casbin/role/{role_code}/resource/{resource_server_id}/web_menus:
@@ -408,6 +467,28 @@ paths:
       security:
       - OAuth2AccessCode: []
       summary: 根据角色获取资源服务器Web路由翻页列表
+      tags:
+      - Casbin
+  /casbin/role/{role_code}/resource_actions:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 角色Code
+        in: path
+        name: role_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Result'
+      security:
+      - OAuth2AccessCode: []
+      summary: 添加资源动作
       tags:
       - Casbin
   /casbin/role/{role_code}/resource_web_menus:
