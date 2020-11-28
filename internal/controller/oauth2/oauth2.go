@@ -230,9 +230,6 @@ func Init() {
 		} else {
 			// 删除验证数据
 			value = new(oauth2.DeviceCodeValue)
-			// value.ClientID = clientID
-			// value.DeviceCode = deviceCode
-			// value.UserCode = userCode
 			value.Scope = RemoveRepeat(sdkStrings.Split(deviceValue["scope"], ","))
 			value.OpenID = deviceValue["open_id"]
 
