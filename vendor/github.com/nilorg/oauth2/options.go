@@ -61,6 +61,7 @@ func newServerOptions(opts ...ServerOption) ServerOptions {
 		Log:                                &DefaultLogger{},
 		Issuer:                             DefaultJwtIssuer,
 		DeviceAuthorizationEndpointEnabled: false,
+		DeviceVerificationURI:              "/device",
 		IntrospectEndpointEnabled:          false,
 		TokenRevocationEnabled:             false,
 	}

@@ -25,11 +25,24 @@ func writeError(ctx *gin.Context, err error) {
 // AuthToken 使用code获取Token
 func AuthToken(oauth2Client *oauth2.Client, redirectURI string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		code := ctx.Query("code")
-		clientID := ctx.Query("client_id")
-		token, err := oauth2Client.TokenAuthorizationCode(code, redirectURI, clientID)
+		grantType := ctx.Query(oauth2.GrantTypeKey)
+		var (
+			token *oauth2.TokenResponse
+			err   error
+		)
+		if grantType == oauth2.DeviceCodeKey {
+			deviceCode := ctx.Query(oauth2.DeviceCodeKey)
+			token, err = oauth2Client.TokenDeviceCode(deviceCode)
+		} else if grantType == oauth2.AuthorizationCodeKey {
+			code := ctx.Query(oauth2.CodeKey)
+			clientID := ctx.Query(oauth2.ClientIDKey)
+			token, err = oauth2Client.TokenAuthorizationCode(code, redirectURI, clientID)
+		} else {
+			writeError(ctx, oauth2.ErrInvalidGrant)
+			return
+		}
 		if err != nil {
-			logrus.Errorf("oauth2Client.TokenAuthorizationCode: %s", err)
+			logrus.Errorf("AuthToken: %s", err)
 			writeError(ctx, err)
 			return
 		}

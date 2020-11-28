@@ -1,7 +1,6 @@
 package oauth2
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -19,7 +18,7 @@ import (
 // LoginPage 登录页面
 func LoginPage(ctx *gin.Context) {
 	errMsg := GetErrorMessage(ctx)
-
+	geetestEnabled := viper.GetBool("geetest.enabled")
 	var (
 		err        error
 		clientInfo *model.OAuth2ClientInfo
@@ -28,17 +27,19 @@ func LoginPage(ctx *gin.Context) {
 	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if errMsg != "" {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error":       errMsg,
-			"client_info": clientInfo,
+			"error":           errMsg,
+			"client_info":     clientInfo,
+			"geetest_enabled": geetestEnabled,
 		})
 		return
 	} else if err != nil {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error": err.Error(),
+			"error":           err.Error(),
+			"geetest_enabled": geetestEnabled,
 		})
 		return
 	}
-	geetestEnabled := viper.GetBool("geetest.enabled")
+
 	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
 		"client_info":     clientInfo,
 		"geetest_enabled": geetestEnabled,
@@ -79,7 +80,6 @@ func Login(ctx *gin.Context) {
 				ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 				return
 			}
-			fmt.Printf("gt3.ValidateResponse: %+v\n", res)
 			if res.Seccode == "false" {
 				SetErrorMessage(ctx, "验证码未通过")
 				ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)

@@ -122,6 +122,13 @@ func RunHTTP() {
 		oauth2Group.POST("/authorize", middleware.OAuth2AuthRequired, oauth2.Authorize)
 		oauth2Group.POST("/token", oauth2.Token)
 		if viper.GetBool("server.oauth2.device_authorization_endpoint_enabled") {
+			oauth2Group.GET("/device/activate", oauth2.DeviceActivatePage)
+			oauth2Group.POST("/device/activate", oauth2.DeviceActivate)
+			oauth2Group.GET("/device/confirmation", middleware.OAuth2AuthDeviceRequired, oauth2.DeviceConfirmationPage)
+			oauth2Group.POST("/device/confirmation", middleware.OAuth2AuthDeviceRequired, oauth2.DeviceConfirmation)
+			oauth2Group.GET("/device/success", oauth2.DeviceSuccessPage)
+			oauth2Group.GET("/device/error", oauth2.DeviceErrorPage)
+
 			oauth2Group.POST("/device/code", oauth2.DeviceCode)
 		}
 		if viper.GetBool("server.oauth2.introspection_endpoint_enabled") {

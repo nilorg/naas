@@ -247,6 +247,7 @@ func (srv *Server) HandleToken(w http.ResponseWriter, r *http.Request) {
 
 	var reqClientBasic *ClientBasic
 	var err error
+	var clientID string
 	// explain: https://tools.ietf.org/html/rfc8628#section-3.4 {
 	if grantType != DeviceCodeKey && grantType != UrnIetfParamsOAuthGrantTypeDeviceCodeKey {
 		reqClientBasic, err = RequestClientBasic(r)
@@ -259,8 +260,9 @@ func (srv *Server) HandleToken(w http.ResponseWriter, r *http.Request) {
 			WriterError(w, err)
 			return
 		}
+		clientID = reqClientBasic.ID
 	} else {
-		clientID := r.PostFormValue(ClientIDKey)
+		clientID = r.PostFormValue(ClientIDKey)
 		err = srv.VerifyClientID(clientID)
 		if err != nil {
 			WriterError(w, err)
@@ -269,7 +271,7 @@ func (srv *Server) HandleToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	scope := r.PostFormValue(ScopeKey)
-	if err = srv.VerifyScope(StringSplit(scope, " "), reqClientBasic.ID); err != nil {
+	if err = srv.VerifyScope(StringSplit(scope, " "), clientID); err != nil {
 		// ErrInvalidScope
 		WriterError(w, err)
 		return
@@ -361,7 +363,7 @@ func (srv *Server) authorizeImplicit(clientID, scope, openID string) (token *Tok
 
 // 设备模式（Device Code）
 func (srv *Server) authorizeDeviceCode(clientID, scope string) (resp *DeviceAuthorizationResponse, err error) {
-	resp, err = srv.GenerateDeviceAuthorization(srv.opts.Issuer, srv.opts.DeviceVerificationURI, clientID, scope)
+	resp, err = srv.GenerateDeviceAuthorization(srv.opts.Issuer, srv.opts.DeviceVerificationURI, clientID, StringSplit(scope, " "))
 	return
 }
 

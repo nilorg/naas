@@ -1,0 +1,36 @@
+{{ define "device_confirmation.tmpl" }}
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    {{ template "import.head" }}
+    <link rel="stylesheet" href="/static/css/floating-labels.css" />
+    <title>激活设备</title>
+</head>
+
+<body>
+    <form method="POST" class="form-signin">
+        {{ if .error }}
+        <div class="text-center mb-4">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>错误：</strong> {{ .error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+        {{ end }}
+        <div class="form-label-group">
+            <input type="text" disabled id="inputUserCode" name="userCode" value="{{.user_code}}" class="form-control" placeholder="输入您的一次性代码" required
+                autofocus />
+            <label for="inputUserCode">用户授权码</label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit">确认</button>
+        <p class="mt-5 mb-3 text-muted text-center">&copy; <a target="_blank"
+                href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
+    </form>
+    {{ template "import.js" }}
+</body>
+
+</html>
+{{ end }}

@@ -21,7 +21,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/nilorg/geetest v1.0.0
-	github.com/nilorg/oauth2 v0.3.0
+	github.com/nilorg/oauth2 v0.3.2
 	github.com/nilorg/pkg v0.0.0-20200923011256-287aac349757
 	github.com/nilorg/sdk v0.0.0-20200912025101-a4037e6ee224
 	github.com/o1egl/govatar v0.3.0
@@ -34,6 +34,7 @@ require (
 	github.com/square/go-jose/v3 v3.0.0-20200630053402-0a67ce9b0693
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/swag v1.6.9
+	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392 // indirect
 	golang.org/x/net v0.0.0-20201031054903-ff519b6c9102
 	google.golang.org/genproto v0.0.0-20201106154455-f9bfe239b0ba
 	google.golang.org/grpc v1.33.2

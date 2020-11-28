@@ -33,7 +33,7 @@ type VerifyScopeFunc func(scope []string, clientID string) (err error)
 type GenerateAccessTokenFunc func(issuer, clientID, scope, openID string, code *CodeValue) (token *TokenResponse, err error)
 
 // GenerateDeviceAuthorizationFunc 生成设备授权
-type GenerateDeviceAuthorizationFunc func(issuer, verificationURI, clientID, scope string) (resp *DeviceAuthorizationResponse, err error)
+type GenerateDeviceAuthorizationFunc func(issuer, verificationURI, clientID string, scope []string) (resp *DeviceAuthorizationResponse, err error)
 
 // ParseAccessTokenFunc 解析AccessToken为JwtClaims委托
 type ParseAccessTokenFunc func(accessToken string) (claims *JwtClaims, err error)

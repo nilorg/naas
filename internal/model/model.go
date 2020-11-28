@@ -51,9 +51,19 @@ func ConvertStringToID(id string) ID {
 	return ID(convert.ToUint64(id))
 }
 
+// ConvertIDToString ID 转 string
+func ConvertIDToString(id ID) uint64 {
+	return uint64(id)
+}
+
 // ConvertStringToCode string 转 code
 func ConvertStringToCode(code string) Code {
 	return Code(code)
+}
+
+// ConvertCodeToString code 转 string
+func ConvertCodeToString(code Code) string {
+	return string(code)
 }
 
 // DiffIDSlice ...

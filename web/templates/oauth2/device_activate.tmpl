@@ -1,0 +1,97 @@
+{{ define "device_activate.tmpl" }}
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    {{ template "import.head" }}
+    <link rel="stylesheet" href="/static/css/floating-labels.css" />
+    <title>激活设备</title>
+    {{ if .geetest_enabled }}
+    <style>
+        .show {
+            display: block;
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+    {{ end }}
+</head>
+
+<body>
+    <form method="POST" class="form-signin">
+        {{ if .error }}
+        <div class="text-center mb-4">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>错误：</strong> {{ .error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+        {{ end }}
+        <div class="form-label-group">
+            <input type="text" id="inputUserCode" name="userCode" value="{{.user_code}}" class="form-control" placeholder="输入您的一次性代码" required
+                autofocus />
+            <label for="inputUserCode">用户授权码</label>
+        </div>
+        {{ if .geetest_enabled }}
+        <div class="form-label-group">
+            <p id="notice" class="hide">请先完成验证</p>
+            <div id="captcha">
+                <p id="wait" class="show">正在加载验证码......</p>
+            </div>
+        </div>
+        {{ end }}
+        <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit">确认</button>
+        <p class="mt-5 mb-3 text-muted text-center">&copy; <a target="_blank"
+                href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
+    </form>
+    {{ template "import.js" . }}
+
+    {{if .geetest_enabled}}
+    <script>
+        var handler = function (captchaObj) {
+            $("#submit").click(function (e) {
+                var result = captchaObj.getValidate();
+                if (!result) {
+                    $("#notice").show();
+                    setTimeout(function () {
+                        $("#notice").hide();
+                    }, 2000);
+                    e.preventDefault();
+                }
+            });
+            // 将验证码加到id为captcha的元素里，同时会有三个input的值用于表单提交
+            captchaObj.appendTo("#captcha");
+            captchaObj.onReady(function () {
+                $("#wait").hide();
+            });
+        };
+        $(document).ready(function () {
+            $.ajax({
+                url: "/geetest/register?q=device_code&t=" + (new Date()).getTime(), // 加随机数防止缓存
+                type: "get",
+                dataType: "json",
+                success: function (data) {
+                    // 调用 initGeetest 初始化参数
+                    // 参数1：配置参数
+                    // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它调用相应的接口
+                    initGeetest({
+                        gt: data.gt,
+                        challenge: data.challenge,
+                        new_captcha: data.new_captcha, // 用于宕机时表示是新验证码的宕机
+                        offline: !data.success, // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+                        product: "float", // 产品形式，包括：float，popup
+                        width: "100%"
+                    }, handler);
+                }
+            });
+        });
+    </script>
+    {{end}}
+</body>
+
+</html>
+{{ end }}

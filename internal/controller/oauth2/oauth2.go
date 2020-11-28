@@ -11,8 +11,6 @@ import (
 
 	"github.com/nilorg/sdk/convert"
 
-	"github.com/nilorg/pkg/slice"
-
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/naas/internal/model"
@@ -23,6 +21,8 @@ import (
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
 	"github.com/nilorg/oauth2"
+	"github.com/nilorg/pkg/slice"
+	sdkStrings "github.com/nilorg/sdk/strings"
 )
 
 var (
@@ -41,6 +41,7 @@ func Init() {
 	oauth2Server = oauth2.NewServer(
 		oauth2.ServerIssuer(viper.GetString("server.oauth2.issuer")),
 		oauth2.ServerDeviceAuthorizationEndpointEnabled(viper.GetBool("server.oauth2.device_authorization_endpoint_enabled")),
+		oauth2.ServerDeviceVerificationURI("/oauth2/device/activate"),
 		oauth2.ServerIntrospectEndpointEnabled(viper.GetBool("server.oauth2.introspection_endpoint_enabled")),
 		oauth2.ServerTokenRevocationEnabled(viper.GetBool("server.oauth2.revocation_endpoint_enabled")),
 	)
@@ -142,10 +143,101 @@ func Init() {
 		}
 		return
 	}
-	oauth2Server.GenerateDeviceAuthorization = func(issuer, verificationURI, clientID, scope string) (resp *oauth2.DeviceAuthorizationResponse, err error) {
+	oauth2Server.GenerateDeviceAuthorization = func(issuer, verificationURI, clientID string, scope []string) (resp *oauth2.DeviceAuthorizationResponse, err error) {
+		ctx := context.Background()
+
+		deviceCode := oauth2.RandomDeviceCode()
+		deviceCodeKey := key.WrapOAuth2DeviceCode(deviceCode)
+		userCode := oauth2.RandomUserCode()
+		userCodekey := key.WrapOAuth2UserCode(userCode)
+		expires := time.Now().Add(time.Minute)
+		err = store.RedisClient.HSet(
+			ctx, userCodekey,
+			"device_code", deviceCode,
+			"client_id", clientID,
+			"scope", strings.Join(scope, ","),
+		).Err()
+		if err != nil {
+			err = oauth2.ErrServerError
+			return
+		}
+		err = store.RedisClient.ExpireAt(ctx, userCodekey, expires).Err()
+		if err != nil {
+			logrus.Errorln(err)
+			err = oauth2.ErrServerError
+			return
+		}
+		err = store.RedisClient.HSet(
+			ctx, deviceCodeKey,
+			"user_code", userCode,
+			"client_id", clientID,
+			"scope", strings.Join(scope, ","),
+			"status", "0",
+			"open_id", "",
+		).Err()
+		if err != nil {
+			err = oauth2.ErrServerError
+			return
+		}
+		err = store.RedisClient.ExpireAt(ctx, deviceCodeKey, expires).Err()
+		if err != nil {
+			logrus.Errorln(err)
+			err = oauth2.ErrServerError
+			return
+		}
+		resp = new(oauth2.DeviceAuthorizationResponse)
+		// 有效的时间长度（以秒为单位）。
+		// 如果在那个时候用户没有完成授权流程，并且您的设备也没有轮询来检索有关用户决定的信息，则您可能需要从步骤1重新开始此过程。
+		resp.ExpiresIn = expires.Unix()
+		// 您的设备应在两次轮询请求之间等待的时间长度（以秒为单位）。
+		// 例如，如果值为5，则您的设备应每五秒钟向NAAS授权服务器发送一次轮询请求。
+		resp.Interval = 5
+		// NAAS唯一分配的值，用于标识运行请求授权的应用的设备。
+		// 用户将从具有更丰富输入功能的另一台设备授权该设备。
+		// 例如，用户可能使用笔记本电脑或移动电话来授权在电视上运行的应用。
+		// 在这种情况下，标识电视。 device_code 此代码可让运行该应用的设备安全地确定用户是否已授予访问权限。
+		resp.DeviceCode = deviceCode
+		// 区分大小写的值，用于向NAAS标识应用程序请求访问的范围。
+		// 您的用户界面将指示用户在具有更丰富输入功能的单独设备上输入此值。
+		// 然后，当提示用户授予对您的应用程序的访问权限时，NAAS使用该值显示正确的范围集。
+		resp.UserCode = userCode
+		// 用户必须在单独的设备上导航到的URL，以输入和授予或拒绝对您的应用程序的访问。
+		// 您的用户界面还将显示此值。user_code
+		resp.VerificationURI = issuer + verificationURI
+		resp.VerificationURIComplete = fmt.Sprintf("%s?user_code=%s", issuer+verificationURI, userCode)
 		return
 	}
 	oauth2Server.VerifyDeviceCode = func(deviceCode, clientID string) (value *oauth2.DeviceCodeValue, err error) {
+		ctx := context.Background()
+		deviceCodeKey := key.WrapOAuth2DeviceCode(deviceCode)
+		if store.RedisClient.Exists(ctx, deviceCodeKey).Val() != 1 {
+			err = oauth2.ErrAccessDenied
+			return
+		}
+		var deviceValue map[string]string
+		if deviceValue, err = store.RedisClient.HGetAll(ctx, deviceCodeKey).Result(); err != nil {
+			logrus.Errorln(err)
+			err = oauth2.ErrServerError
+			return
+		}
+		if deviceValue["client_id"] != clientID {
+			err = oauth2.ErrInvalidClient
+			return
+		}
+		// 检查用户是否同意授权
+		if deviceValue["status"] != "1" {
+			err = oauth2.ErrAuthorizationPending
+		} else {
+			// 删除验证数据
+			value = new(oauth2.DeviceCodeValue)
+			// value.ClientID = clientID
+			// value.DeviceCode = deviceCode
+			// value.UserCode = userCode
+			value.Scope = RemoveRepeat(sdkStrings.Split(deviceValue["scope"], ","))
+			value.OpenID = deviceValue["open_id"]
+
+			store.RedisClient.Del(ctx, deviceCodeKey)
+		}
 		return
 	}
 	oauth2Server.VerifyIntrospectionToken = func(token, clientID string, tokenTypeHint ...string) (resp *oauth2.IntrospectionResponse, err error) {

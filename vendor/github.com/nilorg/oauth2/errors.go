@@ -28,10 +28,10 @@ var (
 	ErrInvalidClient = errors.New("invalid_client")
 	// ErrExpiredToken 过期的令牌
 	ErrExpiredToken = errors.New("expired_token")
-	// ErrAuthorizationPending 授权之前
+	// ErrAuthorizationPending 授权待定
 	// https://tools.ietf.org/html/rfc8628#section-3.5
 	ErrAuthorizationPending = errors.New("authorization_pending")
-	// ErrSlowDown 慢下来
+	// ErrSlowDown 轮询太频繁
 	// https://tools.ietf.org/html/rfc8628#section-3.5
 	ErrSlowDown = errors.New("slow_down")
 	// ErrUnsupportedTokenType 不支持的令牌类型
@@ -103,19 +103,19 @@ var (
 	}
 	// ErrStatusCodes ...
 	ErrStatusCodes = map[error]int{
-		ErrInvalidRequest:          http.StatusBadRequest,          // 400
-		ErrUnauthorizedClient:      http.StatusUnauthorized,        // 401
-		ErrAccessDenied:            http.StatusForbidden,           // 403
-		ErrUnsupportedResponseType: http.StatusUnauthorized,        // 401
-		ErrInvalidScope:            http.StatusBadRequest,          // 400
-		ErrServerError:             http.StatusInternalServerError, // 400
-		ErrTemporarilyUnavailable:  http.StatusServiceUnavailable,  // 503
-		ErrInvalidClient:           http.StatusUnauthorized,        // 401
-		ErrInvalidGrant:            http.StatusUnauthorized,        // 401
-		ErrUnsupportedGrantType:    http.StatusUnauthorized,        // 401
-		ErrExpiredToken:            http.StatusUnauthorized,        // 401
-		ErrAuthorizationPending:    http.StatusUnauthorized,        // 401
-		ErrSlowDown:                http.StatusBadRequest,          // 400 https://tools.ietf.org/html/rfc6749#section-5.2
-		ErrUnsupportedTokenType:    http.StatusServiceUnavailable,  // 503 https://tools.ietf.org/html/rfc7009#section-2.2.1
+		ErrInvalidRequest:          http.StatusBadRequest,           // 400
+		ErrUnauthorizedClient:      http.StatusUnauthorized,         // 401
+		ErrAccessDenied:            http.StatusForbidden,            // 403
+		ErrUnsupportedResponseType: http.StatusUnauthorized,         // 401
+		ErrInvalidScope:            http.StatusBadRequest,           // 400
+		ErrServerError:             http.StatusInternalServerError,  // 400
+		ErrTemporarilyUnavailable:  http.StatusServiceUnavailable,   // 503
+		ErrInvalidClient:           http.StatusUnauthorized,         // 401
+		ErrInvalidGrant:            http.StatusUnauthorized,         // 401
+		ErrUnsupportedGrantType:    http.StatusUnauthorized,         // 401
+		ErrExpiredToken:            http.StatusUnauthorized,         // 401
+		ErrAuthorizationPending:    http.StatusPreconditionRequired, // 428
+		ErrSlowDown:                http.StatusForbidden,            // 403 https://tools.ietf.org/html/rfc6749#section-5.2
+		ErrUnsupportedTokenType:    http.StatusServiceUnavailable,   // 503 https://tools.ietf.org/html/rfc7009#section-2.2.1
 	}
 )

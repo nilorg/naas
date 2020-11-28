@@ -1,0 +1,25 @@
+{{ define "device_error.tmpl" }}
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    {{ template "import.head" }}
+    <link rel="stylesheet" href="/static/css/floating-labels.css" />
+    <title>激活设备错误</title>
+</head>
+
+<body>
+    <form method="POST" class="form-signin">
+        <div class="text-center mb-4">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>设备激活错误，用户代码无效或过期</strong>
+            </div>
+        </div>
+        <p class="mt-5 mb-3 text-muted text-center">&copy; <a target="_blank"
+                href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
+    </form>
+    {{ template "import.js" }}
+</body>
+
+</html>
+{{ end }}

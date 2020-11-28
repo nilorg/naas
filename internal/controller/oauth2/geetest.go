@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nilorg/geetest/gt3"
 	"github.com/nilorg/naas/internal/module/geetest"
+	"github.com/nilorg/oauth2"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -28,9 +29,13 @@ func GeetestRegister(ctx *gin.Context) {
 		res.Challenge = geetest.GeetestClient.BuildChallenge(registerRes.Challenge, "md5")
 		res.NewCaptcha = "true"
 	}
-
+	q := ctx.Query("q")
 	session := sessions.Default(ctx)
-	session.Set(gt3.GeetestServerStatusSessionKey, res.Success)
+	if q == oauth2.DeviceCodeKey {
+		session.Set("gt_server_status_for_device", res.Success)
+	} else {
+		session.Set(gt3.GeetestServerStatusSessionKey, res.Success)
+	}
 	session.Save()
 
 	ctx.JSON(http.StatusOK, res)

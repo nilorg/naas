@@ -9,7 +9,7 @@ Authentication authorization server（认证授权服务器）
     * ✅ 简化模式（Implicit Grant Type）
     * ✅ 密码模式（Resource Owner Password Credentials Grant）
     * ✅ 客户端模式（Client Credentials Grant）
-    * ❗️ 设备模式（Device Code）
+    * ✅ 设备模式（Device Code）
     * ✅ 内省端点（Token Introspection）
     * ✅ Token销毁端点（Token Revocation）
 

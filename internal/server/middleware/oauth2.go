@@ -1,11 +1,13 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/nilorg/naas/internal/model"
+	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/tools/key"
@@ -26,6 +28,42 @@ func OAuth2AuthRequired(ctx *gin.Context) {
 		redirectURI, _ := url.Parse("/oauth2/login")
 		redirectURIQuery := url.Values{}
 		redirectURIQuery.Set("client_id", clientID)
+		redirectURIQuery.Set("login_redirect_uri", uri.String())
+		redirectURI.RawQuery = redirectURIQuery.Encode()
+		ctx.Redirect(302, redirectURI.String())
+		ctx.Abort()
+	} else {
+		ctx.Next()
+	}
+}
+
+// OAuth2AuthDeviceRequired 设备身份验证
+func OAuth2AuthDeviceRequired(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	userCode := session.Get(key.SessionDeviceUserCode)
+	if userCode == nil {
+		ctx.Redirect(302, "/oauth2/device/error")
+		ctx.Abort()
+		return
+	}
+	userCodeKey := key.WrapOAuth2UserCode(userCode.(string))
+	if store.RedisClient.Exists(context.Background(), userCodeKey).Val() != 1 {
+		ctx.Redirect(302, "/oauth2/device/error")
+		ctx.Abort()
+		return
+	}
+	userValue, err := store.RedisClient.HGetAll(context.Background(), userCodeKey).Result()
+	if err != nil {
+		ctx.Redirect(302, "/oauth2/device/error")
+		ctx.Abort()
+		return
+	}
+	currentAccount := session.Get(key.SessionAccount)
+	if currentAccount == nil {
+		uri := *ctx.Request.URL
+		redirectURI, _ := url.Parse("/oauth2/login")
+		redirectURIQuery := url.Values{}
+		redirectURIQuery.Set("client_id", userValue["client_id"])
 		redirectURIQuery.Set("login_redirect_uri", uri.String())
 		redirectURI.RawQuery = redirectURIQuery.Encode()
 		ctx.Redirect(302, redirectURI.String())

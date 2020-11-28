@@ -43,13 +43,8 @@ func AuthorizePage(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
-	// uri := *ctx.Request.URL
-	// query := uri.Query()
-	query := ctx.Request.URL.Query()
-	queryRedirectURI := query.Get(oauth2.RedirectURIKey)
+	queryRedirectURI := ctx.Query(oauth2.RedirectURIKey)
 	if queryRedirectURI == "" {
-		// query.Set(oauth2.RedirectURIKey, client.RedirectURI)
-		// uri.RawQuery = query.Encode()
 		queryRedirectURI = client.RedirectURI
 	}
 	// 判断重定向URL存在数据库中的前缀
