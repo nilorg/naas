@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package nilorg.naas.pkg.proto;
+option go_package = "github.com/nilorg/naas/pkg/proto";
+
+// Resource 资源
+service Resource {
+    // ListActionByRoles 根据角色获取动作
+    rpc ListActionByRoles (ListActionByRolesRequest) returns (ListActionByRolesResponse) {}
+    // ListMenuByRoles 根据角色获取菜单
+    rpc ListMenuByRoles (ListMenuByRolesRequest) returns (ListMenuByRolesResponse) {}
+}
+
+// ListActionByRolesRequest 根据角色获取动作请求参数
+message ListActionByRolesRequest {
+    repeated string roles = 1;
+}
+
+message ResourceAction {
+    uint64 id = 1;
+    string name = 2;
+    string group = 3;
+    string description = 4;
+}
+
+// ListActionByRolesResponse 根据角色获取动作响应参数
+message ListActionByRolesResponse {
+    repeated ResourceAction actions = 1;
+}
+
+
+// ListMenuByRolesRequest 根据角色获取菜单请求参数
+message ListMenuByRolesRequest {
+    repeated string roles = 1;
+}
+
+message ResourceMenu {
+    uint64 id = 1;
+    string name = 2;
+    string icon = 3;
+    int32 level = 4;
+    int32 serial_number = 5;
+    bool leaf = 6;
+    uint64 parent_id = 7;
+}
+
+// VerificationTokenResponse 根据角色获取菜单响应参数
+message ListMenuByRolesResponse {
+    repeated ResourceMenu menus = 1;
+}

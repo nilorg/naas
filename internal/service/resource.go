@@ -3,8 +3,11 @@ package service
 import (
 	"context"
 
+	mapset "github.com/deckarep/golang-set"
 	"github.com/nilorg/naas/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/nilorg/naas/internal/dao"
@@ -87,6 +90,31 @@ func (r *resource) UpdateServer(ctx context.Context, id model.ID, update *Resour
 // GetServer resource
 func (*resource) GetServer(ctx context.Context, id model.ID) (resource *model.Resource, err error) {
 	resource, err = dao.Resource.Select(ctx, id)
+	return
+}
+
+// AuthServer 身份验证资源服务器
+func (r *resource) AuthServer(ctx context.Context, id model.ID, secret string) (err error) {
+	if id == 0 {
+		err = status.Error(codes.InvalidArgument, "request resource_server_id is empty")
+		return
+	}
+
+	if secret == "" {
+		err = status.Error(codes.InvalidArgument, "request resource_server_secret is empty")
+		return
+	}
+
+	var resource *model.Resource
+	resource, err = r.GetServer(ctx, id)
+	if err != nil {
+		logrus.Errorf("GetServer Error: %s", err)
+		err = status.Error(codes.Unavailable, "unauthorized resource")
+		return
+	}
+	if resource.Secret != secret {
+		err = status.Error(codes.Unavailable, "resource id or secret is not correct")
+	}
 	return
 }
 
@@ -501,6 +529,36 @@ func (r *resource) recursiveResourceMenu(ctx context.Context, menus []*model.Res
 	}
 }
 
+// ListMenuByResourceIDAndRoleCodes ...
+func (r *resource) ListMenuByResourceIDAndRoleCodes(ctx context.Context, resourceID model.ID, roleCodes ...string) (result []*model.ResourceMenu, err error) {
+	menuIDSet := mapset.NewSet()
+
+	for _, roleCode := range roleCodes {
+		var relationList []*model.RoleResourceRelation
+		relationList, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCodeAndResourceServerID(ctx, model.RoleResourceRelationTypeMenu, model.ConvertStringToCode(roleCode), resourceID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				err = nil
+			} else {
+				return
+			}
+		}
+		for _, relation := range relationList {
+			menuIDSet.Add(relation.RelationID)
+		}
+	}
+
+	for _, menuID := range menuIDSet.ToSlice() {
+		var menu *model.ResourceMenu
+		menu, err = dao.ResourceMenu.Select(ctx, menuID.(model.ID))
+		if err != nil {
+			return
+		}
+		result = append(result, menu)
+	}
+	return
+}
+
 // ================
 
 // ResourceActionEdit ...
@@ -660,6 +718,36 @@ func (r *resource) ListActionPagedByRoleCode(ctx context.Context, start, limit i
 	for _, relation := range relationList {
 		var action *model.ResourceAction
 		action, err = dao.ResourceAction.Select(ctx, relation.RelationID)
+		if err != nil {
+			return
+		}
+		result = append(result, action)
+	}
+	return
+}
+
+// ListActionByResourceIDAndRoleCodes ...
+func (r *resource) ListActionByResourceIDAndRoleCodes(ctx context.Context, resourceID model.ID, roleCodes ...string) (result []*model.ResourceAction, err error) {
+	actionIDSet := mapset.NewSet()
+
+	for _, roleCode := range roleCodes {
+		var relationList []*model.RoleResourceRelation
+		relationList, err = dao.RoleResourceRelation.ListByRelationTypeAndRoleCodeAndResourceServerID(ctx, model.RoleResourceRelationTypeAction, model.ConvertStringToCode(roleCode), resourceID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				err = nil
+			} else {
+				return
+			}
+		}
+		for _, relation := range relationList {
+			actionIDSet.Add(relation.RelationID)
+		}
+	}
+
+	for _, relation := range actionIDSet.ToSlice() {
+		var action *model.ResourceAction
+		action, err = dao.ResourceAction.Select(ctx, relation.(model.ID))
 		if err != nil {
 			return
 		}

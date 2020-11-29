@@ -2,10 +2,13 @@ package server
 
 import (
 	"context"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
@@ -20,10 +23,14 @@ import (
 	"github.com/nilorg/naas/internal/controller/open"
 	"github.com/nilorg/naas/internal/controller/service"
 	"github.com/nilorg/naas/internal/controller/wellknown"
+	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/global"
+	internalService "github.com/nilorg/naas/internal/service"
+	"github.com/nilorg/naas/pkg/proto"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 
 	// swagger doc ...
@@ -33,6 +40,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 
 	//ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/nilorg/naas/internal/pkg/contexts"
 	ginSwagger "github.com/nilorg/naas/internal/pkg/gin-swagger"
 )
 
@@ -238,18 +246,34 @@ func RunHTTP() {
 	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
 }
 
-func grpcOAuth2(inCtx context.Context) (outCtx context.Context, err error) {
-	var clientID string
-	clientID, err = grpc_auth.AuthFromMD(inCtx, "client_id")
+func grpcResourceAuth(inCtx context.Context) (outCtx context.Context, err error) {
+	var basic string
+	basic, err = grpc_auth.AuthFromMD(inCtx, "basic")
 	if err != nil {
 		return
 	}
-	var clientSecret string
-	clientSecret, err = grpc_auth.AuthFromMD(inCtx, "client_secret")
+	var basicBytes []byte
+	basicBytes, err = base64.StdEncoding.DecodeString(basic)
 	if err != nil {
 		return
 	}
-	logrus.Debugf("clientID: %s, clientSecret: %s", clientID, clientSecret)
+	ss := strings.SplitN(string(basicBytes), ":", 2)
+	if len(ss) != 2 {
+		err = errors.New("Invalid basic format")
+		return
+	}
+	logrus.Debugf("resourceID: %s, resourceSecret: %s", ss[0], ss[1])
+	err = internalService.Resource.AuthServer(inCtx, model.ConvertStringToID(ss[0]), ss[1])
+	if err != nil {
+		return
+	}
+	md, ok := metadata.FromIncomingContext(inCtx)
+	if !ok {
+		return
+	}
+	md.Set("resource_id", ss[0])
+	md.Set("resource_secret", ss[1])
+	outCtx = metadata.NewOutgoingContext(inCtx, md)
 	return
 }
 
@@ -260,14 +284,16 @@ func RunGRpc() {
 	gRPCServer := grpc.NewServer(
 		grpc.StreamInterceptor(
 			grpc_middleware.ChainStreamServer(
-				grpc_auth.StreamServerInterceptor(grpcOAuth2),
+				grpc_auth.StreamServerInterceptor(grpcResourceAuth),
 				grpc_logrus.StreamServerInterceptor(logrusEntry),
+				proto.StreamServerInterceptor(contexts.WithContext),
 			),
 		),
 		grpc.UnaryInterceptor(
 			grpc_middleware.ChainUnaryServer(
-				grpc_auth.UnaryServerInterceptor(grpcOAuth2),
+				grpc_auth.UnaryServerInterceptor(grpcResourceAuth),
 				grpc_logrus.UnaryServerInterceptor(logrusEntry),
+				proto.UnaryServerInterceptor(contexts.WithContext),
 			),
 		),
 	)

@@ -6,9 +6,8 @@ import (
 
 	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/store"
-	"github.com/nilorg/naas/internal/pkg/contexts"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/spf13/viper"
@@ -21,49 +20,15 @@ import (
 	"github.com/nilorg/naas/pkg/proto"
 )
 
-// PermissionService 许可服务
-type PermissionService struct {
-}
-
-func checkReSource(ctx context.Context, resource *proto.Resource) (err error) {
-	if resource == nil {
-		err = status.Error(codes.InvalidArgument, "request resource is nil")
-		return
-	}
-
-	if resource.GetId() == "" {
-		err = status.Error(codes.InvalidArgument, "request resource_server_id is empty")
-		return
-	}
-
-	if resource.GetSecret() == "" {
-		err = status.Error(codes.InvalidArgument, "request resource_server_secret is empty")
-		return
-	}
-
-	var (
-		rs    *model.Resource
-		rsErr error
-	)
-	rs, rsErr = service.Resource.GetServer(ctx, model.ConvertStringToID(resource.Id))
-	if rsErr != nil {
-		logrus.Errorf("service.Resource.GetServer Error: %s", rsErr)
-		err = status.Error(codes.Unavailable, oauth2.ErrUnauthorizedClient.Error())
-		return
-	}
-	if convert.ToString(rs.ID) != resource.Id || rs.Secret != resource.Secret {
-		err = status.Error(codes.Unavailable, "resource id or secret is not correct")
-	}
-	return
+// PermissionServer 许可服务服务器
+type PermissionServer struct {
 }
 
 // VerifyHttpRoute 验证Http路由
-func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.VerifyHttpRouteRequest) (res *proto.VerifyHttpRouteResponse, err error) {
-	ctx = contexts.WithContext(ctx)
-	err = checkReSource(ctx, req.Resource)
-	if err != nil {
-		return
-	}
+func (ctl *PermissionServer) VerifyHttpRoute(ctx context.Context, req *proto.VerifyHttpRouteRequest) (res *proto.VerifyHttpRouteResponse, err error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	resourceID := md.Get("resource_id")[0]
+
 	var openID model.ID
 	openID, err = ctl.verifyToken(ctx, req.Token, req.Oauth2ClientId)
 	if err != nil {
@@ -72,10 +37,10 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 	res = new(proto.VerifyHttpRouteResponse)
 	roles, _ := service.Role.GetAllRoleByUserID(ctx, openID)
 	for _, role := range roles {
-		sub := fmt.Sprintf("role:%s", role.RoleCode)             // 希望访问资源的用户
-		dom := fmt.Sprintf("resource:%s:route", req.Resource.Id) // 域/域租户,这里以资源为单位
-		obj := req.Path                                          // 要访问的资源
-		act := req.Method                                        // 用户对资源执行的操作
+		sub := fmt.Sprintf("role:%s", role.RoleCode)        // 希望访问资源的用户
+		dom := fmt.Sprintf("resource:%s:route", resourceID) // 域/域租户,这里以资源为单位
+		obj := req.Path                                     // 要访问的资源
+		act := req.Method                                   // 用户对资源执行的操作
 		check, checkErr := casbin.Enforcer.Enforce(sub, dom, obj, act)
 		if checkErr != nil {
 			err = status.Error(codes.Unavailable, checkErr.Error())
@@ -107,7 +72,7 @@ func (ctl *PermissionService) VerifyHttpRoute(ctx context.Context, req *proto.Ve
 }
 
 // verifyToken 验证Token
-func (ctl *PermissionService) verifyToken(ctx context.Context, token, oauth2ClientID string) (openID model.ID, err error) {
+func (ctl *PermissionServer) verifyToken(ctx context.Context, token, oauth2ClientID string) (openID model.ID, err error) {
 	if token == "" {
 		err = status.Error(codes.InvalidArgument, "request token is empty")
 		return
@@ -145,12 +110,7 @@ func (ctl *PermissionService) verifyToken(ctx context.Context, token, oauth2Clie
 }
 
 // VerifyToken 验证Token
-func (ctl *PermissionService) VerifyToken(ctx context.Context, req *proto.VerifyTokenRequest) (res *proto.VerifyTokenResponse, err error) {
-	ctx = contexts.WithContext(ctx)
-	err = checkReSource(ctx, req.Resource)
-	if err != nil {
-		return
-	}
+func (ctl *PermissionServer) VerifyToken(ctx context.Context, req *proto.VerifyTokenRequest) (res *proto.VerifyTokenResponse, err error) {
 	var openID model.ID
 	openID, err = ctl.verifyToken(ctx, req.Token, req.Oauth2ClientId)
 	if err != nil {

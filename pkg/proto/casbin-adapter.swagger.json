@@ -29,20 +29,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "resource_server_id",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "resource_server_secret",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
         "tags": [
           "CasbinAdapter"
         ]

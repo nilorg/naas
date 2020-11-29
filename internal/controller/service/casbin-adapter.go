@@ -6,29 +6,24 @@ import (
 
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/naas/pkg/proto"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
-// CasbinAdapterService casbin适配器服务端
-type CasbinAdapterService struct {
+// CasbinAdapterServer casbin适配器服务端
+type CasbinAdapterServer struct {
 }
 
 // LoadPolicy 加载规则
-func (ctl *CasbinAdapterService) LoadPolicy(ctx context.Context, req *proto.LoadPolicyRequest) (resp *proto.LoadPolicyResponse, err error) {
-	ctx = contexts.WithContext(ctx)
-	err = checkReSource(ctx, &proto.Resource{
-		Id:     req.ResourceServerId,
-		Secret: req.ResourceServerSecret,
-	})
-	if err != nil {
-		return
-	}
+func (ctl *CasbinAdapterServer) LoadPolicy(ctx context.Context, req *proto.LoadPolicyRequest) (resp *proto.LoadPolicyResponse, err error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	resourceID := md.Get("resource_id")[0]
+
 	resp = new(proto.LoadPolicyResponse)
-	results, resultErr := service.Resource.LoadPolicy(ctx, model.ConvertStringToID(req.ResourceServerId))
+	results, resultErr := service.Resource.LoadPolicy(ctx, model.ConvertStringToID(resourceID))
 	if resultErr != nil {
 		err = status.Error(codes.Unavailable, resultErr.Error())
 		return

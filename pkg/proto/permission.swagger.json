@@ -79,27 +79,12 @@
     }
   },
   "definitions": {
-    "protoResource": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "secret": {
-          "type": "string"
-        }
-      }
-    },
     "protoVerifyHttpRouteRequest": {
       "type": "object",
       "properties": {
         "oauth2_client_id": {
           "type": "string",
           "title": "oauth2 client id"
-        },
-        "resource": {
-          "$ref": "#/definitions/protoResource",
-          "title": "资源"
         },
         "token": {
           "type": "string",
@@ -162,10 +147,6 @@
         "oauth2_client_id": {
           "type": "string",
           "title": "oauth2 client id"
-        },
-        "resource": {
-          "$ref": "#/definitions/protoResource",
-          "title": "资源"
         },
         "token": {
           "type": "string",

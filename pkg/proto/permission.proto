@@ -23,25 +23,18 @@ service Permission {
     }
 }
 
-message Resource {
-    string id = 1;
-    string secret = 2;
-}
-
 // VerifyHttpRouteRequest 验证HTTP路由权限请求参数
 message VerifyHttpRouteRequest {
     // oauth2 client id
     string oauth2_client_id = 1;
-    // 资源
-    Resource resource = 2;
     // token
-    string token = 3;
+    string token = 2;
     // 路由
-    string path = 4;
+    string path = 3;
     // 请求方法
-    string method = 5;
+    string method = 4;
     // 是否返回用户信息,token验证通过的情况下
-    bool return_user_info = 6;
+    bool return_user_info = 5;
 }
 
 // VerificationHttpRouterResponse 验证HTTP路由权限响应参数
@@ -66,12 +59,10 @@ message VerifyHttpRouteResponse {
 message VerifyTokenRequest {
     // oauth2 client id
     string oauth2_client_id = 1;
-    // 资源
-    Resource resource = 2;
     // token
-    string token = 3;
+    string token = 2;
     // 是否返回用户信息,token验证通过的情况下
-    bool return_user_info = 4;
+    bool return_user_info = 3;
 }
 
 // VerificationTokenResponse 验证Token响应参数

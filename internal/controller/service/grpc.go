@@ -14,10 +14,10 @@ func RegisterGrpcGateway(mux *runtime.ServeMux) (err error) {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	if err = proto.RegisterPermissionHandlerServer(ctx, mux, new(PermissionService)); err != nil {
+	if err = proto.RegisterPermissionHandlerServer(ctx, mux, new(PermissionServer)); err != nil {
 		return
 	}
-	if err = proto.RegisterCasbinAdapterHandlerServer(ctx, mux, new(CasbinAdapterService)); err != nil {
+	if err = proto.RegisterCasbinAdapterHandlerServer(ctx, mux, new(CasbinAdapterServer)); err != nil {
 		return
 	}
 	return nil
@@ -25,6 +25,7 @@ func RegisterGrpcGateway(mux *runtime.ServeMux) (err error) {
 
 // RegisterGrpc 注册Grpc
 func RegisterGrpc(server *grpc.Server) {
-	proto.RegisterPermissionServer(server, new(PermissionService))
-	proto.RegisterCasbinAdapterServer(server, new(CasbinAdapterService))
+	proto.RegisterPermissionServer(server, new(PermissionServer))
+	proto.RegisterCasbinAdapterServer(server, new(CasbinAdapterServer))
+	proto.RegisterResourceServer(server, new(ResourceServer))
 }

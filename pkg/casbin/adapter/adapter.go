@@ -23,7 +23,7 @@ type Adapter struct {
 
 // NewAdapter is the constructor for Adapter.
 func NewAdapter(ctx context.Context, clientConn grpc.ClientConnInterface) *Adapter {
-	if ctx != nil {
+	if ctx == nil {
 		ctx = context.Background()
 	}
 	return &Adapter{
@@ -54,10 +54,8 @@ func (a *Adapter) LoadPolicy(model model.Model) error {
 
 func (a *Adapter) loadPolicyGrpc(model model.Model, handler func(string, model.Model)) (err error) {
 	var resp *proto.LoadPolicyResponse
-	resp, err = a.client.LoadPolicy(a.ctx, &proto.LoadPolicyRequest{
-		ResourceServerId:     a.ResourceID,
-		ResourceServerSecret: a.ResourceSecret,
-	})
+	ctx := proto.SetResourceAuth(a.ctx, a.ResourceID, a.ResourceSecret)
+	resp, err = a.client.LoadPolicy(ctx, &proto.LoadPolicyRequest{})
 	if err != nil {
 		return
 	}
