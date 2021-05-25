@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 
+	daprd "github.com/dapr/go-sdk/service/grpc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -120,6 +123,12 @@ func RunHTTP() {
 	if viper.GetBool("server.oidc.enabled") {
 		r.GET("/.well-known/jwks.json", wellknown.GetJwks)
 		r.GET("/.well-known/openid-configuration", wellknown.GetOpenIDProviderMetadata)
+		oidcGroup := r.Group("/oidc")
+		{
+			if viper.GetBool("server.oidc.userinfo_endpoint_enabled") {
+				oidcGroup.GET("/userinfo", middleware.OAuth2AuthUserinfoRequired(global.JwtPublicKey), oidc.GetUserinfo)
+			}
+		}
 	}
 
 	oauth2Group := r.Group("/oauth2")
@@ -144,14 +153,6 @@ func RunHTTP() {
 		}
 		if viper.GetBool("server.oauth2.revocation_endpoint_enabled") {
 			oauth2Group.POST("/revoke", oauth2.TokenRevoke)
-		}
-	}
-	if viper.GetBool("server.oidc.enabled") {
-		oidcGroup := r.Group("/oidc")
-		{
-			if viper.GetBool("server.oidc.userinfo_endpoint_enabled") {
-				oidcGroup.GET("/userinfo", middleware.OAuth2AuthUserinfoRequired(global.JwtPublicKey), oidc.GetUserinfo)
-			}
 		}
 	}
 	if viper.GetBool("server.open.enabled") {
@@ -336,4 +337,34 @@ func RunGRpcGateway() {
 			log.Printf("%s gateway server listen: %v\n", viper.GetString("server.name"), srvErr)
 		}
 	}()
+}
+
+// RunDapr 运行Dapr
+func RunDapr() {
+	addr := getEnvVar("DAPR_ADDRESS", ":50001")
+	// create serving server
+	daprdService, err := daprd.NewService(addr)
+	if err != nil {
+		log.Fatalf("dapr new service error: %v", err)
+	}
+	if err := service.RegisterDapr(daprdService); err != nil {
+		log.Fatalf("dapr register method error: %v", err)
+	}
+	logrus.Infof("启动Dapr: %s", addr)
+	go func() {
+		// start the server to handle incoming events
+		if err := daprdService.Start(); err != nil {
+			log.Fatalf("server error: %v", err)
+		}
+	}()
+}
+
+func getEnvVar(key, fallbackValue string) string {
+	if val, ok := os.LookupEnv(key); ok {
+		return strings.TrimSpace(val)
+	}
+	address := flag.String("address", fallbackValue, "service address")
+	flag.Parse()
+	fmt.Println(*address)
+	return *address
 }

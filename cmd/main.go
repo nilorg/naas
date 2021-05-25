@@ -41,4 +41,7 @@ func main() {
 	server.RunGRpc()
 	server.RunGRpcGateway()
 	server.RunHTTP()
+	if os.Getenv("DAPR_ENABLE") == "true" {
+		server.RunDapr()
+	}
 }

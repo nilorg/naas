@@ -2,7 +2,7 @@ package wellknown
 
 import (
 	"net/http"
-	"path"
+	"strings"
 
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
@@ -14,24 +14,24 @@ import (
 
 // GetOpenIDProviderMetadata ...
 func GetOpenIDProviderMetadata(ctx *gin.Context) {
-	issuer := viper.GetString("server.oauth2.issuer")
+	issuer := strings.TrimSuffix(viper.GetString("server.oauth2.issuer"), "/")
 	metadata := OpenIDProviderMetadata{
 		Issuer:                issuer,
-		AuthorizationEndpoint: path.Join(issuer, "/oauth2/authorize"),
-		TokenEndpoint:         path.Join(issuer, "/oauth2/token"),
-		JwksURI:               path.Join(issuer, "/.well-known/jwks.json"),
+		AuthorizationEndpoint: issuer + "/oauth2/authorize",
+		TokenEndpoint:         issuer + "/oauth2/token",
+		JwksURI:               issuer + "/.well-known/jwks.json",
 	}
 	if viper.GetBool("server.oauth2.device_authorization_endpoint_enabled") {
-		metadata.DeviceAuthorizationEndpoint = path.Join(issuer, "/oauth2/device/code")
+		metadata.DeviceAuthorizationEndpoint = issuer + "/oauth2/device/code"
 	}
 	if viper.GetBool("server.oauth2.introspection_endpoint_enabled") {
-		metadata.IntrospectionEndpoint = path.Join(issuer, "/oauth2/introspect")
+		metadata.IntrospectionEndpoint = issuer + "/oauth2/introspect"
 	}
 	if viper.GetBool("server.oauth2.revocation_endpoint_enabled") {
-		metadata.RevocationEndpoint = path.Join(issuer, "/oauth2/revoke")
+		metadata.RevocationEndpoint = issuer + "/oauth2/revoke"
 	}
 	if viper.GetBool("server.oidc.enabled") && viper.GetBool("server.oidc.userinfo_endpoint_enabled") {
-		metadata.UserinfoEndpoint = path.Join(issuer, "/oidc/userinfo")
+		metadata.UserinfoEndpoint = issuer + "/oidc/userinfo"
 	}
 	metadata.ResponseTypesSupported = append(metadata.ResponseTypesSupported,
 		"code",

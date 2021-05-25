@@ -315,3 +315,33 @@ role_code = {organization_code}_{custom_role_code}
 
 NAAS_DEV
 NAAS_OPS
+
+# Docker 启动命令
+
+```bash
+docker run -d \
+-p 8080:8080 -p 5000:5000 -p 9000:9000 \
+--name naas \
+-v /Users/kevin/docker-data/naas/configs:/workspace/configs \
+-v /Users/kevin/docker-data/naas/web:/workspace/web \
+--link mysql:mysql \
+--link redis:redis \
+nilorg/naas:latest
+
+docker run -d \
+-p 8081:8081 \
+--name naas-admin-token-server \
+--link naas:naas \
+-e OAUTH2_SERVER=http://naas:8080/oauth2 \
+-e OAUTH2_CLIENT_ID=1000 \
+-e OAUTH2_CLIENT_SECRET=83312b80-e69c-43f1-bcaa-358a1d1e7830 \
+-e OAUTH2_REDIRECT_URI=http://localhost:8800/auth/callback \
+nilorg/naas-token-server:0.5.1
+
+docker run -d \
+-p 8800:80 \
+--name nilorg-naas-web \
+--link naas:naas \
+--link naas-admin-token-server:naas-admin-token-server \
+nilorg/naas-web:latest
+```
