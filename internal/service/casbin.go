@@ -17,7 +17,7 @@ type casbinService struct{}
 
 func (cs *casbinService) InitLoadAllPolicy() {
 	ctx := contexts.WithContext(context.Background())
-	cs.initRoleForUser(ctx)
+	// cs.initRoleForUser(ctx)
 	cs.initRoleResourceRoute(ctx)
 }
 
@@ -54,33 +54,33 @@ func (*casbinService) initRoleResourceRoute(ctx context.Context) {
 	}
 }
 
-func (*casbinService) initRoleForUser(ctx context.Context) {
-	var (
-		err       error
-		userRoles []*model.UserRole
-		flag      bool
-	)
-	// 获取所有用户的角色
-	userRoles, err = dao.UserRole.SelectAll(ctx)
-	if err != nil {
-		logrus.Errorf("dao.UserRole.SelectAll: %s", err)
-		return
-	}
-	for _, userRole := range userRoles {
-		user, role, domain := formatRoleForUserInDomain(userRole.UserID, userRole.OrganizationID, userRole.RoleCode)
-		flag, err = casbin.Enforcer.AddRoleForUserInDomain(user, role, domain)
-		if err != nil {
-			logrus.Errorf("casbin.Enforcer.AddRoleForUserInDomain: %s", err)
-			err = nil
-			continue
-		}
-		logrus.Infof("casbin.Enforcer.AddRoleForUserInDomain-Flag: %v", flag)
-	}
-	err = casbin.Enforcer.SavePolicy()
-	if err != nil {
-		logrus.Errorf("casbin.Enforcer.SavePolicy: %s", err)
-	}
-}
+// func (*casbinService) initRoleForUser(ctx context.Context) {
+// 	var (
+// 		err       error
+// 		userRoles []*model.UserRole
+// 		flag      bool
+// 	)
+// 	// 获取所有用户的角色
+// 	userRoles, err = dao.UserRole.SelectAll(ctx)
+// 	if err != nil {
+// 		logrus.Errorf("dao.UserRole.SelectAll: %s", err)
+// 		return
+// 	}
+// 	for _, userRole := range userRoles {
+// 		user, role, domain := formatRoleForUserInDomain(userRole.UserID, userRole.OrganizationID, userRole.RoleCode)
+// 		flag, err = casbin.Enforcer.AddRoleForUserInDomain(user, role, domain)
+// 		if err != nil {
+// 			logrus.Errorf("casbin.Enforcer.AddRoleForUserInDomain: %s", err)
+// 			err = nil
+// 			continue
+// 		}
+// 		logrus.Infof("casbin.Enforcer.AddRoleForUserInDomain-Flag: %v", flag)
+// 	}
+// 	err = casbin.Enforcer.SavePolicy()
+// 	if err != nil {
+// 		logrus.Errorf("casbin.Enforcer.SavePolicy: %s", err)
+// 	}
+// }
 
 func formatRoutePolicy(roleCode model.Code, resourceRoute *model.ResourceRoute) (sub, dom, obj, act string) {
 	sub = fmt.Sprintf("role:%s", roleCode)                                 // 希望访问资源的角色
