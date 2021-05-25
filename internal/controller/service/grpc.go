@@ -28,4 +28,5 @@ func RegisterGrpc(server *grpc.Server) {
 	proto.RegisterPermissionServer(server, new(PermissionServer))
 	proto.RegisterCasbinAdapterServer(server, new(CasbinAdapterServer))
 	proto.RegisterResourceServer(server, new(ResourceServer))
+	proto.RegisterRoleServer(server, new(RoleServer))
 }
