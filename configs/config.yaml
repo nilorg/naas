@@ -121,9 +121,15 @@ casbin:
   config: configs/rbac_model.conf
 
 storage:
-  type: default
+  type: default # default/oss
   default: 
     base_path: ./web/storage
+  oss:
+    endpoint: oss-cn-shanghai.aliyuncs.com
+    bucket: xxx
+    access:
+      key_id: aaaaa
+      key_secret: bbbbb
   public_path: http://localhost:8080/storage
   max_memory: 20 # 20MB
 

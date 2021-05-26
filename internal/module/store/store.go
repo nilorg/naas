@@ -3,17 +3,19 @@ package store
 import (
 	"context"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
+	pkgStorage "github.com/nilorg/pkg/storage"
+	"github.com/nilorg/sdk/storage"
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-
-	"github.com/nilorg/sdk/storage"
-	"github.com/sirupsen/logrus"
 
 	"github.com/nilorg/naas/internal/model"
 	"github.com/spf13/viper"
@@ -115,12 +117,34 @@ func initMySQL() {
 }
 
 func initPicture() {
-	if viper.GetString("storage.type") == "default" {
+	typ := viper.GetString("storage.type")
+	if typ == "default" {
+		basePath := viper.GetString("storage.default.base_path")
+		if strings.TrimSpace(basePath) == "" {
+			basePath = "./web/storage"
+		}
+		basePath = filepath.Join(basePath, "picture")
 		Picture = NewDefaultStorage(
 			&storage.DefaultStorage{
-				BasePath: filepath.Join(viper.GetString("storage.default.base_path"), "picture"),
+				BasePath: basePath,
 			},
 		)
+	} else if typ == "oss" {
+		client, err := oss.New(viper.GetString("storage.oss.endpoint"), viper.GetString("storage.oss.access.key_id"), viper.GetString("storage.oss.access.key_secret"))
+		if err != nil {
+			logrus.Fatalln(err)
+			return
+		}
+		bucket := viper.GetString("storage.oss.bucket")
+		var ossStorage *pkgStorage.AliyunOssStorage
+		ossStorage, err = pkgStorage.NewAliyunOssStorage(client, false, []string{bucket})
+		if err != nil {
+			logrus.Fatalln(err)
+			return
+		}
+		Picture = NewDefaultStorage(ossStorage)
+	} else {
+		panic("type error")
 	}
 }
 
