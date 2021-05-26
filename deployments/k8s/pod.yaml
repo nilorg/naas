@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: naas
+  namespace: nilorg
+spec:
+  selector:
+    matchLabels:
+      app: naas
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: naas
+        version: v1
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: naas
+          image: nilorg/naas:0.5.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - containerPort: 5000
+            - containerPort: 9000
+          volumeMounts:
+            - name: config-cm
+              mountPath: /workspace/configs/
+            - name: nfs-pvc
+              mountPath: /workspace/web/storage
+              subPath: web/storage
+      volumes:
+        - name: nfs-pvc
+          persistentVolumeClaim:
+            claimName: naas-claim
+        - name: config-cm
+          configMap:
+            name: naas
