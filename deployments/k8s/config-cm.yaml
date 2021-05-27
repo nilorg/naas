@@ -9,23 +9,23 @@ data:
       name: naas
       oauth2:
         port: 8080
-        issuer: "https://accounts.nilorg.com"
-        device_authorization_endpoint_enabled: false
+        issuer: "http://naas.nilorg.com"
+        device_authorization_endpoint_enabled: true
         introspection_endpoint_enabled: true
-        revocation_endpoint_enabled: false
+        revocation_endpoint_enabled: true
       grpc:
         port: 9000
         gateway:
           port: 5000
       oidc:
-        enabled: false
-        userinfo_endpoint_enabled: false
+        enabled: true
+        userinfo_endpoint_enabled: true
       open:
         enabled: true
       admin:
         enabled: true
         external: true # 启用外部管理，需要配置外部URL
-        external_url: https://admin-accounts.nilorg.com
+        external_url: http://naas-admin.nilorg.com
         super_user: "root"
         oauth2:
           client_id: 1000
@@ -89,27 +89,26 @@ data:
           B36K98eWEdm2Wc3IY6OL2xj+DaYm8Tuyh9KzL9hU
           -----END CERTIFICATE-----
 
-
     session:
       name: "naas-session"
       secret: "github.com/nilorg/naas"
       options: 
         path: "/"
-        domain: "accounts.nilorg.com"
+        domain: "naas.nilorg.com"
         max_age: 86400
         secure: true
         http_only: true
       redis:
-        address: "localhost:6379"
+        address: "redis:6379"
         password: ""
         db: 1
 
     mysql:
-      address: "naas:naas123@tcp(127.0.0.1:3306)/naas?charset=utf8&parseTime=True&loc=Local&time_zone=%27Asia%2FShanghai%27"
+      address: "root:test123@tcp(mysql:3306)/naas?charset=utf8&parseTime=True&loc=Local&time_zone=%27Asia%2FShanghai%27"
       log: true
 
     redis:
-      address: "localhost:6379"
+      address: "redis:6379"
       password: ""
       db: 0
 
@@ -120,7 +119,7 @@ data:
         client_secret: 22222
         realm:
         app_name: naas-server
-        redirect_url: http://localhost:8080/swagger/oauth2-redirect.html
+        redirect_url: http://naas.nilorg.com/swagger/oauth2-redirect.html
 
     casbin:
       init:
@@ -149,3 +148,21 @@ data:
       enabled: false
       id: "c9c4facd1a6feeb80802222cbb74ca8e"
       key: "f7475f921a41f7ba79ae15e41658627c"
+  rbac_model.conf: |
+    [request_definition]
+    r = sub, dom, obj, act
+
+    [policy_definition]
+    p = sub, dom, obj, act
+
+    [role_definition]
+    g = _, _, _
+
+    [policy_effect]
+    e = some(where (p.eft == allow))
+
+    [matchers]
+    m = g(r.sub, p.sub, r.dom) == true \
+    && MyDomKeyMatch2(r.obj, p.obj, r.dom, p.dom) == true \
+    && MyRegexMatch(r.act, p.act, r.dom, p.dom) == true \
+    || r.sub == "role:naas_root"

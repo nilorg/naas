@@ -244,7 +244,13 @@ func RunHTTP() {
 			geetestGroup.GET("/register", oauth2.GeetestRegister)
 		}
 	}
-	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
+	go func() {
+		addr := fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))
+		if runErr := r.Run(addr); runErr != nil {
+			serverName := viper.GetString("server.name")
+			logrus.Fatalf("%s http server listen %s: %v\n", serverName, addr, runErr)
+		}
+	}()
 }
 
 func grpcResourceAuth(inCtx context.Context) (outCtx context.Context, err error) {
@@ -302,7 +308,8 @@ func RunGRpc() {
 	// 在gRPC服务器上注册反射服务。
 	reflection.Register(gRPCServer)
 	addr := fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.grpc.port"))
-	logrus.Infof("%s grpc server listen: %s", "naas", addr)
+	serverName := viper.GetString("server.name")
+	logrus.Infof("%s grpc server listen: %s", serverName, addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		logrus.Errorf("net.Listen Error: %s", err)
@@ -310,10 +317,9 @@ func RunGRpc() {
 	}
 	go func() {
 		if err := gRPCServer.Serve(lis); err != nil {
-			logrus.Infof("%s grpc server failed to serve: %v", "naas", err)
+			logrus.Fatalf("%s grpc server failed to serve: %v", serverName, err)
 		}
 	}()
-	return
 }
 
 // RunGRpcGateway 运行Grpc网关
@@ -331,17 +337,18 @@ func RunGRpcGateway() {
 		Addr:    addr,
 		Handler: gatewayMux,
 	}
-	logrus.Infof("启动GRpcGateway: %s", addr)
+	serverName := viper.GetString("server.name")
+	logrus.Infof("%s grpc-gateway server listen: %s", serverName, addr)
 	go func() {
 		if srvErr := srv.ListenAndServe(); srvErr != nil {
-			log.Printf("%s gateway server listen: %v\n", viper.GetString("server.name"), srvErr)
+			logrus.Fatalf("%s gateway server listen: %v\n", serverName, srvErr)
 		}
 	}()
 }
 
 // RunDapr 运行Dapr
 func RunDapr() {
-	addr := getEnvVar("DAPR_ADDRESS", ":50001")
+	addr := getEnvVar("DAPR_ADDRESS", ":5001")
 	// create serving server
 	daprdService, err := daprd.NewService(addr)
 	if err != nil {
@@ -350,7 +357,8 @@ func RunDapr() {
 	if err := service.RegisterDapr(daprdService); err != nil {
 		log.Fatalf("dapr register method error: %v", err)
 	}
-	logrus.Infof("启动Dapr: %s", addr)
+	serverName := viper.GetString("server.name")
+	logrus.Infof("%s dapr server listen: %s", serverName, addr)
 	go func() {
 		// start the server to handle incoming events
 		if err := daprdService.Start(); err != nil {
@@ -365,6 +373,5 @@ func getEnvVar(key, fallbackValue string) string {
 	}
 	address := flag.String("address", fallbackValue, "service address")
 	flag.Parse()
-	fmt.Println(*address)
 	return *address
 }

@@ -24,6 +24,7 @@ spec:
             - containerPort: 8080
             - containerPort: 5000
             - containerPort: 9000
+            - containerPort: 5001
           volumeMounts:
             - name: config-cm
               mountPath: /workspace/configs/

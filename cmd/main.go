@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
+	"os/signal"
 	"runtime"
+	"strings"
+	"syscall"
 
 	"github.com/nilorg/naas/internal/controller/oauth2"
 	"github.com/nilorg/naas/internal/dao"
@@ -38,10 +42,26 @@ func init() {
 }
 
 func main() {
-	server.RunGRpc()
-	server.RunGRpcGateway()
-	server.RunHTTP()
-	if os.Getenv("DAPR_ENABLE") == "true" {
+
+	// 监控系统信号和创建 Context 现在一步搞定
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	// 在收到信号的时候，会自动触发 ctx 的 Done ，这个 stop 是不再捕获注册的信号的意思，算是一种释放资源。
+	defer stop()
+	grpcEnable := os.Getenv("GRPC_ENABLE")
+	grpcGatewayEnable := os.Getenv("GRPC_GATEWAY_ENABLE")
+	httpEnable := os.Getenv("HTTP_ENABLE")
+	daprEnable := os.Getenv("DAPR_ENABLE")
+	if strings.EqualFold(grpcEnable, "true") {
+		server.RunGRpc()
+	}
+	if strings.EqualFold(grpcGatewayEnable, "true") {
+		server.RunGRpcGateway()
+	}
+	if strings.EqualFold(httpEnable, "true") {
+		server.RunHTTP()
+	}
+	if strings.EqualFold(daprEnable, "true") {
 		server.RunDapr()
 	}
+	<-ctx.Done()
 }

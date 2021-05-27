@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: naas-admin-token-server
+  namespace: nilorg
+spec:
+  selector:
+    matchLabels:
+      app: naas-admin
+      service: naas-admin-token-server
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: naas-admin
+        service: naas-admin-token-server
+        version: v1
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "naas-admin-token-server"
+        dapr.io/app-protocol: "http"
+        dapr.io/app-port: "8081"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: naas-admin-token-server
+          image: nilorg/naas-token-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: OAUTH2_SERVER
+              value: http://naas:8080/oauth2
+            - name: OAUTH2_CLIENT_ID
+              value: "1000"
+            - name: OAUTH2_CLIENT_SECRET
+              value: "xxxx-xxxx-xxxx-xxxx-xxxx"
+            - name: OAUTH2_REDIRECT_URI
+              value: http://localhost:8080/admin/auth/callback

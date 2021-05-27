@@ -1,0 +1,49 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: naas-admin-token-server
+  namespace: nilorg
+  labels:
+    app: naas-admin-token-server
+spec:
+  selector:
+    app: naas-admin-token-server
+  ports:
+    - name: http-8081
+      port: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: naas-admin-token-server
+  namespace: nilorg
+spec:
+  selector:
+    matchLabels:
+      app: naas-admin
+      service: naas-admin-token-server
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: naas-admin
+        service: naas-admin-token-server
+        version: v1
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: naas-admin-token-server
+          image: nilorg/naas-token-server:0.5.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: OAUTH2_SERVER
+              value: http://naas:8080/oauth2
+            - name: OAUTH2_CLIENT_ID
+              value: "1000"
+            - name: OAUTH2_CLIENT_SECRET
+              value: "xxxx-xxxx-xxxx-xxxx-xxxx"
+            - name: OAUTH2_REDIRECT_URI
+              value: http://localhost:8080/admin/auth/callback
