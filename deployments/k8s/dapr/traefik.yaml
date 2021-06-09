@@ -15,4 +15,4 @@ spec:
       services:
         - name: naas-api-dapr
           namespace: nilorg
-          port: 80
+          port: 8080

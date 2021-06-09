@@ -8,10 +8,10 @@ metadata:
 spec:
   selector:
     app: naas
+    service: naas
+    version: v1
   ports:
     - name: naas-8080
       port: 8080
-    - name: naas-5000
-      port: 5000
-    - name: naas-9000
-      port: 9000
+      protocol: TCP
+      targetPort: 8080

@@ -32,7 +32,7 @@ data:
 
     log:
       level: "debug" # panic/fatal/error/warn/info/debug
-      report_caller: true
+      report_caller: false
 
     jwt:
       secret: "github.com/nilorg/naas"
@@ -96,19 +96,18 @@ data:
         path: "/"
         domain: "naas.nilorg.com"
         max_age: 86400
-        secure: true
+        secure: false # 要在HTTPS下开启才可以
         http_only: true
       redis:
-        address: "redis:6379"
+        address: "redis-master.storage.svc.cluster.local:6379"
         password: ""
-        db: 1
 
     mysql:
-      address: "root:test123@tcp(mysql:3306)/naas?charset=utf8&parseTime=True&loc=Local&time_zone=%27Asia%2FShanghai%27"
+      address: "root:test123@tcp(mysql.storage.svc.cluster.local:3306)/naas?charset=utf8&parseTime=True&loc=Local"
       log: true
 
     redis:
-      address: "redis:6379"
+      address: "redis-master.storage.svc.cluster.local:6379"
       password: ""
       db: 0
 

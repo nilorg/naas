@@ -1,7 +1,7 @@
 server:
   name: naas
   oauth2:
-    port: 8081
+    port: 8080
     issuer: "http://naas.nilorg.com"
     device_authorization_endpoint_enabled: true
     introspection_endpoint_enabled: true
@@ -90,15 +90,14 @@ session:
     path: "/"
     domain: "naas.nilorg.com"
     max_age: 86400
-    secure: true
+    secure: false # 要在HTTPS下开启才可以
     http_only: true
   redis:
     address: "localhost:6379"
     password: ""
-    db: 1
 
 mysql:
-  address: "root:test123@tcp(127.0.0.1:3306)/naas?charset=utf8&parseTime=True&loc=Local&time_zone=%27Asia%2FShanghai%27"
+  address: "root:test123@tcp(127.0.0.1:3306)/naas?charset=utf8&parseTime=True&loc=Local"
   log: true
 
 redis:

@@ -83,6 +83,7 @@ func RunHTTP() {
 		MaxAge:   viper.GetInt("session.options.max_age"),
 		Secure:   viper.GetBool("session.options.secure"),
 		HttpOnly: viper.GetBool("session.options.http_only"),
+		SameSite: http.SameSiteStrictMode,
 	})
 	r := gin.Default()
 	r.Use(middleware.Header())

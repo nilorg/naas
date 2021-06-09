@@ -31,10 +31,10 @@ spec:
             - containerPort: 8081
           env:
             - name: OAUTH2_SERVER
-              value: http://naas:8080/oauth2
+              value: http://naas-api-dapr/v1.0/invoke/naas-api/method/oauth2
             - name: OAUTH2_CLIENT_ID
               value: "1000"
             - name: OAUTH2_CLIENT_SECRET
-              value: "xxxx-xxxx-xxxx-xxxx-xxxx"
+              value: "99799a6b-a289-4099-b4ad-b42603c17ffc"
             - name: OAUTH2_REDIRECT_URI
-              value: http://localhost:8080/admin/auth/callback
+              value: http://naas-admin.nilorg.com/auth/callback

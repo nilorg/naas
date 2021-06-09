@@ -2,6 +2,7 @@ package oauth2
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,11 @@ func LoginPage(ctx *gin.Context) {
 		err        error
 		clientInfo *model.OAuth2ClientInfo
 	)
-	clientID := ctx.Query("client_id")
+	clientID := strings.TrimSpace(ctx.Query("client_id"))
+	if clientID == "" {
+		ctx.String(http.StatusBadRequest, "oauth2 client_id is empty")
+		return
+	}
 	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if errMsg != "" {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
@@ -69,23 +74,35 @@ func Login(ctx *gin.Context) {
 		seccode := ctx.PostForm(gt3.GeetestSeccode)
 		status := session.Get(gt3.GeetestServerStatusSessionKey)
 		if status == nil {
-			SetErrorMessage(ctx, "未找到极验验证授权信息")
+			err = SetErrorMessage(ctx, "未找到极验验证授权信息")
+			if err != nil {
+				logrus.Errorln(err)
+			}
 			ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 			return
 		} else if status.(int) == 1 {
 			var res *gt3.ValidateResponse
 			res, err = geetest.GeetestClient.Validate(challenge, seccode)
 			if err != nil {
-				SetErrorMessage(ctx, err.Error())
+				err = SetErrorMessage(ctx, err.Error())
+				if err != nil {
+					logrus.Errorln(err)
+				}
 				ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 				return
 			}
 			if res.Seccode == "false" {
-				SetErrorMessage(ctx, "验证码未通过")
+				err = SetErrorMessage(ctx, "验证码未通过")
+				if err != nil {
+					logrus.Errorln(err)
+				}
 				ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 			}
 		} else {
 			err = SetErrorMessage(ctx, "极验验证授权状态错误")
+			if err != nil {
+				logrus.Errorln(err)
+			}
 			ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 			return
 		}
