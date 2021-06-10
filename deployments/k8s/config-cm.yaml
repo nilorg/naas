@@ -144,7 +144,7 @@ data:
         secret: ""
 
     geetest:
-      enabled: false
+      enabled: true
       id: "c9c4facd1a6feeb80802222cbb74ca8e"
       key: "f7475f921a41f7ba79ae15e41658627c"
   rbac_model.conf: |
