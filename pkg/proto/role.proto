@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package nilorg.naas.pkg.proto;
+option go_package = "github.com/nilorg/naas/pkg/proto";
+// Role 角色
+service Role {
+    // ListRoleByOpenID 根据OpenID获取角色
+    rpc ListRoleByOpenID (ListRoleByOpenIDRequest) returns (ListRoleByOpenIDResponse) {}
+}
+
+// ListRoleByOpenIDRequest 根据OpenID获取角色请求参数
+message ListRoleByOpenIDRequest {
+    string open_id = 1;
+}
+
+message UserRole {
+    uint64 id = 1;
+    uint64 user_id = 2;
+    string role_code = 3;
+    uint64 organization_id = 4;
+}
+
+// ListRoleByOpenIDResponse 根据OpenID获取角色响应参数
+message ListRoleByOpenIDResponse {
+    repeated UserRole roles = 1;
+}

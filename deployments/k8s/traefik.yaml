@@ -1,0 +1,15 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: naas
+  namespace: nilorg
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`naas.nilorg.com`)
+      services:
+        - name: naas
+          namespace: nilorg
+          port: 8080

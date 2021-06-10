@@ -6,9 +6,11 @@ go 1.12
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/casbin/casbin/v2 v2.17.1
 	github.com/casbin/gorm-adapter/v3 v3.0.3
+	github.com/dapr/go-sdk v1.1.0
 	github.com/deckarep/golang-set v1.7.1
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
@@ -35,9 +37,9 @@ require (
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/swag v1.6.9
 	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392 // indirect
-	golang.org/x/net v0.0.0-20201031054903-ff519b6c9102
-	google.golang.org/genproto v0.0.0-20201106154455-f9bfe239b0ba
-	google.golang.org/grpc v1.33.2
+	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
+	google.golang.org/genproto v0.0.0-20201204160425-06b3db808446
+	google.golang.org/grpc v1.34.0
 	google.golang.org/grpc/examples v0.0.0-20200826230536-d31b6710005d // indirect
 	google.golang.org/protobuf v1.25.0
 	gorm.io/driver/mysql v1.0.3

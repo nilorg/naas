@@ -13,7 +13,6 @@ import (
 
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
-	"github.com/nilorg/naas/internal/module/casbin"
 	"github.com/nilorg/naas/internal/module/store"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/pkg/errors"
@@ -291,11 +290,11 @@ func (u *user) UpdateRole(ctx context.Context, userID model.ID, update *UserUpda
 		if err != nil {
 			return
 		}
-		user, role, domain := formatRoleForUserInDomain(userID, update.OrganizationID, r)
-		_, err = casbin.Enforcer.DeleteRoleForUserInDomain(user, role, domain)
-		if err != nil {
-			return
-		}
+		// user, role, domain := formatRoleForUserInDomain(userID, update.OrganizationID, r)
+		// _, err = casbin.Enforcer.DeleteRoleForUserInDomain(user, role, domain)
+		// if err != nil {
+		// 	return
+		// }
 	}
 
 	for _, r := range added {
@@ -307,11 +306,11 @@ func (u *user) UpdateRole(ctx context.Context, userID model.ID, update *UserUpda
 		if err != nil {
 			return
 		}
-		user, role, domain := formatRoleForUserInDomain(userID, update.OrganizationID, r)
-		_, err = casbin.Enforcer.AddRoleForUserInDomain(user, role, domain)
-		if err != nil {
-			return
-		}
+		// user, role, domain := formatRoleForUserInDomain(userID, update.OrganizationID, r)
+		// _, err = casbin.Enforcer.AddRoleForUserInDomain(user, role, domain)
+		// if err != nil {
+		// 	return
+		// }
 	}
 	err = tran.Commit().Error
 	return

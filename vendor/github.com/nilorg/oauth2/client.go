@@ -146,6 +146,7 @@ func (c *Client) token(grantType string, values url.Values) (token *TokenRespons
 	if err != nil {
 		return
 	}
+
 	if resp.StatusCode != http.StatusOK || strings.Index(string(body), ErrorKey) > -1 {
 		errModel := ErrorResponse{}
 		err = json.Unmarshal(body, &errModel)

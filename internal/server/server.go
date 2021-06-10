@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 
+	daprd "github.com/dapr/go-sdk/service/grpc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -80,6 +83,7 @@ func RunHTTP() {
 		MaxAge:   viper.GetInt("session.options.max_age"),
 		Secure:   viper.GetBool("session.options.secure"),
 		HttpOnly: viper.GetBool("session.options.http_only"),
+		SameSite: http.SameSiteStrictMode,
 	})
 	r := gin.Default()
 	r.Use(middleware.Header())
@@ -120,6 +124,12 @@ func RunHTTP() {
 	if viper.GetBool("server.oidc.enabled") {
 		r.GET("/.well-known/jwks.json", wellknown.GetJwks)
 		r.GET("/.well-known/openid-configuration", wellknown.GetOpenIDProviderMetadata)
+		oidcGroup := r.Group("/oidc")
+		{
+			if viper.GetBool("server.oidc.userinfo_endpoint_enabled") {
+				oidcGroup.GET("/userinfo", middleware.OAuth2AuthUserinfoRequired(global.JwtPublicKey), oidc.GetUserinfo)
+			}
+		}
 	}
 
 	oauth2Group := r.Group("/oauth2")
@@ -144,14 +154,6 @@ func RunHTTP() {
 		}
 		if viper.GetBool("server.oauth2.revocation_endpoint_enabled") {
 			oauth2Group.POST("/revoke", oauth2.TokenRevoke)
-		}
-	}
-	if viper.GetBool("server.oidc.enabled") {
-		oidcGroup := r.Group("/oidc")
-		{
-			if viper.GetBool("server.oidc.userinfo_endpoint_enabled") {
-				oidcGroup.GET("/userinfo", middleware.OAuth2AuthUserinfoRequired(global.JwtPublicKey), oidc.GetUserinfo)
-			}
 		}
 	}
 	if viper.GetBool("server.open.enabled") {
@@ -243,7 +245,13 @@ func RunHTTP() {
 			geetestGroup.GET("/register", oauth2.GeetestRegister)
 		}
 	}
-	r.Run(fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))) // listen and serve on 0.0.0.0:8080
+	go func() {
+		addr := fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.oauth2.port"))
+		if runErr := r.Run(addr); runErr != nil {
+			serverName := viper.GetString("server.name")
+			logrus.Fatalf("%s http server listen %s: %v\n", serverName, addr, runErr)
+		}
+	}()
 }
 
 func grpcResourceAuth(inCtx context.Context) (outCtx context.Context, err error) {
@@ -301,7 +309,8 @@ func RunGRpc() {
 	// 在gRPC服务器上注册反射服务。
 	reflection.Register(gRPCServer)
 	addr := fmt.Sprintf("0.0.0.0:%d", viper.GetInt("server.grpc.port"))
-	logrus.Infof("%s grpc server listen: %s", "naas", addr)
+	serverName := viper.GetString("server.name")
+	logrus.Infof("%s grpc server listen: %s", serverName, addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		logrus.Errorf("net.Listen Error: %s", err)
@@ -309,10 +318,9 @@ func RunGRpc() {
 	}
 	go func() {
 		if err := gRPCServer.Serve(lis); err != nil {
-			logrus.Infof("%s grpc server failed to serve: %v", "naas", err)
+			logrus.Fatalf("%s grpc server failed to serve: %v", serverName, err)
 		}
 	}()
-	return
 }
 
 // RunGRpcGateway 运行Grpc网关
@@ -330,10 +338,41 @@ func RunGRpcGateway() {
 		Addr:    addr,
 		Handler: gatewayMux,
 	}
-	logrus.Infof("启动GRpcGateway: %s", addr)
+	serverName := viper.GetString("server.name")
+	logrus.Infof("%s grpc-gateway server listen: %s", serverName, addr)
 	go func() {
 		if srvErr := srv.ListenAndServe(); srvErr != nil {
-			log.Printf("%s gateway server listen: %v\n", viper.GetString("server.name"), srvErr)
+			logrus.Fatalf("%s gateway server listen: %v\n", serverName, srvErr)
 		}
 	}()
+}
+
+// RunDapr 运行Dapr
+func RunDapr() {
+	addr := getEnvVar("DAPR_ADDRESS", ":5001")
+	// create serving server
+	daprdService, err := daprd.NewService(addr)
+	if err != nil {
+		log.Fatalf("dapr new service error: %v", err)
+	}
+	if err := service.RegisterDapr(daprdService); err != nil {
+		log.Fatalf("dapr register method error: %v", err)
+	}
+	serverName := viper.GetString("server.name")
+	logrus.Infof("%s dapr server listen: %s", serverName, addr)
+	go func() {
+		// start the server to handle incoming events
+		if err := daprdService.Start(); err != nil {
+			log.Fatalf("server error: %v", err)
+		}
+	}()
+}
+
+func getEnvVar(key, fallbackValue string) string {
+	if val, ok := os.LookupEnv(key); ok {
+		return strings.TrimSpace(val)
+	}
+	address := flag.String("address", fallbackValue, "service address")
+	flag.Parse()
+	return *address
 }

@@ -1,5 +1,5 @@
 #build stage
-FROM nilorg/golang:latest AS builder
+FROM nilorg/golang:1.16.4 AS builder
 WORKDIR /src
 COPY . .
 RUN go build -mod=vendor -o ./bin/app -i ./cmd/main.go

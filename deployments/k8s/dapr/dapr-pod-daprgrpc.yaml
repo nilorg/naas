@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: naas-daprgrpc
+  namespace: nilorg
+spec:
+  selector:
+    matchLabels:
+      app: naas
+      service: naas-daprgrpc
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: naas
+        service: naas-daprgrpc
+        version: v1
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "naas-daprgrpc"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/app-port: "5001"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: naas-daprgrpc
+          image: nilorg/naas:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5001
+          env:
+            - name: GRPC_ENABLE
+              value: "false"
+            - name: GRPC_GATEWAY_ENABLE
+              value: "false"
+            - name: HTTP_ENABLE
+              value: "false"
+            - name: DAPR_ENABLE
+              value: "true"
+          volumeMounts:
+            - name: config-cm
+              mountPath: /workspace/configs/
+      volumes:
+        - name: config-cm
+          configMap:
+            name: naas

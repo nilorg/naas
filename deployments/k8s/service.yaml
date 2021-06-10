@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: naas
+  namespace: nilorg
+  labels:
+    app: naas
+spec:
+  selector:
+    app: naas
+    service: naas
+    version: v1
+  ports:
+    - name: naas-8080
+      port: 8080
+      protocol: TCP
+      targetPort: 8080

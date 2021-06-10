@@ -9,8 +9,8 @@ import (
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/util"
+	"github.com/nilorg/istio"
 	naasAdapter "github.com/nilorg/naas/pkg/casbin/adapter"
-	"github.com/nilorg/ngrpc"
 	"github.com/nilorg/sdk/signal"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	var (
 		err error
 	)
-	grpcClient := ngrpc.NewClient("localhost:9000")
+	grpcClient := istio.NewClient("localhost", 9000, nil, nil)
 	adapter := naasAdapter.NewAdapter(ctx, grpcClient.GetConn())
 	adapter.ResourceID = "1"
 	adapter.ResourceSecret = "test"
