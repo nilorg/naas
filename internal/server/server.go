@@ -4,15 +4,11 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"flag"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 
-	daprd "github.com/dapr/go-sdk/service/grpc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -345,34 +341,4 @@ func RunGRpcGateway() {
 			logrus.Fatalf("%s gateway server listen: %v\n", serverName, srvErr)
 		}
 	}()
-}
-
-// RunDapr 运行Dapr
-func RunDapr() {
-	addr := getEnvVar("DAPR_ADDRESS", ":5001")
-	// create serving server
-	daprdService, err := daprd.NewService(addr)
-	if err != nil {
-		log.Fatalf("dapr new service error: %v", err)
-	}
-	if err := service.RegisterDapr(daprdService); err != nil {
-		log.Fatalf("dapr register method error: %v", err)
-	}
-	serverName := viper.GetString("server.name")
-	logrus.Infof("%s dapr server listen: %s", serverName, addr)
-	go func() {
-		// start the server to handle incoming events
-		if err := daprdService.Start(); err != nil {
-			log.Fatalf("server error: %v", err)
-		}
-	}()
-}
-
-func getEnvVar(key, fallbackValue string) string {
-	if val, ok := os.LookupEnv(key); ok {
-		return strings.TrimSpace(val)
-	}
-	address := flag.String("address", fallbackValue, "service address")
-	flag.Parse()
-	return *address
 }

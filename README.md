@@ -141,8 +141,6 @@ spec:
               value: "true"
             - name: HTTP_ENABLE
               value: "true"
-            - name: DAPR_ENABLE # 只有在使用DApr的时候才会用
-              value: "false"
           volumeMounts:
             - name: config-cm # 配置文件
               mountPath: /workspace/configs/

@@ -35,8 +35,6 @@ spec:
               value: "true"
             - name: HTTP_ENABLE
               value: "true"
-            - name: DAPR_ENABLE
-              value: "false"
           volumeMounts:
             - name: config-cm
               mountPath: /workspace/configs/

@@ -10,7 +10,6 @@ require (
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/casbin/casbin/v2 v2.17.1
 	github.com/casbin/gorm-adapter/v3 v3.0.3
-	github.com/dapr/go-sdk v1.1.0
 	github.com/deckarep/golang-set v1.7.1
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
@@ -21,7 +20,9 @@ require (
 	github.com/gorilla/sessions v1.2.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	github.com/kr/text v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
+	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/nilorg/geetest v1.0.0
 	github.com/nilorg/oauth2 v0.3.2
 	github.com/nilorg/pkg v0.0.0-20200923011256-287aac349757
@@ -38,10 +39,14 @@ require (
 	github.com/swaggo/swag v1.6.9
 	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392 // indirect
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
+	golang.org/x/sys v0.0.0-20201202213521-69691e467435 // indirect
+	golang.org/x/text v0.3.4 // indirect
 	google.golang.org/genproto v0.0.0-20201204160425-06b3db808446
 	google.golang.org/grpc v1.34.0
 	google.golang.org/grpc/examples v0.0.0-20200826230536-d31b6710005d // indirect
 	google.golang.org/protobuf v1.25.0
+	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 	gorm.io/driver/mysql v1.0.3
 	gorm.io/gorm v1.20.6
 )
