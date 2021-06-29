@@ -21,5 +21,6 @@ const (
 	// SessionAccount 当前账户
 	SessionAccount = "session_account"
 	// SessionDeviceUserCode 设备用户code
-	SessionDeviceUserCode = "device_user_code"
+	SessionDeviceUserCode         = "device_user_code"
+	SessionWeixinSnsapiLoginState = "weixin_snsapi_login_state"
 )

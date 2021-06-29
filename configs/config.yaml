@@ -15,6 +15,9 @@ server:
     userinfo_endpoint_enabled: true
   open:
     enabled: true
+  third:
+    enabled: true
+    weixin: true
   admin:
     enabled: true
     external: true # 启用外部管理，需要配置外部URL
@@ -141,3 +144,8 @@ geetest:
   enabled: false
   id: "c9c4facd1a6feeb80802222cbb74ca8e"
   key: "f7475f921a41f7ba79ae15e41658627c"
+
+weixin:
+  fwh:
+    app_id: "xx-xx-xx"
+    app_secret: "ss-ss-ss"

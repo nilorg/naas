@@ -6,6 +6,7 @@ import (
 	"github.com/nilorg/naas/internal/module/global"
 	"github.com/nilorg/naas/internal/module/logger"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/module/weixin"
 )
 
 // Init 初始化 module
@@ -15,4 +16,5 @@ func Init() {
 	global.Init()
 	casbin.Init()
 	geetest.Init()
+	weixin.Init()
 }

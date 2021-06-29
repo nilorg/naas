@@ -106,6 +106,7 @@ func initMySQL() {
 		&model.Role{},
 		&model.RoleResourceRelation{},
 		&model.User{},
+		&model.UserThird{},
 		&model.UserInfo{},
 		&model.UserRole{},
 		&model.UserOrganization{},

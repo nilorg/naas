@@ -3,9 +3,8 @@ package model
 // User ...
 type User struct {
 	Model
-	Username  string `json:"username" gorm:"column:username"`
-	Password  string `json:"password" gorm:"column:password"`
-	WxUnionID string `json:"wx_union_id" gorm:"column:wx_union_id"` // 微信unionid
+	Username string `json:"username" gorm:"column:username"`
+	Password string `json:"password" gorm:"column:password"`
 }
 
 //UserInfo 用户信息

@@ -21,6 +21,7 @@ import (
 	"github.com/nilorg/naas/internal/controller/oidc"
 	"github.com/nilorg/naas/internal/controller/open"
 	"github.com/nilorg/naas/internal/controller/service"
+	"github.com/nilorg/naas/internal/controller/third"
 	"github.com/nilorg/naas/internal/controller/wellknown"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/casbin"
@@ -156,6 +157,18 @@ func RunHTTP() {
 		oidcGroup := r.Group("/open")
 		{
 			oidcGroup.POST("/users/wx", middleware.OAuth2AuthScopeRequired("wx_create_user"), open.User.CreateUserFromWeixin)
+		}
+	}
+	if viper.GetBool("server.third.enabled") {
+		r.LoadHTMLGlob("./web/templates/third/*")
+		thirdGroup := r.Group("/third")
+		{
+			if viper.GetBool("server.third.weixin") {
+				thirdGroup.GET("/wx/qrconnect", third.Weixin.QrConnect)
+				thirdGroup.GET("/wx/callback", third.Weixin.CallBack)
+				thirdGroup.GET("/wx/bind", third.Weixin.CallBack)
+				thirdGroup.GET("/wx/init", third.Weixin.Init)
+			}
 		}
 	}
 	if viper.GetBool("server.admin.enabled") {
