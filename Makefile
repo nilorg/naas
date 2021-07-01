@@ -10,10 +10,7 @@ build:
 	@go build -ldflags "-w -s" -o $(BIN_PATH)/$(BIN_OUTPUT_NAAS_TOKEN_SERVER_NAME) ./cmd/token-server/main.go
 
 debug-naas: swagger
-	@export GRPC_ENABLE="true"
-	@export GRPC_GATEWAY_ENABLE="true"
-	@export HTTP_ENABLE="true"
-	@go run ./cmd/main.go
+	@GRPC_ENABLE="true" GRPC_GATEWAY_ENABLE="true" HTTP_ENABLE="true" go run ./cmd/main.go
 
 debug-token-server:
 	@export OAUTH2_SERVER="http://naas:8080/oauth2"

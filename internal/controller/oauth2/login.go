@@ -24,6 +24,7 @@ func LoginPage(ctx *gin.Context) {
 		err        error
 		clientInfo *model.OAuth2ClientInfo
 	)
+	loginRedirectURI := ctx.Query("login_redirect_uri")
 	clientID := strings.TrimSpace(ctx.Query("client_id"))
 	if clientID == "" {
 		ctx.String(http.StatusBadRequest, "oauth2 client_id is empty")
@@ -32,22 +33,28 @@ func LoginPage(ctx *gin.Context) {
 	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if errMsg != "" {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error":           errMsg,
-			"client_info":     clientInfo,
-			"geetest_enabled": geetestEnabled,
+			"error":              errMsg,
+			"client_info":        clientInfo,
+			"client_id":          clientID,
+			"login_redirect_uri": loginRedirectURI,
+			"geetest_enabled":    geetestEnabled,
 		})
 		return
 	} else if err != nil {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error":           err.Error(),
-			"geetest_enabled": geetestEnabled,
+			"error":              err.Error(),
+			"client_id":          clientID,
+			"login_redirect_uri": loginRedirectURI,
+			"geetest_enabled":    geetestEnabled,
 		})
 		return
 	}
 
 	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"client_info":     clientInfo,
-		"geetest_enabled": geetestEnabled,
+		"client_info":        clientInfo,
+		"client_id":          clientID,
+		"login_redirect_uri": loginRedirectURI,
+		"geetest_enabled":    geetestEnabled,
 	})
 }
 

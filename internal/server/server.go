@@ -160,7 +160,6 @@ func RunHTTP() {
 		}
 	}
 	if viper.GetBool("server.third.enabled") {
-		r.LoadHTMLGlob("./web/templates/third/*")
 		thirdGroup := r.Group("/third")
 		{
 			if viper.GetBool("server.third.weixin") {

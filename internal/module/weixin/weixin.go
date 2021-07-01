@@ -25,6 +25,10 @@ func (c *cf) AppSecret() string {
 
 // Init 初始化全局变量
 func Init() {
-	WechatClient = wechat.NewClientFromRedis(wechat.ClientFromRedisOptionRedisClient(store.RedisClient))
+	WechatClient = wechat.NewClientFromRedis(
+		wechat.ClientFromRedisOptionRedisClient(store.RedisClient),
+		wechat.ClientFromRedisOptionAccessTokenKey("github.com/nilorg/go-wechat/access_token"),
+		wechat.ClientFromRedisOptionJsAPITicketKey("github.com/nilorg/go-wechat/js_api_ticket"),
+	)
 	logrus.Debugf("微信Token初始化：%s", WechatClient.GetAccessToken())
 }

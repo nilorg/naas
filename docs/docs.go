@@ -2274,6 +2274,42 @@ var doc = `{
                 }
             }
         },
+        "/third/wx/bind": {
+            "get": {
+                "description": "微信绑定",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "微信绑定"
+            }
+        },
+        "/third/wx/callback": {
+            "get": {
+                "description": "微信回调",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "微信回调"
+            }
+        },
+        "/third/wx/init": {
+            "get": {
+                "description": "微信初始化",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "微信初始化"
+            }
+        },
+        "/third/wx/qrconnect": {
+            "get": {
+                "description": "微信扫码登录回调",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "微信扫码登录回调"
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -2663,7 +2699,6 @@ var doc = `{
                     "type": "object"
                 },
                 "error": {
-                    "type": "object",
                     "$ref": "#/definitions/api.ResultError"
                 },
                 "status": {
@@ -2847,7 +2882,6 @@ var doc = `{
                     "type": "object"
                 },
                 "pagination": {
-                    "type": "object",
                     "$ref": "#/definitions/model.Pagination"
                 }
             }
@@ -3077,7 +3111,10 @@ var doc = `{
                     "type": "integer"
                 },
                 "roles": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }
