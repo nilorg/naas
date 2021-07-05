@@ -18,6 +18,7 @@ server:
   third:
     enabled: true
     weixin: true
+    qrcode: true
   admin:
     enabled: true
     external: true # 启用外部管理，需要配置外部URL

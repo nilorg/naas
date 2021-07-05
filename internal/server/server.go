@@ -168,6 +168,11 @@ func RunHTTP() {
 				thirdGroup.GET("/wx/bind", third.Weixin.CallBack)
 				thirdGroup.GET("/wx/init", third.Weixin.Init)
 			}
+			if viper.GetBool("server.third.qrcode") {
+				thirdGroup.GET("/qrcode/generate", third.QrCode.GenerateLoginQrCode)
+				thirdGroup.GET("/qrcode/validation", third.QrCode.CycleValidationLoginQrCode)
+				thirdGroup.GET("/qrcode/confirmation", third.QrCode.ConfirmationLoginQrCode)
+			}
 		}
 	}
 	if viper.GetBool("server.admin.enabled") {

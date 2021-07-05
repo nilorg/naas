@@ -30,6 +30,7 @@ require (
 	github.com/nilorg/sdk v0.0.0-20200912025101-a4037e6ee224
 	github.com/o1egl/govatar v0.3.0
 	github.com/sirupsen/logrus v1.7.0
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/square/go-jose/v3 v3.0.0-20200630053402-0a67ce9b0693
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14

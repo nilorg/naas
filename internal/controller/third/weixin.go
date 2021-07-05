@@ -80,7 +80,7 @@ func (*weixin) CallBack(ctx *gin.Context) {
 			ctx.String(http.StatusBadRequest, "微信回调state不匹配")
 			return
 		}
-		su, err := service.User.LoginForWeixinCode(contexts.WithGinContext(ctx), code)
+		su, err := service.User.LoginForWeixinKfptCode(contexts.WithGinContext(ctx), code)
 		if err != nil {
 			if err == errors.ErrThirdUserNotFound {
 				// TODO：去绑定页面，或者初始化。让用户选择

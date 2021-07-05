@@ -8,27 +8,46 @@ import (
 )
 
 var (
-	// WechatClient 微信客户端
-	WechatClient wechat.Clienter
-	// WechatClientConfig 微信客户端配置文件
-	WechatClientConfig wechat.Configer = &cf{}
+	// KfptWechatClient 开放平台微信客户端
+	KfptWechatClient wechat.Clienter
+	// KfptWechatClientConfig 开放平台微信客户端配置文件
+	KfptWechatClientConfig wechat.Configer = &kfptCf{}
+	// FwhWechatClient 服务号微信客户端
+	FwhWechatClient wechat.Clienter
+	// FwhWechatClientConfig 服务号微信客户端配置文件
+	FwhWechatClientConfig wechat.Configer = &fwhCf{}
 )
 
-type cf struct{}
+type kfptCf struct{}
 
-func (c *cf) AppID() string {
+func (c *kfptCf) AppID() string {
 	return viper.GetString("weixin.kfpt.app_id")
 }
-func (c *cf) AppSecret() string {
+func (c *kfptCf) AppSecret() string {
 	return viper.GetString("weixin.kfpt.app_secret")
+}
+
+type fwhCf struct{}
+
+func (c *fwhCf) AppID() string {
+	return viper.GetString("weixin.fwh.app_id")
+}
+func (c *fwhCf) AppSecret() string {
+	return viper.GetString("weixin.fwh.app_secret")
 }
 
 // Init 初始化全局变量
 func Init() {
-	WechatClient = wechat.NewClientFromRedis(
+	KfptWechatClient = wechat.NewClientFromRedis(
+		wechat.ClientFromRedisOptionRedisClient(store.RedisClient),
+		wechat.ClientFromRedisOptionAccessTokenKey("naas:wx:kfpt:access_token"),
+		wechat.ClientFromRedisOptionJsAPITicketKey("naas:wx:kfpt:js_api_ticket"),
+	)
+	logrus.Debugf("微信开放平台Token初始化：%s", KfptWechatClient.GetAccessToken())
+	FwhWechatClient = wechat.NewClientFromRedis(
 		wechat.ClientFromRedisOptionRedisClient(store.RedisClient),
 		wechat.ClientFromRedisOptionAccessTokenKey("github.com/nilorg/go-wechat/access_token"),
 		wechat.ClientFromRedisOptionJsAPITicketKey("github.com/nilorg/go-wechat/js_api_ticket"),
 	)
-	logrus.Debugf("微信Token初始化：%s", WechatClient.GetAccessToken())
+	logrus.Debugf("微信服务号Token初始化：%s", FwhWechatClient.GetAccessToken())
 }

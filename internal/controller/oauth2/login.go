@@ -20,6 +20,9 @@ import (
 func LoginPage(ctx *gin.Context) {
 	errMsg := GetErrorMessage(ctx)
 	geetestEnabled := viper.GetBool("geetest.enabled")
+	thirdEnable := viper.GetBool("server.third.enabled")
+	thirdWeixinEnabled := viper.GetBool("server.third.weixin")
+	thirdQrcodeEnabled := viper.GetBool("server.third.qrcode")
 	var (
 		err        error
 		clientInfo *model.OAuth2ClientInfo
@@ -33,28 +36,37 @@ func LoginPage(ctx *gin.Context) {
 	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if errMsg != "" {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error":              errMsg,
-			"client_info":        clientInfo,
-			"client_id":          clientID,
-			"login_redirect_uri": loginRedirectURI,
-			"geetest_enabled":    geetestEnabled,
+			"error":                errMsg,
+			"client_info":          clientInfo,
+			"client_id":            clientID,
+			"login_redirect_uri":   loginRedirectURI,
+			"geetest_enabled":      geetestEnabled,
+			"third_enabled":        thirdEnable,
+			"third_weixin_enabled": thirdWeixinEnabled,
+			"third_qrcode_enabled": thirdQrcodeEnabled,
 		})
 		return
 	} else if err != nil {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error":              err.Error(),
-			"client_id":          clientID,
-			"login_redirect_uri": loginRedirectURI,
-			"geetest_enabled":    geetestEnabled,
+			"error":                err.Error(),
+			"client_id":            clientID,
+			"login_redirect_uri":   loginRedirectURI,
+			"geetest_enabled":      geetestEnabled,
+			"third_enabled":        thirdEnable,
+			"third_weixin_enabled": thirdWeixinEnabled,
+			"third_qrcode_enabled": thirdQrcodeEnabled,
 		})
 		return
 	}
 
 	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"client_info":        clientInfo,
-		"client_id":          clientID,
-		"login_redirect_uri": loginRedirectURI,
-		"geetest_enabled":    geetestEnabled,
+		"client_info":          clientInfo,
+		"client_id":            clientID,
+		"login_redirect_uri":   loginRedirectURI,
+		"geetest_enabled":      geetestEnabled,
+		"third_enabled":        thirdEnable,
+		"third_weixin_enabled": thirdWeixinEnabled,
+		"third_qrcode_enabled": thirdQrcodeEnabled,
 	})
 }
 

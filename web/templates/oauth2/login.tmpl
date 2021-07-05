@@ -53,7 +53,14 @@
         </div>
         {{ end }}
         <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit">登录</button>
+        {{ if .third_enabled }}
+        {{ if .third_weixin_enabled }}
         <a href="/third/wx/qrconnect?client_id={{ .client_id }}&login_redirect_uri={{ .login_redirect_uri }}">使用微信登录</a>
+        {{ end }}
+        {{ if .third_qrcode_enabled }}
+        <img id="thirdQrcode" src="/third/qrcode/generate" width="100px" height="100px" />
+        {{ end }}
+        {{ end }}
         <p class="mt-5 mb-3 text-muted text-center">&copy; <a target="_blank"
                 href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
     </form>
@@ -100,6 +107,26 @@
         });
     </script>
     {{end}}
+
+    {{ if .third_enabled }}
+    {{ if .third_qrcode_enabled }}
+    <script>
+        $(document).ready(function () {
+            window.qrcodeIntervalId = setInterval(function () {
+                $.ajax({
+                    url: "/third/qrcode/validation?t=" + (new Date()).getTime(), // 加随机数防止缓存
+                    type: "get",
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data);
+                        // window.clearInterval(window.qrcode.intervalId);
+                    }
+                });
+            }, 1000);
+        });
+    </script>
+    {{ end }}
+    {{ end }}
 </body>
 
 </html>
