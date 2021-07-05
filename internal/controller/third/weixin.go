@@ -42,7 +42,7 @@ func (*weixin) QrConnect(ctx *gin.Context) {
 	loginRedirectURI := ctx.Query("login_redirect_uri")
 	clientID := ctx.Query("client_id")
 	values := make(url.Values)
-	values.Set("appid", viper.GetString("weixin.fwh.app_id"))
+	values.Set("appid", viper.GetString("weixin.kfpt.app_id"))
 	values.Set("response_type", "code")
 	values.Set("scope", "snsapi_login")
 	values.Set("state", state)

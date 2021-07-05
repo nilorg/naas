@@ -6,6 +6,7 @@ import (
 	"image"
 	"net/url"
 	"path"
+	"time"
 
 	"image/png"
 
@@ -222,6 +223,17 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 	usr, err = u.GetUserByUsername(ctx, username)
 	if err != nil {
 		logrus.Errorln(err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = errors.ErrUsernameOrPassword
+		}
+		return
+	}
+	redisCountKey := fmt.Sprintf("user:login:%d:errcount", usr.ID)
+	redisLockKey := fmt.Sprintf("user:login:%d:lock", usr.ID)
+	const lock = "lock"
+	lockValue := store.RedisClient.Get(ctx, redisLockKey).String()
+	if lockValue == lock {
+		err = fmt.Errorf("账户已被锁定，请24小时候再试")
 		return
 	}
 	if usr.Username == username && usr.Password == password {
@@ -235,7 +247,35 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 			su.Nickname = userInfo.Nickname
 			su.Picture = userInfo.Picture
 		}
+		err = store.RedisClient.Del(ctx, redisCountKey, redisLockKey).Err()
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("用户(%d)登录成功后删除相关的锁：%v", usr.ID, err)
+			err = errors.ErrBadRequest
+			return
+		}
 	} else {
+		var count int
+		count, err = store.RedisClient.Get(ctx, redisCountKey).Int()
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("判断登录次数错误：", err)
+			err = errors.ErrBadRequest
+			return
+		}
+		timeout := 24 * time.Hour
+		if count > 4 {
+			err = store.RedisClient.Set(ctx, redisLockKey, lock, timeout).Err()
+			if err != nil {
+				logrus.WithContext(ctx).Errorf("用户(%d)密码错误登录次数过多加锁：%v", usr.ID, err)
+				err = errors.ErrBadRequest
+				return
+			}
+		}
+		err = store.RedisClient.Set(ctx, redisCountKey, count+1, timeout).Err()
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("添加用户(%d)判断登录次数错误：%v", usr.ID, err)
+			err = errors.ErrBadRequest
+			return
+		}
 		err = errors.ErrUsernameOrPassword
 	}
 	return

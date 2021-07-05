@@ -17,10 +17,10 @@ var (
 type cf struct{}
 
 func (c *cf) AppID() string {
-	return viper.GetString("weixin.fwh.app_id")
+	return viper.GetString("weixin.kfpt.app_id")
 }
 func (c *cf) AppSecret() string {
-	return viper.GetString("weixin.fwh.app_secret")
+	return viper.GetString("weixin.kfpt.app_secret")
 }
 
 // Init 初始化全局变量

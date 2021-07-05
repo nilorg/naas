@@ -146,6 +146,9 @@ geetest:
   key: "f7475f921a41f7ba79ae15e41658627c"
 
 weixin:
-  fwh:
+  kfpt: # 开放平台
+    app_id: "xx-xx-xx"
+    app_secret: "ss-ss-ss"
+  fwh: # 服务号
     app_id: "xx-xx-xx"
     app_secret: "ss-ss-ss"

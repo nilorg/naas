@@ -62,20 +62,10 @@ func LoginPage(ctx *gin.Context) {
 func Login(ctx *gin.Context) {
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
-
-	suser, err := service.User.Login(contexts.WithGinContext(ctx), username, password)
-	if err != nil {
-		err = SetErrorMessage(ctx, err.Error())
-		if err != nil {
-			logrus.Errorln(err)
-		}
-		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
-		return
-	}
-
+	var err error
 	session := sessions.Default(ctx)
-	session.Set(key.SessionAccount, suser)
 
+	// 极验验证
 	if viper.GetBool("geetest.enabled") {
 		challenge := ctx.PostForm(gt3.GeetestChallenge)
 		seccode := ctx.PostForm(gt3.GeetestSeccode)
@@ -114,7 +104,17 @@ func Login(ctx *gin.Context) {
 			return
 		}
 	}
-
+	// 登录验证
+	suser, err := service.User.Login(contexts.WithGinContext(ctx), username, password)
+	if err != nil {
+		err = SetErrorMessage(ctx, err.Error())
+		if err != nil {
+			logrus.Errorln(err)
+		}
+		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
+		return
+	}
+	session.Set(key.SessionAccount, suser)
 	err = session.Save()
 	if err != nil {
 		logrus.Errorf("Login-Success-session.Save: %s", err)
