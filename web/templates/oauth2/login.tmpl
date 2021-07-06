@@ -17,6 +17,49 @@
         }
     </style>
     {{ end }}
+    <style>
+        #thirdqrcode {
+            position: relative;
+            text-align: center;
+            background-color: hsla(0, 0%, 100%, .9);
+            padding: 35px 35px 35px 35px;
+        }
+
+        #namepass {
+            position: relative;
+            background-color: hsla(0, 0%, 100%, .9);
+            padding: 50px 35px 35px 35px;
+        }
+
+        #changeLoginMethodUserpass,
+        #changeLoginMethodQrcode {
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: #ff9000;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+            z-index: 9999;
+            background-color: #fefcee;
+            border: 1px solid #ff9000;
+            padding: 5px 10px;
+            cursor: pointer;
+
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #thirdQrcodeImg {
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
@@ -35,32 +78,46 @@
             <img class="mb-4" src="{{.client_info.Profile}}" alt="{{.client_info.Name}}" width="72" height="72">
             <h1 class="h3 mb-3 font-weight-normal" title="{{.client_info.Description}}">{{.client_info.Name}}</h1>
         </div>
-        <div class="form-label-group">
-            <input type="text" id="inputUsername" name="username" class="form-control" placeholder="用户名" required
-                autofocus />
-            <label for="inputUsername">用户名</label>
-        </div>
-        <div class="form-label-group">
-            <input type="password" id="inputPassword" name="password" class="form-control" placeholder="密码" required />
-            <label for="inputPassword">密码</label>
-        </div>
-        {{ if .geetest_enabled }}
-        <div class="form-label-group">
-            <p id="notice" class="hide">请先完成验证</p>
-            <div id="captcha">
-                <p id="wait" class="show">正在加载验证码......</p>
+        {{ if .third_enabled }}
+        {{ if .third_qrcode_enabled }}
+        <div id="thirdqrcode" class="hide">
+            <div id="changeLoginMethodUserpass">使用账号密码登录</div>
+            <div class="form-label-group">
+                <img id="thirdQrcodeImg" src="/third/qrcode/generate" />
+                <p id="thirdQrcodeNotice">使用微信扫码二维码登录</p>
             </div>
         </div>
         {{ end }}
-        <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit">登录</button>
-        {{ if .third_enabled }}
-        {{ if .third_weixin_enabled }}
-        <a href="/third/wx/qrconnect?client_id={{ .client_id }}&login_redirect_uri={{ .login_redirect_uri }}">使用微信登录</a>
         {{ end }}
-        {{ if .third_qrcode_enabled }}
-        <img id="thirdQrcode" src="/third/qrcode/generate" width="100px" height="100px" />
-        {{ end }}
-        {{ end }}
+        <div id="namepass" class="hide">
+            <div id="changeLoginMethodQrcode">使用微信扫码登录</div>
+            <div class="form-label-group">
+                <input type="text" id="inputUsername" name="username" class="form-control" placeholder="用户名" required
+                    autofocus />
+                <label for="inputUsername">用户名</label>
+            </div>
+            <div class="form-label-group">
+                <input type="password" id="inputPassword" name="password" class="form-control" placeholder="密码"
+                    required />
+                <label for="inputPassword">密码</label>
+            </div>
+            {{ if .geetest_enabled }}
+            <div class="form-label-group">
+                <p id="notice" class="hide">请先完成验证</p>
+                <div id="captcha">
+                    <p id="wait" class="show">正在加载验证码......</p>
+                </div>
+            </div>
+            {{ end }}
+            <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit">登录</button>
+            {{ if .third_enabled }}
+            {{ if .third_weixin_enabled }}
+            <a
+                href="/third/wx/qrconnect?client_id={{ .client_id }}&login_redirect_uri={{ .login_redirect_uri }}">使用微信登录</a>
+            {{ end }}
+            {{ end }}
+        </div>
+
         <p class="mt-5 mb-3 text-muted text-center">&copy; <a target="_blank"
                 href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>
     </form>
@@ -112,17 +169,55 @@
     {{ if .third_qrcode_enabled }}
     <script>
         $(document).ready(function () {
-            window.qrcodeIntervalId = setInterval(function () {
-                $.ajax({
-                    url: "/third/qrcode/validation?t=" + (new Date()).getTime(), // 加随机数防止缓存
-                    type: "get",
-                    dataType: "json",
-                    success: function (data) {
-                        console.log(data);
-                        // window.clearInterval(window.qrcode.intervalId);
-                    }
-                });
-            }, 1000);
+            let $thirdqrcode = $("#thirdqrcode");
+            let $namepass = $("#namepass");
+            let $changeLoginMethodUserpass = $("#changeLoginMethodUserpass");
+            let $changeLoginMethodQrcode = $("#changeLoginMethodQrcode");
+            let $thirdQrcodeImg = $("#thirdQrcodeImg");
+            let $thirdQrcodeNotice = $('#thirdQrcodeNotice');
+            $thirdqrcode.removeClass("hide").addClass("show");
+            $namepass.removeClass("show").addClass("hide");
+            let qrcodeValidation = function () {
+                window.qrcodeIntervalId = setInterval(function () {
+                    $.ajax({
+                        url: "/third/qrcode/validation?t=" + (new Date()).getTime(), // 加随机数防止缓存
+                        type: "get",
+                        dataType: "json",
+                        success: function (result) {
+                            console.log(result);
+                            if (result.status == 'ok') {
+                                if (result.data.login == 'success') {
+                                    $thirdQrcodeNotice.css('color', 'green').text('验证完成等待跳转...');
+                                    window.location.href = "{{ .login_redirect_uri }}";
+                                    window.clearInterval(window.qrcodeIntervalId);
+                                    console.log('重定向：', "{{ .login_redirect_uri }}");
+                                } else if (result.data.login == 'pending') {
+                                    $thirdQrcodeNotice.css('color', 'black').text('等待验证中...');
+                                } else if (result.data.login == 'expired') {
+                                    $thirdQrcodeNotice.css('color', 'red').text('二维码过期，请点击二维码刷新');
+                                }
+                            } else {
+                                console.log('验证二维码错误：', result.data);
+                            }
+                        }
+                    });
+                }, 1500);
+            }
+            qrcodeValidation();
+            $changeLoginMethodUserpass.on('click', function () {
+                $namepass.removeClass("hide").addClass("show");
+                $thirdqrcode.removeClass("show").addClass("hide");
+                window.clearInterval(window.qrcodeIntervalId); // 移除定时验证二维码
+            });
+            $changeLoginMethodQrcode.on('click', function () {
+                $namepass.removeClass("show").addClass("hide");
+                $thirdqrcode.removeClass("hide").addClass("show");
+                qrcodeValidation();
+            });
+            $thirdQrcodeImg.on('click', function () {
+                $thirdQrcodeImg.attr('src', "/third/qrcode/generate?t=" + (new Date()).getTime());
+                $thirdQrcodeNotice.css('color', 'black').text('使用微信扫码二维码登录');
+            });
         });
     </script>
     {{ end }}

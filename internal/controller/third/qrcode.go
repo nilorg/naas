@@ -20,6 +20,11 @@ import (
 	skip2Qrcode "github.com/skip2/go-qrcode"
 )
 
+const (
+	QrcodeLoginStatusPending = "pending"
+	QrcodeLoginStatusExpired = "expired"
+)
+
 type qrcode struct {
 }
 
@@ -101,7 +106,9 @@ func (*qrcode) CycleValidationLoginQrCode(ctx *gin.Context) {
 	parentCtx := contexts.WithGinContext(ctx)
 	var err error
 	if store.RedisClient.Exists(parentCtx, loginCodeKey).Val() != 1 {
-		api.Writer(ctx, errors.New("拒绝访问，登录码过期"))
+		api.Writer(ctx, gin.H{
+			"login": QrcodeLoginStatusExpired,
+		})
 		return
 	}
 	var loginValue map[string]string
@@ -113,7 +120,7 @@ func (*qrcode) CycleValidationLoginQrCode(ctx *gin.Context) {
 	// 检查用户是否同意授权
 	if loginValue["status"] != "1" {
 		api.Writer(ctx, gin.H{
-			"login": "pending",
+			"login": QrcodeLoginStatusPending,
 		})
 		return
 	}
@@ -122,7 +129,9 @@ func (*qrcode) CycleValidationLoginQrCode(ctx *gin.Context) {
 	userCode := loginValue["user_code"]
 	userCodekey := key.WrapQrCodeLoginUserCode(userCode)
 	if store.RedisClient.Exists(parentCtx, userCodekey).Val() != 1 {
-		api.Writer(ctx, errors.New("拒绝访问，用户码过期"))
+		api.Writer(ctx, gin.H{
+			"login": QrcodeLoginStatusExpired,
+		})
 		return
 	}
 	// 通过用户Code获取用户信息和登录Code
@@ -167,7 +176,9 @@ func (*qrcode) ConfirmationLoginQrCode(ctx *gin.Context) {
 	userCodekey := key.WrapQrCodeLoginUserCode(userCode)
 	parentCtx := contexts.WithGinContext(ctx)
 	if store.RedisClient.Exists(parentCtx, userCodekey).Val() != 1 {
-		api.Writer(ctx, errors.New("拒绝访问，用户码过期"))
+		api.Writer(ctx, gin.H{
+			"login": QrcodeLoginStatusExpired,
+		})
 		return
 	}
 	var err error
