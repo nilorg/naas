@@ -171,7 +171,7 @@ func RunHTTP() {
 			if viper.GetBool("server.third.qrcode") {
 				thirdGroup.GET("/qrcode/generate", third.QrCode.GenerateLoginQrCode)
 				thirdGroup.GET("/qrcode/validation", third.QrCode.CycleValidationLoginQrCode)
-				thirdGroup.GET("/qrcode/confirmation", third.QrCode.ConfirmationLoginQrCode)
+				thirdGroup.GET("/qrcode/confirmation", middleware.WxQrcodeAuthRequired, third.QrCode.ConfirmationLoginQrCode)
 			}
 		}
 	}

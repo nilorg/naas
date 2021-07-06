@@ -3,9 +3,11 @@ package model
 type UserThirdType string
 
 var (
-	UserThirdTypePhone     UserThirdType = "phone"
-	UserThirdTypeWxUnionID UserThirdType = "wx_union_id"
-	UserThirdTypeWxOpenID  UserThirdType = "wx_open_id"
+	UserThirdTypePhone           UserThirdType = "phone"
+	UserThirdTypeWxUnionID       UserThirdType = "wx_union_id"
+	UserThirdTypeWxOpenIDForKfpt UserThirdType = "wxkfpt_open_id"
+	UserThirdTypeWxOpenIDForFwh  UserThirdType = "wxfwh_open_id"
+	UserThirdTypeWxOpenIDForDyh  UserThirdType = "wxdyh_open_id"
 )
 
 // 用户第三方关联
@@ -20,7 +22,7 @@ type UserThird struct {
 // UserThirdTypeVerify 用户第三方类型验证
 func UserThirdTypeVerify(typ UserThirdType) bool {
 	switch typ {
-	case UserThirdTypeWxUnionID, UserThirdTypeWxOpenID:
+	case UserThirdTypeWxUnionID, UserThirdTypeWxOpenIDForKfpt:
 		return true
 	default:
 		return false

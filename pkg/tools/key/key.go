@@ -34,4 +34,5 @@ const (
 	SessionDeviceUserCode         = "device_user_code"
 	SessionWeixinSnsapiLoginState = "weixin_snsapi_login_state"
 	SessionQrCodeLoginCode        = "qrcode_login_code"
+	SessionQrcodeWeixinState      = "qrcode_weixin_login_state"
 )

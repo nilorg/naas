@@ -209,10 +209,12 @@ func (*qrcode) ConfirmationLoginQrCode(ctx *gin.Context) {
 		api.Writer(ctx, errors.New("服务器错误"))
 		return
 	}
+	session := sessions.Default(ctx)
+	currentAccount := session.Get(key.SessionAccount).(*model.SessionAccount)
 	// TODO:验证成功，模拟登录
 	err = store.RedisClient.HSet(
 		ctx, userCodekey,
-		"open_id", "1",
+		"open_id", currentAccount.UserID,
 	).Err()
 	if err != nil {
 		logrus.Errorln(err)
