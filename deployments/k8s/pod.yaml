@@ -18,11 +18,9 @@ spec:
         version: v1
     spec:
       restartPolicy: Always
-      imagePullSecrets:
-        - name: nilorgregcred
       containers:
         - name: naas
-          image: nilorg.azurecr.io/naas:dev
+          image: nilorg/naas:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
