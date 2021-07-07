@@ -82,7 +82,7 @@ func (*qrcode) GenerateLoginQrCode(ctx *gin.Context) {
 	if ctx.Request.TLS != nil {
 		scheme = "https"
 	}
-	qrcodeURL := fmt.Sprintf("%s://%s/third/qrcode/confirmation?user_code=%s", scheme, "naas.nilorg.com", userCode)
+	qrcodeURL := fmt.Sprintf("%s://%s/third/qrcode/confirmation?user_code=%s", scheme, ctx.Request.Host, userCode)
 	var qrcodeBytes []byte
 	qrcodeBytes, err = skip2Qrcode.Encode(qrcodeURL, skip2Qrcode.Medium, 256)
 	if err != nil {

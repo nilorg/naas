@@ -2303,11 +2303,20 @@ var doc = `{
         },
         "/third/wx/qrconnect": {
             "get": {
-                "description": "微信扫码登录回调",
+                "description": "微信扫码登录重定向",
                 "tags": [
                     "Third（第三方）"
                 ],
-                "summary": "微信扫码登录回调"
+                "summary": "微信扫码登录重定向"
+            }
+        },
+        "/third/wx/scanqrcode": {
+            "get": {
+                "description": "扫码登录",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "扫码登录"
             }
         },
         "/users": {

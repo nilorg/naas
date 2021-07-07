@@ -190,11 +190,11 @@
                                     $thirdQrcodeNotice.css('color', 'green').text('验证完成等待跳转...');
                                     window.location.href = "{{ .login_redirect_uri }}";
                                     window.clearInterval(window.qrcodeIntervalId);
-                                    console.log('重定向：', "{{ .login_redirect_uri }}");
                                 } else if (result.data.login == 'pending') {
                                     $thirdQrcodeNotice.css('color', 'black').text('等待验证中...');
                                 } else if (result.data.login == 'expired') {
                                     $thirdQrcodeNotice.css('color', 'red').text('二维码过期，请点击二维码刷新');
+                                    window.clearInterval(window.qrcodeIntervalId);
                                 }
                             } else {
                                 console.log('验证二维码错误：', result.data);

@@ -46,7 +46,7 @@ func (*weixin) QrConnect(ctx *gin.Context) {
 	values.Set("response_type", "code")
 	values.Set("scope", "snsapi_login")
 	values.Set("state", state)
-	values.Set("redirect_uri", fmt.Sprintf("%s://%s/third/wx/callback?source=qrconnect&client_id=%s&login_redirect_uri=%s", scheme, ctx.Request.URL.Host, clientID, loginRedirectURI))
+	values.Set("redirect_uri", fmt.Sprintf("%s://%s/third/wx/callback?source=qrconnect&client_id=%s&login_redirect_uri=%s", scheme, ctx.Request.Host, clientID, loginRedirectURI))
 	ctx.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?%s", "https://open.weixin.qq.com/connect/qrconnect", values.Encode()))
 }
 
@@ -75,7 +75,7 @@ func (*weixin) ScanQrCode(ctx *gin.Context) {
 	values.Set("response_type", "code")
 	values.Set("scope", "snsapi_userinfo")
 	values.Set("state", state)
-	values.Set("redirect_uri", fmt.Sprintf("%s://%s/third/wx/callback?source=scanqrcode&scan_redirect_uri=%s", scheme, ctx.Request.URL.Host, scanRedirectURI))
+	values.Set("redirect_uri", fmt.Sprintf("%s://%s/third/wx/callback?source=scanqrcode&scan_redirect_uri=%s", scheme, ctx.Request.Host, scanRedirectURI))
 	ctx.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("https://open.weixin.qq.com/connect/oauth2/authorize?%s#wechat_redirect", values.Encode()))
 }
 
@@ -164,7 +164,8 @@ func (*weixin) callBackForScanQrcode(ctx *gin.Context) {
 	su, err := service.User.LoginForWeixinFwhCode(contexts.WithGinContext(ctx), code)
 	if err != nil {
 		if err == errors.ErrThirdUserNotFound {
-			ctx.String(http.StatusBadRequest, "微信未绑定账号")
+			// ctx.String(http.StatusBadRequest, "微信未绑定账号")
+			// ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/wx/bind?source=scanqrcode&scan_redirect_uri=%s", scanRedirectURI))
 		} else {
 			ctx.String(http.StatusBadRequest, "微信登录错误")
 		}
@@ -213,6 +214,7 @@ func (*weixin) bindForQrconnect(ctx *gin.Context) {
 
 func (*weixin) bindForScanQrcode(ctx *gin.Context) {
 	// TODO: 待开发
+
 }
 
 // Init 微信初始化

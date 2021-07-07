@@ -101,8 +101,9 @@ func RunHTTP() {
 
 	r.Static("/static", "./web/static")
 	storageType := viper.GetString("storage.type")
+	defaultBasePath := viper.GetString(fmt.Sprintf("storage.%s.base_path", storageType))
 	if storageType != "" {
-		r.Static("/storage", viper.GetString(fmt.Sprintf("storage.%s.base_path", storageType)))
+		r.Static("/storage", defaultBasePath)
 	}
 	r.LoadHTMLGlob("./web/templates/oauth2/*")
 	if viper.GetBool("server.admin.enabled") {
@@ -164,8 +165,9 @@ func RunHTTP() {
 		{
 			if viper.GetBool("server.third.weixin") {
 				thirdGroup.GET("/wx/qrconnect", third.Weixin.QrConnect)
+				thirdGroup.GET("/wx/scanqrcode", third.Weixin.ScanQrCode)
 				thirdGroup.GET("/wx/callback", third.Weixin.CallBack)
-				thirdGroup.GET("/wx/bind", third.Weixin.CallBack)
+				thirdGroup.GET("/wx/bind", third.Weixin.Bind)
 				thirdGroup.GET("/wx/init", third.Weixin.Init)
 			}
 			if viper.GetBool("server.third.qrcode") {

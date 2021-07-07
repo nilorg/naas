@@ -105,6 +105,8 @@ data:
     mysql:
       address: "root:test123@tcp(mysql.storage.svc.cluster.local:3306)/naas?charset=utf8&parseTime=True&loc=Local"
       log: true
+      max_open: 100
+      max_idle: 10
 
     redis:
       address: "redis-master.storage.svc.cluster.local:6379"
