@@ -58,9 +58,10 @@ func createPicture(typ, id string) (bs string, err error) {
 }
 
 const (
-	createUserTypePassword  = "password"
-	createUserTypeWxOpenID  = "wxopenid"
-	createUserTypeWxUnionID = "wxunionid"
+	createUserTypePassword     = "password"
+	createUserTypeWxKfptOpenID = "wxkfptopenid"
+	createUserTypeWxFwhOpenID  = "wxfwhopenid"
+	createUserTypeWxUnionID    = "wxunionid"
 )
 
 func (u *user) create(ctx context.Context, username, password, openID, typ string) (err error) {
@@ -90,8 +91,10 @@ func (u *user) create(ctx context.Context, username, password, openID, typ strin
 		var userThirdType model.UserThirdType
 		if typ == createUserTypeWxUnionID {
 			userThirdType = model.UserThirdTypeWxUnionID
-		} else if typ == createUserTypeWxOpenID {
+		} else if typ == createUserTypeWxKfptOpenID {
 			userThirdType = model.UserThirdTypeWxOpenIDForKfpt
+		} else if typ == createUserTypeWxFwhOpenID {
+			userThirdType = model.UserThirdTypeWxOpenIDForFwh
 		} else {
 			err = fmt.Errorf("创建类型错误")
 			tran.Rollback()
@@ -148,11 +151,21 @@ func (u *user) CreateFromWeixin(ctx context.Context, wxUnionID string) (err erro
 
 // InitFromWeixinKfptOpenID 使用微信OpenID初始化账户
 func (u *user) InitFromWeixinKfptOpenID(ctx context.Context, wxOpenID string) (su *model.SessionAccount, err error) {
-	err = u.create(ctx, wxOpenID, wxOpenID, wxOpenID, createUserTypeWxOpenID)
+	err = u.create(ctx, wxOpenID, wxOpenID, wxOpenID, createUserTypeWxKfptOpenID)
 	if err != nil {
 		return
 	}
 	su, err = u.loginForWxKfptOpenID(ctx, wxOpenID)
+	return
+}
+
+// InitFromWeixinFwhOpenID 使用微信OpenID初始化账户
+func (u *user) InitFromWeixinFwhOpenID(ctx context.Context, wxOpenID string) (su *model.SessionAccount, err error) {
+	err = u.create(ctx, wxOpenID, wxOpenID, wxOpenID, createUserTypeWxFwhOpenID)
+	if err != nil {
+		return
+	}
+	su, err = u.loginForWxFwhOpenID(ctx, wxOpenID)
 	return
 }
 
@@ -317,8 +330,23 @@ func (u *user) loginForWxKfptOpenID(ctx context.Context, wxOpenID string) (su *m
 	return
 }
 
+// loginForWxFwhOpenID 微信OpenID登录
+func (u *user) loginForWxFwhOpenID(ctx context.Context, wxOpenID string) (su *model.SessionAccount, err error) {
+	var userThird *model.UserThird
+	userThird, err = dao.UserThird.SelectByThirdIDAndThirdType(ctx, wxOpenID, model.UserThirdTypeWxOpenIDForFwh)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	su, err = u.loginForUserID(ctx, userThird.UserID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+	}
+	return
+}
+
 // LoginForWeixinKfptCode 根据微信Code进行登录
-func (u *user) LoginForWeixinKfptCode(ctx context.Context, code string) (su *model.SessionAccount, err error) {
+func (u *user) LoginForWeixinKfptCode(ctx context.Context, code string) (su *model.SessionAccount, st *model.SessionThirdBind, err error) {
 	xoauth := oauth.NewOAuth(weixin.KfptWechatClientConfig)
 	var reply *oauth.AccessTokenReply
 	reply, err = xoauth.GetAccessToken(code)
@@ -344,9 +372,9 @@ func (u *user) LoginForWeixinKfptCode(ctx context.Context, code string) (su *mod
 			logrus.WithContext(ctx).Errorln(err)
 		}
 	} else {
-		su = &model.SessionAccount{
-			WxOpenID: reply.OpenID,
-			Action:   model.SessionAccountActionBindWx,
+		st = &model.SessionThirdBind{
+			ThirdID: reply.OpenID,
+			Type:    model.UserThirdTypeWxOpenIDForFwh,
 		}
 		err = errors.ErrThirdUserNotFound
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -117,9 +118,15 @@ func (*weixin) callBackForQrconnect(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, "微信回调state不匹配")
 		return
 	}
-	su, err := service.User.LoginForWeixinKfptCode(contexts.WithGinContext(ctx), code)
+	su, st, err := service.User.LoginForWeixinKfptCode(contexts.WithGinContext(ctx), code)
 	if err != nil {
 		if err == errors.ErrThirdUserNotFound {
+			session.Set(key.SessionThird, st)
+			err = session.Save()
+			if err != nil {
+				ctx.String(http.StatusBadRequest, "用户信息存储失败")
+				return
+			}
 			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=qrconnect&redirect_uri=%s", loginRedirectURI))
 		} else {
 			ctx.String(http.StatusBadRequest, "微信登录错误")
@@ -183,41 +190,6 @@ func (*weixin) callBackForScanQrcode(ctx *gin.Context) {
 	ctx.Redirect(http.StatusFound, scanRedirectURI)
 }
 
-// // Bind 微信绑定
-// // @Tags 		Third（第三方）
-// // @Summary		微信绑定
-// // @Description	微信绑定
-// // @Router /third/wx/bind [GET]
-// func (wx *weixin) Bind(ctx *gin.Context) {
-// 	source := ctx.Query("source")
-// 	if source == "qrconnect" { // pc微信扫码
-// 		wx.bindForQrconnect(ctx)
-// 	} else if source == "scanqrcode" { // 自研扫码
-// 		wx.bindForScanQrcode(ctx)
-// 	} else {
-// 		ctx.String(http.StatusBadRequest, "绑定来源出错")
-// 	}
-// }
-
-// func (*weixin) bindForQrconnect(ctx *gin.Context) {
-// 	loginRedirectURI := ctx.Query("login_redirect_uri")
-// 	if loginRedirectURI == "" {
-// 		ctx.String(http.StatusBadRequest, "未找到重定向地址")
-// 		return
-// 	}
-// 	loginURI := fmt.Sprintf("/third/bind?source=qrconnect&login_redirect_uri=%s", loginRedirectURI)
-// 	initURI := fmt.Sprintf("/third/wx/init?source=qrconnect&login_redirect_uri=%s", loginRedirectURI)
-// 	ctx.HTML(http.StatusOK, "third_bind.tmpl", gin.H{
-// 		"login_uri": loginURI,
-// 		"init_uri":  initURI,
-// 	})
-// }
-
-// func (*weixin) bindForScanQrcode(ctx *gin.Context) {
-// 	// TODO: 待开发
-
-// }
-
 // Init 微信初始化
 // @Tags 		Third（第三方）
 // @Summary		微信初始化
@@ -235,37 +207,65 @@ func (wx *weixin) Init(ctx *gin.Context) {
 }
 
 func (*weixin) initForQrconnect(ctx *gin.Context) {
-	loginRedirectURI := ctx.Query("login_redirect_uri")
-	if loginRedirectURI == "" {
+	redirectURI := ctx.Query("redirect_uri")
+	if redirectURI == "" {
 		ctx.String(http.StatusBadRequest, "未找到重定向地址")
 		return
 	}
 	session := sessions.Default(ctx)
-	currentAccount := session.Get(key.SessionAccount)
-	cu := currentAccount.(*model.SessionAccount)
-	if cu.Action != model.SessionAccountActionBindWx {
+	stb := session.Get(key.SessionThird).(*model.SessionThirdBind)
+	if stb.Type != model.UserThirdTypeWxOpenIDForKfpt {
 		ctx.String(http.StatusBadRequest, "微信初始化不符合")
 		return
 	}
-	if cu.WxOpenID == "" {
+	if strings.TrimSpace(stb.ThirdID) == "" {
 		ctx.String(http.StatusBadRequest, "未找到微信OpenID")
 		return
 	}
 	parentCtx := contexts.WithGinContext(ctx)
-	su, err := service.User.InitFromWeixinKfptOpenID(parentCtx, cu.WxOpenID)
+	su, err := service.User.InitFromWeixinKfptOpenID(parentCtx, stb.ThirdID)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, "微信初始化错误")
 		return
 	}
 	session.Set(key.SessionAccount, su)
+	session.Delete(key.SessionThird)
 	err = session.Save()
 	if err != nil {
 		ctx.String(http.StatusBadRequest, "用户信息存储失败")
 		return
 	}
-	ctx.Redirect(http.StatusFound, loginRedirectURI)
+	ctx.Redirect(http.StatusFound, redirectURI)
 }
 
 func (*weixin) initForScanQrcode(ctx *gin.Context) {
-	// TODO: 未开发
+	redirectURI := ctx.Query("redirect_uri")
+	if redirectURI == "" {
+		ctx.String(http.StatusBadRequest, "未找到重定向地址")
+		return
+	}
+	session := sessions.Default(ctx)
+	stb := session.Get(key.SessionThird).(*model.SessionThirdBind)
+	if stb.Type != model.UserThirdTypeWxOpenIDForFwh {
+		ctx.String(http.StatusBadRequest, "微信初始化不符合")
+		return
+	}
+	if strings.TrimSpace(stb.ThirdID) == "" {
+		ctx.String(http.StatusBadRequest, "未找到微信OpenID")
+		return
+	}
+	parentCtx := contexts.WithGinContext(ctx)
+	su, err := service.User.InitFromWeixinKfptOpenID(parentCtx, stb.ThirdID)
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "微信初始化错误")
+		return
+	}
+	session.Set(key.SessionAccount, su)
+	session.Delete(key.SessionThird)
+	err = session.Save()
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "用户信息存储失败")
+		return
+	}
+	ctx.Redirect(http.StatusFound, redirectURI)
 }

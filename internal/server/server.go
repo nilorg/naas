@@ -171,7 +171,7 @@ func RunHTTP() {
 				thirdGroup.GET("/wx/scanqrcode", third.Weixin.ScanQrCode)
 				thirdGroup.GET("/wx/callback", third.Weixin.CallBack)
 				// thirdGroup.GET("/wx/bind", third.Weixin.Bind)
-				thirdGroup.GET("/wx/init", third.Weixin.Init)
+				thirdGroup.GET("/wx/init", middleware.ThirdAuthRequired, third.Weixin.Init)
 			}
 			if viper.GetBool("server.third.qrcode") {
 				thirdGroup.GET("/qrcode/generate", third.QrCode.GenerateLoginQrCode)

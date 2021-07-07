@@ -214,7 +214,6 @@ func (*qrcode) ConfirmationLoginQrCode(ctx *gin.Context) {
 	}
 	session := sessions.Default(ctx)
 	currentAccount := session.Get(key.SessionAccount).(*model.SessionAccount)
-	// TODO:验证成功，模拟登录
 	err = store.RedisClient.HSet(
 		parentCtx, userCodekey,
 		"open_id", model.ConvertIDToString(currentAccount.UserID),

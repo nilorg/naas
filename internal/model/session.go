@@ -9,18 +9,12 @@ func init() {
 
 type ThirdBindAction string
 
-var (
-	SessionAccountActionBindWx ThirdBindAction = "bind_wx"
-)
-
 // SessionAccount ...
 type SessionAccount struct {
 	UserID   ID
 	UserName string
 	Nickname string
 	Picture  string
-	WxOpenID string
-	Action   ThirdBindAction
 }
 
 type SessionThirdBind struct {

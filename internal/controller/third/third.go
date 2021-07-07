@@ -33,7 +33,7 @@ func BindPage(ctx *gin.Context) {
 	source := ctx.Query("source")
 	loginURI := fmt.Sprintf("/third/login?source=%s&login_redirect_uri=%s", source, redirectURI)
 	wx := ginextension.IsMicroMessenger(ctx)
-	initURI := fmt.Sprintf("/third/wx/init?source=%s&login_redirect_uri=%s", source, redirectURI)
+	initURI := fmt.Sprintf("/third/wx/init?source=%s&redirect_uri=%s", source, redirectURI)
 	ctx.HTML(http.StatusOK, "third_bind.tmpl", gin.H{
 		"login_uri":   loginURI,
 		"wx_status":   wx,
