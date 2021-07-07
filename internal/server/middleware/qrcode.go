@@ -7,12 +7,13 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/nilorg/naas/internal/pkg/ginextension"
 	"github.com/nilorg/naas/pkg/tools/key"
 )
 
 // WxQrcodeAuthRequired 微信扫码身份验证
 func WxQrcodeAuthRequired(ctx *gin.Context) {
-	wx := IsMicroMessenger(ctx)
+	wx := ginextension.IsMicroMessenger(ctx)
 	if !wx {
 		ctx.String(http.StatusBadRequest, "请使用微信扫码")
 		ctx.Abort()

@@ -354,7 +354,7 @@ func (u *user) LoginForWeixinKfptCode(ctx context.Context, code string) (su *mod
 }
 
 // LoginForWeixinFwhCode 根据微信服务号Code进行登录
-func (u *user) LoginForWeixinFwhCode(ctx context.Context, code string) (su *model.SessionAccount, err error) {
+func (u *user) LoginForWeixinFwhCode(ctx context.Context, code string) (su *model.SessionAccount, st *model.SessionThirdBind, err error) {
 	xoauth := oauth.NewOAuth(weixin.FwhWechatClientConfig)
 	var reply *oauth.AccessTokenReply
 	reply, err = xoauth.GetAccessToken(code)
@@ -380,9 +380,9 @@ func (u *user) LoginForWeixinFwhCode(ctx context.Context, code string) (su *mode
 			logrus.WithContext(ctx).Errorln(err)
 		}
 	} else {
-		su = &model.SessionAccount{
-			WxOpenID: reply.OpenID,
-			Action:   model.SessionAccountActionBindWx,
+		st = &model.SessionThirdBind{
+			ThirdID: reply.OpenID,
+			Type:    model.UserThirdTypeWxOpenIDForFwh,
 		}
 		err = errors.ErrThirdUserNotFound
 	}

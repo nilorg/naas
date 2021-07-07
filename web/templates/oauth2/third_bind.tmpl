@@ -19,7 +19,9 @@
         </div>
         {{ else }}
         <a href="{{ .login_uri }}" class="btn btn-primary btn-lg btn-block">登录绑定</a>
-        <a href="{{ .init_uri }}" class="btn btn-primary btn-lg btn-block">初始化新账户</a>
+        {{ if .wx_status }}
+        <a href="{{ .wx_init_uri }}" class="btn btn-primary btn-lg btn-block">使用微信初始化新账户</a>
+        {{ end }}
         {{ end }}
         <footer class="my-5 pt-5 text-muted text-center text-small">
             <p class="mb-1">&copy; <a target="_blank" href="https://github.com/nilorg/naas">NilOrg认证授权服务平台</a></p>

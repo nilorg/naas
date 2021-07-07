@@ -40,13 +40,12 @@ func (*weixin) QrConnect(ctx *gin.Context) {
 		scheme = "https"
 	}
 	loginRedirectURI := ctx.Query("login_redirect_uri")
-	clientID := ctx.Query("client_id")
 	values := make(url.Values)
 	values.Set("appid", viper.GetString("weixin.kfpt.app_id"))
 	values.Set("response_type", "code")
 	values.Set("scope", "snsapi_login")
 	values.Set("state", state)
-	values.Set("redirect_uri", fmt.Sprintf("%s://%s/third/wx/callback?source=qrconnect&client_id=%s&login_redirect_uri=%s", scheme, ctx.Request.Host, clientID, loginRedirectURI))
+	values.Set("redirect_uri", fmt.Sprintf("%s://%s/third/wx/callback?source=qrconnect&login_redirect_uri=%s", scheme, ctx.Request.Host, loginRedirectURI))
 	ctx.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s?%s", "https://open.weixin.qq.com/connect/qrconnect", values.Encode()))
 }
 
@@ -112,7 +111,6 @@ func (*weixin) callBackForQrconnect(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, "未找到重定向地址")
 		return
 	}
-	clientID := ctx.Query("client_id")
 	session := sessions.Default(ctx)
 	inState := session.Get(key.SessionWeixinSnsapiLoginState)
 	if state != inState.(string) {
@@ -123,7 +121,7 @@ func (*weixin) callBackForQrconnect(ctx *gin.Context) {
 	if err != nil {
 		if err == errors.ErrThirdUserNotFound {
 			// TODO：去绑定页面，或者初始化。让用户选择
-			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/wx/bind?source=qrconnect&client_id=%s&login_redirect_uri=%s", clientID, loginRedirectURI))
+			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=qrconnect&login_redirect_uri=%s", loginRedirectURI))
 		} else {
 			ctx.String(http.StatusBadRequest, "微信登录错误")
 		}
@@ -161,11 +159,16 @@ func (*weixin) callBackForScanQrcode(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, "微信回调state不匹配")
 		return
 	}
-	su, err := service.User.LoginForWeixinFwhCode(contexts.WithGinContext(ctx), code)
+	su, st, err := service.User.LoginForWeixinFwhCode(contexts.WithGinContext(ctx), code)
 	if err != nil {
 		if err == errors.ErrThirdUserNotFound {
-			// ctx.String(http.StatusBadRequest, "微信未绑定账号")
-			// ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/wx/bind?source=scanqrcode&scan_redirect_uri=%s", scanRedirectURI))
+			session.Set(key.SessionThird, st)
+			err = session.Save()
+			if err != nil {
+				ctx.String(http.StatusBadRequest, "用户信息存储失败")
+				return
+			}
+			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=scanqrcode&scan_redirect_uri=%s", scanRedirectURI))
 		} else {
 			ctx.String(http.StatusBadRequest, "微信登录错误")
 		}
@@ -181,41 +184,40 @@ func (*weixin) callBackForScanQrcode(ctx *gin.Context) {
 	ctx.Redirect(http.StatusFound, scanRedirectURI)
 }
 
-// Bind 微信绑定
-// @Tags 		Third（第三方）
-// @Summary		微信绑定
-// @Description	微信绑定
-// @Router /third/wx/bind [GET]
-func (wx *weixin) Bind(ctx *gin.Context) {
-	source := ctx.Query("source")
-	if source == "qrconnect" { // pc微信扫码
-		wx.bindForQrconnect(ctx)
-	} else if source == "scanqrcode" { // 自研扫码
-		wx.bindForScanQrcode(ctx)
-	} else {
-		ctx.String(http.StatusBadRequest, "绑定来源出错")
-	}
-}
+// // Bind 微信绑定
+// // @Tags 		Third（第三方）
+// // @Summary		微信绑定
+// // @Description	微信绑定
+// // @Router /third/wx/bind [GET]
+// func (wx *weixin) Bind(ctx *gin.Context) {
+// 	source := ctx.Query("source")
+// 	if source == "qrconnect" { // pc微信扫码
+// 		wx.bindForQrconnect(ctx)
+// 	} else if source == "scanqrcode" { // 自研扫码
+// 		wx.bindForScanQrcode(ctx)
+// 	} else {
+// 		ctx.String(http.StatusBadRequest, "绑定来源出错")
+// 	}
+// }
 
-func (*weixin) bindForQrconnect(ctx *gin.Context) {
-	loginRedirectURI := ctx.Query("login_redirect_uri")
-	if loginRedirectURI == "" {
-		ctx.String(http.StatusBadRequest, "未找到重定向地址")
-		return
-	}
-	clientID := ctx.Query("client_id")
-	loginURI := fmt.Sprintf("/oauth2/login?client_id=%s&login_redirect_uri=%s", clientID, loginRedirectURI)
-	initURI := fmt.Sprintf("/third/wx/init?source=qrconnect&client_id=%s&login_redirect_uri=%s", clientID, loginRedirectURI)
-	ctx.HTML(http.StatusOK, "third_bind.tmpl", gin.H{
-		"login_uri": loginURI,
-		"init_uri":  initURI,
-	})
-}
+// func (*weixin) bindForQrconnect(ctx *gin.Context) {
+// 	loginRedirectURI := ctx.Query("login_redirect_uri")
+// 	if loginRedirectURI == "" {
+// 		ctx.String(http.StatusBadRequest, "未找到重定向地址")
+// 		return
+// 	}
+// 	loginURI := fmt.Sprintf("/third/bind?source=qrconnect&login_redirect_uri=%s", loginRedirectURI)
+// 	initURI := fmt.Sprintf("/third/wx/init?source=qrconnect&login_redirect_uri=%s", loginRedirectURI)
+// 	ctx.HTML(http.StatusOK, "third_bind.tmpl", gin.H{
+// 		"login_uri": loginURI,
+// 		"init_uri":  initURI,
+// 	})
+// }
 
-func (*weixin) bindForScanQrcode(ctx *gin.Context) {
-	// TODO: 待开发
+// func (*weixin) bindForScanQrcode(ctx *gin.Context) {
+// 	// TODO: 待开发
 
-}
+// }
 
 // Init 微信初始化
 // @Tags 		Third（第三方）

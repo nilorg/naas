@@ -4,20 +4,26 @@ import "encoding/gob"
 
 func init() {
 	gob.Register(&SessionAccount{})
+	gob.Register(&SessionThirdBind{})
 }
 
-type SessionAccountAction string
+type ThirdBindAction string
 
 var (
-	SessionAccountActionBindWx SessionAccountAction = "bind_wx"
+	SessionAccountActionBindWx ThirdBindAction = "bind_wx"
 )
 
 // SessionAccount ...
 type SessionAccount struct {
 	UserID   ID
-	WxOpenID string
 	UserName string
 	Nickname string
 	Picture  string
-	Action   SessionAccountAction
+	WxOpenID string
+	Action   ThirdBindAction
+}
+
+type SessionThirdBind struct {
+	ThirdID string
+	Type    UserThirdType
 }

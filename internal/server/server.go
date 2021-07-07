@@ -163,11 +163,14 @@ func RunHTTP() {
 	if viper.GetBool("server.third.enabled") {
 		thirdGroup := r.Group("/third")
 		{
+			thirdGroup.GET("/login", middleware.ThirdAuthRequired, third.LoginPage)
+			thirdGroup.POST("/login", middleware.ThirdAuthRequired, third.Login)
+			thirdGroup.GET("/bind", middleware.ThirdAuthRequired, third.BindPage)
 			if viper.GetBool("server.third.weixin") {
 				thirdGroup.GET("/wx/qrconnect", third.Weixin.QrConnect)
 				thirdGroup.GET("/wx/scanqrcode", third.Weixin.ScanQrCode)
 				thirdGroup.GET("/wx/callback", third.Weixin.CallBack)
-				thirdGroup.GET("/wx/bind", third.Weixin.Bind)
+				// thirdGroup.GET("/wx/bind", third.Weixin.Bind)
 				thirdGroup.GET("/wx/init", third.Weixin.Init)
 			}
 			if viper.GetBool("server.third.qrcode") {

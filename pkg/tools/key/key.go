@@ -30,6 +30,8 @@ func WrapQrCodeLoginUserCode(code string) string {
 const (
 	// SessionAccount 当前账户
 	SessionAccount = "session_account"
+	// SessionThird 第三方
+	SessionThird = "session_third"
 	// SessionDeviceUserCode 设备用户code
 	SessionDeviceUserCode         = "device_user_code"
 	SessionWeixinSnsapiLoginState = "weixin_snsapi_login_state"

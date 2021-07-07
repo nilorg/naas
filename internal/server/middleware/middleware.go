@@ -22,10 +22,3 @@ func parseAuth(auth string) (token string, ok bool) {
 	}
 	return auth[len(prefix):], true
 }
-
-// IsMicroMessenger 判断是否是微信发起的请求
-func IsMicroMessenger(ctx *gin.Context) bool {
-	userAgent := ctx.GetHeader("User-Agent")
-	userAgent = strings.ToLower(userAgent)
-	return strings.Contains(userAgent, "micromessenger")
-}
