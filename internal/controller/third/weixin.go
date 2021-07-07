@@ -257,7 +257,7 @@ func (*weixin) initForScanQrcode(ctx *gin.Context) {
 		return
 	}
 	parentCtx := contexts.WithGinContext(ctx)
-	su, err := service.User.InitFromWeixinKfptOpenID(parentCtx, stb.ThirdID)
+	su, err := service.User.InitFromWeixinFwhOpenID(parentCtx, stb.ThirdID)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, "微信初始化错误")
 		return
