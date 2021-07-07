@@ -41,6 +41,7 @@ func (*weixin) QrConnect(ctx *gin.Context) {
 		scheme = "https"
 	}
 	loginRedirectURI := ctx.Query("login_redirect_uri")
+	loginRedirectURI = url.QueryEscape(loginRedirectURI)
 	values := make(url.Values)
 	values.Set("appid", viper.GetString("weixin.kfpt.app_id"))
 	values.Set("response_type", "code")
@@ -70,6 +71,7 @@ func (*weixin) ScanQrCode(ctx *gin.Context) {
 		scheme = "https"
 	}
 	scanRedirectURI := ctx.Query("scan_redirect_uri")
+	scanRedirectURI = url.QueryEscape(scanRedirectURI)
 	values := make(url.Values)
 	values.Set("appid", viper.GetString("weixin.fwh.app_id"))
 	values.Set("response_type", "code")
@@ -127,7 +129,7 @@ func (*weixin) callBackForQrconnect(ctx *gin.Context) {
 				ctx.String(http.StatusBadRequest, "用户信息存储失败")
 				return
 			}
-			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=qrconnect&redirect_uri=%s", loginRedirectURI))
+			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=qrconnect&redirect_uri=%s", url.QueryEscape(loginRedirectURI)))
 		} else {
 			ctx.String(http.StatusBadRequest, "微信登录错误")
 		}
@@ -174,7 +176,7 @@ func (*weixin) callBackForScanQrcode(ctx *gin.Context) {
 				ctx.String(http.StatusBadRequest, "用户信息存储失败")
 				return
 			}
-			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=scanqrcode&redirect_uri=%s", scanRedirectURI))
+			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=scanqrcode&redirect_uri=%s", url.QueryEscape(scanRedirectURI)))
 		} else {
 			ctx.String(http.StatusBadRequest, "微信登录错误")
 		}

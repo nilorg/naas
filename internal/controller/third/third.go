@@ -3,6 +3,7 @@ package third
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -30,6 +31,7 @@ func BindPage(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, "未找到重定向地址")
 		return
 	}
+	redirectURI = url.QueryEscape(redirectURI)
 	source := ctx.Query("source")
 	loginURI := fmt.Sprintf("/third/login?source=%s&login_redirect_uri=%s", source, redirectURI)
 	wx := ginextension.IsMicroMessenger(ctx)
