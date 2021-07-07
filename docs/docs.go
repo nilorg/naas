@@ -2274,15 +2274,6 @@ var doc = `{
                 }
             }
         },
-        "/third/wx/bind": {
-            "get": {
-                "description": "微信绑定",
-                "tags": [
-                    "Third（第三方）"
-                ],
-                "summary": "微信绑定"
-            }
-        },
         "/third/wx/callback": {
             "get": {
                 "description": "微信回调",

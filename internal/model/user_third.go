@@ -22,7 +22,7 @@ type UserThird struct {
 // UserThirdTypeVerify 用户第三方类型验证
 func UserThirdTypeVerify(typ UserThirdType) bool {
 	switch typ {
-	case UserThirdTypeWxUnionID, UserThirdTypeWxOpenIDForKfpt:
+	case UserThirdTypePhone, UserThirdTypeWxUnionID, UserThirdTypeWxOpenIDForKfpt, UserThirdTypeWxOpenIDForFwh, UserThirdTypeWxOpenIDForDyh:
 		return true
 	default:
 		return false

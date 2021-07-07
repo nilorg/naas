@@ -120,8 +120,7 @@ func (*weixin) callBackForQrconnect(ctx *gin.Context) {
 	su, err := service.User.LoginForWeixinKfptCode(contexts.WithGinContext(ctx), code)
 	if err != nil {
 		if err == errors.ErrThirdUserNotFound {
-			// TODO：去绑定页面，或者初始化。让用户选择
-			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=qrconnect&login_redirect_uri=%s", loginRedirectURI))
+			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=qrconnect&redirect_uri=%s", loginRedirectURI))
 		} else {
 			ctx.String(http.StatusBadRequest, "微信登录错误")
 		}
@@ -168,7 +167,7 @@ func (*weixin) callBackForScanQrcode(ctx *gin.Context) {
 				ctx.String(http.StatusBadRequest, "用户信息存储失败")
 				return
 			}
-			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=scanqrcode&scan_redirect_uri=%s", scanRedirectURI))
+			ctx.Redirect(http.StatusFound, fmt.Sprintf("/third/bind?source=scanqrcode&redirect_uri=%s", scanRedirectURI))
 		} else {
 			ctx.String(http.StatusBadRequest, "微信登录错误")
 		}

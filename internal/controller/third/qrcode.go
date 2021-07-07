@@ -3,6 +3,7 @@ package third
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -34,7 +35,7 @@ func (*qrcode) GenerateLoginQrCode(ctx *gin.Context) {
 	loginCodeKey := key.WrapQrCodeLoginCode(loginCode)
 	userCode := random.AZaz09(32)
 	userCodekey := key.WrapQrCodeLoginUserCode(userCode)
-	expires := time.Now().Add(time.Minute)
+	expires := time.Now().Add(2 * time.Minute)
 	// 把登录Code写入Session
 	session := sessions.Default(ctx)
 	session.Set(key.SessionQrCodeLoginCode, loginCode)
@@ -146,6 +147,10 @@ func (*qrcode) CycleValidationLoginQrCode(ctx *gin.Context) {
 		return
 	}
 	openID := userValue["open_id"]
+	if strings.TrimSpace(openID) == "" {
+		api.Writer(ctx, errors.New("OpenID不能为空"))
+		return
+	}
 	var suser *model.SessionAccount
 	suser, err = service.User.LoginForUserID(parentCtx, model.ConvertStringToID(openID))
 	if err != nil {
@@ -176,9 +181,7 @@ func (*qrcode) ConfirmationLoginQrCode(ctx *gin.Context) {
 	userCodekey := key.WrapQrCodeLoginUserCode(userCode)
 	parentCtx := contexts.WithGinContext(ctx)
 	if store.RedisClient.Exists(parentCtx, userCodekey).Val() != 1 {
-		api.Writer(ctx, gin.H{
-			"login": QrcodeLoginStatusExpired,
-		})
+		api.Writer(ctx, "登录信息过期")
 		return
 	}
 	var err error
@@ -201,7 +204,7 @@ func (*qrcode) ConfirmationLoginQrCode(ctx *gin.Context) {
 		return
 	}
 	err = store.RedisClient.HSet(
-		ctx, loginCodeKey,
+		parentCtx, loginCodeKey,
 		"status", "1",
 	).Err()
 	if err != nil {
@@ -213,8 +216,8 @@ func (*qrcode) ConfirmationLoginQrCode(ctx *gin.Context) {
 	currentAccount := session.Get(key.SessionAccount).(*model.SessionAccount)
 	// TODO:验证成功，模拟登录
 	err = store.RedisClient.HSet(
-		ctx, userCodekey,
-		"open_id", currentAccount.UserID,
+		parentCtx, userCodekey,
+		"open_id", model.ConvertIDToString(currentAccount.UserID),
 	).Err()
 	if err != nil {
 		logrus.Errorln(err)

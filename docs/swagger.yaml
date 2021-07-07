@@ -1662,12 +1662,6 @@ paths:
       summary: 获取一个角色
       tags:
       - Role（角色）
-  /third/wx/bind:
-    get:
-      description: 微信绑定
-      summary: 微信绑定
-      tags:
-      - Third（第三方）
   /third/wx/callback:
     get:
       description: 微信回调

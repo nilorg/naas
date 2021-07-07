@@ -25,15 +25,15 @@ var (
 
 // BindPage 绑定页面
 func BindPage(ctx *gin.Context) {
-	loginRedirectURI := ctx.Query("login_redirect_uri")
-	if loginRedirectURI == "" {
+	redirectURI := ctx.Query("redirect_uri")
+	if redirectURI == "" {
 		ctx.String(http.StatusBadRequest, "未找到重定向地址")
 		return
 	}
 	source := ctx.Query("source")
-	loginURI := fmt.Sprintf("/third/bind?source=%s&login_redirect_uri=%s", source, loginRedirectURI)
+	loginURI := fmt.Sprintf("/third/login?source=%s&login_redirect_uri=%s", source, redirectURI)
 	wx := ginextension.IsMicroMessenger(ctx)
-	initURI := fmt.Sprintf("/third/wx/init?source=%s&login_redirect_uri=%s", source, loginRedirectURI)
+	initURI := fmt.Sprintf("/third/wx/init?source=%s&login_redirect_uri=%s", source, redirectURI)
 	ctx.HTML(http.StatusOK, "third_bind.tmpl", gin.H{
 		"login_uri":   loginURI,
 		"wx_status":   wx,
@@ -45,24 +45,26 @@ func BindPage(ctx *gin.Context) {
 func LoginPage(ctx *gin.Context) {
 	errMsg := oauth2.GetErrorMessage(ctx)
 	geetestEnabled := viper.GetBool("geetest.enabled")
-	loginRedirectURI := ctx.Query("login_redirect_uri")
 	if errMsg != "" {
 		ctx.HTML(http.StatusOK, "third_login.tmpl", gin.H{
-			"error":              errMsg,
-			"login_redirect_uri": loginRedirectURI,
-			"geetest_enabled":    geetestEnabled,
+			"error":           errMsg,
+			"geetest_enabled": geetestEnabled,
 		})
 		return
 	}
 
 	ctx.HTML(http.StatusOK, "third_login.tmpl", gin.H{
-		"login_redirect_uri": loginRedirectURI,
-		"geetest_enabled":    geetestEnabled,
+		"geetest_enabled": geetestEnabled,
 	})
 }
 
 // Login login post
 func Login(ctx *gin.Context) {
+	loginRedirectURI := ctx.Query("login_redirect_uri")
+	if loginRedirectURI == "" {
+		ctx.String(http.StatusBadRequest, "第三方绑定，未找到重定向地址")
+		return
+	}
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
 	var err error
@@ -119,6 +121,7 @@ func Login(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
+	session.Set(key.SessionAccount, suser)
 	// 绑定第三方账户
 	err = service.User.BindThird(parentCtx, suser.UserID, stb.ThirdID, stb.Type)
 	if err != nil {
@@ -141,5 +144,5 @@ func Login(ctx *gin.Context) {
 		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 		return
 	}
-	ctx.Redirect(http.StatusFound, ctx.Query("login_redirect_uri"))
+	ctx.Redirect(http.StatusFound, loginRedirectURI)
 }

@@ -22,7 +22,7 @@ func (*RoleServer) ListRoleByOpenID(ctx context.Context, req *proto.ListRoleByOp
 	resp = new(proto.ListRoleByOpenIDResponse)
 	for _, role := range roles {
 		resp.Roles = append(resp.Roles, &proto.UserRole{
-			Id:             model.ConvertIDToString(role.ID),
+			Id:             model.ConvertIDToUint64(role.ID),
 			UserId:         uint64(role.UserID),
 			RoleCode:       string(role.RoleCode),
 			OrganizationId: uint64(role.OrganizationID),
