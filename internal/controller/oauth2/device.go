@@ -59,7 +59,7 @@ func DeviceActivate(ctx *gin.Context) {
 				ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 			}
 		} else {
-			err = SetErrorMessage(ctx, "极验验证授权状态错误")
+			SetErrorMessage(ctx, "极验验证授权状态错误")
 			ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
 			return
 		}

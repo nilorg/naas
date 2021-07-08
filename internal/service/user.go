@@ -210,6 +210,17 @@ func (u *user) GetUserByUsername(ctx context.Context, username string) (usr *mod
 	return dao.User.SelectByUsername(ctx, username)
 }
 
+// GetUserByThirdPhone 根据第三方绑定的手机号后去用户
+func (u *user) GetUserByThirdPhone(ctx context.Context, phone string) (usr *model.User, err error) {
+	var userThird *model.UserThird
+	userThird, err = dao.UserThird.SelectByThirdIDAndThirdType(ctx, phone, model.UserThirdTypePhone)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	return dao.User.Select(ctx, userThird.UserID)
+}
+
 // GetOneByID 根据ID获取用户
 func (u *user) GetOneByID(ctx context.Context, id model.ID) (usr *model.User, err error) {
 	return dao.User.Select(ctx, id)

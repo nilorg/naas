@@ -110,6 +110,10 @@ func (c *Client) DeviceAuthorization(w http.ResponseWriter, scope string) (err e
 	return
 }
 
+func (c *Client) Token(grantType string, values url.Values) (token *TokenResponse, err error) {
+	return c.token(grantType, values)
+}
+
 func (c *Client) token(grantType string, values url.Values) (token *TokenResponse, err error) {
 	var uri *url.URL
 	uri, err = url.Parse(c.ServerBaseURL + c.TokenEndpoint)
@@ -146,8 +150,7 @@ func (c *Client) token(grantType string, values url.Values) (token *TokenRespons
 	if err != nil {
 		return
 	}
-
-	if resp.StatusCode != http.StatusOK || strings.Index(string(body), ErrorKey) > -1 {
+	if resp.StatusCode != http.StatusOK || strings.Contains(string(body), ErrorKey) {
 		errModel := ErrorResponse{}
 		err = json.Unmarshal(body, &errModel)
 		if err != nil {
@@ -249,7 +252,7 @@ func (c *Client) do(path string, values url.Values, v interface{}) (err error) {
 	if err != nil {
 		return
 	}
-	if resp.StatusCode != http.StatusOK || strings.Index(string(body), ErrorKey) > -1 {
+	if resp.StatusCode != http.StatusOK || strings.Contains(string(body), ErrorKey) {
 		errModel := ErrorResponse{}
 		err = json.Unmarshal(body, &errModel)
 		if err != nil {

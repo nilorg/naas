@@ -25,7 +25,7 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/nilorg/geetest v1.0.0
 	github.com/nilorg/go-wechat v0.0.0-20200926100757-7d5b553b0089
-	github.com/nilorg/oauth2 v0.3.2
+	github.com/nilorg/oauth2 v0.3.3
 	github.com/nilorg/pkg v0.0.0-20200923011256-287aac349757
 	github.com/nilorg/sdk v0.0.0-20200912025101-a4037e6ee224
 	github.com/o1egl/govatar v0.3.0

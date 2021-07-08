@@ -8,6 +8,8 @@ type ServerOptions struct {
 	DeviceVerificationURI              string // https://tools.ietf.org/html/rfc8628#section-3.2
 	IntrospectEndpointEnabled          bool   // https://tools.ietf.org/html/rfc7662
 	TokenRevocationEnabled             bool   // https://tools.ietf.org/html/rfc7009
+	CustomGrantTypeEnabled             bool   // 自定义身份验证
+	CustomGrantTypeAuthentication      map[string]CustomGrantTypeAuthenticationFunc
 }
 
 // ServerOption 为可选参数赋值的函数
@@ -55,6 +57,20 @@ func ServerTokenRevocationEnabled(tokenRevocationEnabled bool) ServerOption {
 	}
 }
 
+// ServerCustomGrantTypeEnabled ...
+func ServerCustomGrantTypeEnabled(customGrantTypeEnabled bool) ServerOption {
+	return func(o *ServerOptions) {
+		o.CustomGrantTypeEnabled = customGrantTypeEnabled
+	}
+}
+
+// ServerCustomGrantTypeAuthentication ...
+func ServerCustomGrantTypeAuthentication(customGrantTypeAuthentication map[string]CustomGrantTypeAuthenticationFunc) ServerOption {
+	return func(o *ServerOptions) {
+		o.CustomGrantTypeAuthentication = customGrantTypeAuthentication
+	}
+}
+
 // newServerOptions 创建server可选参数
 func newServerOptions(opts ...ServerOption) ServerOptions {
 	opt := ServerOptions{
@@ -64,6 +80,8 @@ func newServerOptions(opts ...ServerOption) ServerOptions {
 		DeviceVerificationURI:              "/device",
 		IntrospectEndpointEnabled:          false,
 		TokenRevocationEnabled:             false,
+		CustomGrantTypeEnabled:             false,
+		CustomGrantTypeAuthentication:      make(map[string]CustomGrantTypeAuthenticationFunc),
 	}
 	for _, o := range opts {
 		o(&opt)

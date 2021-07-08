@@ -135,7 +135,6 @@ func (srv *Server) HandleAuthorize(w http.ResponseWriter, r *http.Request) {
 		} else {
 			RedirectSuccess(w, r, redirectURI, code)
 		}
-		break
 	case TokenKey:
 		var token *TokenResponse
 		token, err = srv.authorizeImplicit(clientID, scope, openID)
@@ -144,10 +143,8 @@ func (srv *Server) HandleAuthorize(w http.ResponseWriter, r *http.Request) {
 		} else {
 			http.Redirect(w, r, fmt.Sprintf("%s#access_token=%s&state=%s&token_type=%s&expires_in=%d", redirectURIStr, token.AccessToken, state, token.TokenType, token.ExpiresIn), http.StatusFound)
 		}
-		break
 	default:
 		RedirectError(w, r, redirectURI, ErrUnsupportedResponseType)
-		break
 	}
 }
 
@@ -331,6 +328,18 @@ func (srv *Server) HandleToken(w http.ResponseWriter, r *http.Request) {
 			WriterJSON(w, model)
 		}
 	} else {
+		if srv.opts.CustomGrantTypeEnabled {
+			custom, ok := srv.opts.CustomGrantTypeAuthentication[grantType]
+			if ok {
+				model, err := srv.generateCustomGrantTypeAccessToken(reqClientBasic, scope, r, custom)
+				if err != nil {
+					WriterError(w, err)
+				} else {
+					WriterJSON(w, model)
+				}
+				return
+			}
+		}
 		WriterError(w, ErrUnsupportedGrantType)
 	}
 }
@@ -371,6 +380,17 @@ func (srv *Server) authorizeDeviceCode(clientID, scope string) (resp *DeviceAuth
 func (srv *Server) tokenResourceOwnerPasswordCredentials(client *ClientBasic, username, password, scope string) (token *TokenResponse, err error) {
 	var openID string
 	openID, err = srv.VerifyPassword(username, password)
+	if err != nil {
+		return
+	}
+	token, err = srv.GenerateAccessToken(srv.opts.Issuer, client.ID, scope, openID, nil)
+	return
+}
+
+// generateCustomGrantTypeAccessToken 生成自定义GrantType Token
+func (srv *Server) generateCustomGrantTypeAccessToken(client *ClientBasic, scope string, req *http.Request, custom CustomGrantTypeAuthenticationFunc) (token *TokenResponse, err error) {
+	var openID string
+	openID, err = custom(client, req)
 	if err != nil {
 		return
 	}

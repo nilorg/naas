@@ -12,6 +12,7 @@ Authentication authorization server（认证授权服务器）
     * ✅ 设备模式（Device Code）
     * ✅ 内省端点（Token Introspection）
     * ✅ Token销毁端点（Token Revocation）
+    * ✅ 自定义端点
 
 2. ✅ OpenIDConnent
    * ✅ jwks

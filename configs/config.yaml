@@ -6,6 +6,7 @@ server:
     device_authorization_endpoint_enabled: true
     introspection_endpoint_enabled: true
     revocation_endpoint_enabled: true
+    custom_grant_type_enabled: true
   grpc:
     port: 9000
     gateway:
