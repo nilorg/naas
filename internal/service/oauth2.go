@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/nilorg/naas/internal/dao"
@@ -18,11 +19,12 @@ type oauth2 struct {
 
 // OAuth2ClientEditModel ...
 type OAuth2ClientEditModel struct {
-	RedirectURI string `json:"redirect_uri"`
-	Name        string `json:"name"`
-	Website     string `json:"website"`
-	Profile     string `json:"profile"`
-	Description string `json:"description"`
+	RedirectURI          string   `json:"redirect_uri"`
+	Name                 string   `json:"name"`
+	Website              string   `json:"website"`
+	Profile              string   `json:"profile"`
+	Description          string   `json:"description"`
+	AuthorizedGrantTypes []string `json:"authorized_grant_types"`
 }
 
 // CreateClient 创建客户端
@@ -30,8 +32,9 @@ func (*oauth2) CreateClient(ctx context.Context, create *OAuth2ClientEditModel) 
 	tran := store.DB.Begin()
 	ctx = contexts.NewGormTranContext(ctx, tran)
 	client := &model.OAuth2Client{
-		ClientSecret: uuid.New().String(),
-		RedirectURI:  create.RedirectURI,
+		ClientSecret:         uuid.New().String(),
+		RedirectURI:          create.RedirectURI,
+		AuthorizedGrantTypes: strings.Join(create.AuthorizedGrantTypes, ","),
 	}
 	err = dao.OAuth2Client.Insert(ctx, client)
 	if err != nil {
@@ -74,15 +77,15 @@ func (*oauth2) UpdateClient(ctx context.Context, id model.ID, update *OAuth2Clie
 		tran.Rollback()
 		return
 	}
+	oauth2Client.AuthorizedGrantTypes = strings.Join(update.AuthorizedGrantTypes, ",")
 	if oauth2Client.RedirectURI != update.RedirectURI {
-		err = dao.OAuth2Client.UpdateRedirectURI(ctx, id, update.RedirectURI)
-		if err != nil {
-			tran.Rollback()
-			return
-		}
 		oauth2Client.RedirectURI = update.RedirectURI
 	}
-
+	err = dao.OAuth2Client.Update(ctx, oauth2Client)
+	if err != nil {
+		tran.Rollback()
+		return
+	}
 	oauth2ClientInfo, err = dao.OAuth2ClientInfo.SelectByClientID(ctx, id)
 	if err != nil {
 		tran.Rollback()

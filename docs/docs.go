@@ -2921,6 +2921,12 @@ var doc = `{
         "service.OAuth2ClientEditModel": {
             "type": "object",
             "properties": {
+                "authorized_grant_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },

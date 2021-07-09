@@ -195,7 +195,7 @@ github.com/nilorg/geetest/pkg/util
 github.com/nilorg/go-wechat
 github.com/nilorg/go-wechat/lang
 github.com/nilorg/go-wechat/oauth
-# github.com/nilorg/oauth2 v0.3.3
+# github.com/nilorg/oauth2 v0.3.3 => ../oauth2
 github.com/nilorg/oauth2
 # github.com/nilorg/pkg v0.0.0-20200923011256-287aac349757
 github.com/nilorg/pkg/cache

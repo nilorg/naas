@@ -2,7 +2,7 @@ module github.com/nilorg/naas
 
 go 1.12
 
-// replace github.com/nilorg/oauth2 => ../oauth2
+replace github.com/nilorg/oauth2 => ../oauth2
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751

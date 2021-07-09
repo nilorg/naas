@@ -252,7 +252,3 @@ role_code = {organization_code}_{custom_role_code}
 
 NAAS_DEV
 NAAS_OPS
-
-
-# 需要添加新功能
-1. 验证客户端是否支持某种GrantType

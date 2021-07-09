@@ -12,6 +12,7 @@ import (
 
 	"context"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/nilorg/go-wechat/oauth"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
@@ -211,9 +212,9 @@ func (u *user) GetUserByUsername(ctx context.Context, username string) (usr *mod
 }
 
 // GetUserByThirdPhone 根据第三方绑定的手机号后去用户
-func (u *user) GetUserByThirdPhone(ctx context.Context, phone string) (usr *model.User, err error) {
+func (u *user) GetUserByThirdPhone(ctx context.Context, countryCode, phone string) (usr *model.User, err error) {
 	var userThird *model.UserThird
-	userThird, err = dao.UserThird.SelectByThirdIDAndThirdType(ctx, phone, model.UserThirdTypePhone)
+	userThird, err = dao.UserThird.SelectByThirdIDAndThirdType(ctx, fmt.Sprintf("+%s-%s", countryCode, phone), model.UserThirdTypePhone)
 	if err != nil {
 		logrus.WithContext(ctx).Errorln(err)
 		return
@@ -255,9 +256,9 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 	redisCountKey := fmt.Sprintf("user:login:%d:errcount", usr.ID)
 	redisLockKey := fmt.Sprintf("user:login:%d:lock", usr.ID)
 	const lock = "lock"
-	lockValue := store.RedisClient.Get(ctx, redisLockKey).String()
+	lockValue := store.RedisClient.Get(ctx, redisLockKey).Val()
 	if lockValue == lock {
-		err = fmt.Errorf("账户已被锁定，请24小时候再试")
+		err = fmt.Errorf("密码输入次数过多，账户已被锁定24小时")
 		return
 	}
 	if usr.Username == username && usr.Password == password {
@@ -281,10 +282,14 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 		var count int
 		count, err = store.RedisClient.Get(ctx, redisCountKey).Int()
 		if err != nil {
-			logrus.WithContext(ctx).Errorf("判断登录次数错误：", err)
-			err = errors.ErrBadRequest
-			return
+			if err != redis.Nil {
+				logrus.WithContext(ctx).Errorf("判断登录次数错误：%v", err)
+				err = errors.ErrBadRequest
+				return
+			}
+			err = nil
 		}
+		count++
 		timeout := 24 * time.Hour
 		if count > 4 {
 			err = store.RedisClient.Set(ctx, redisLockKey, lock, timeout).Err()
@@ -294,7 +299,7 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 				return
 			}
 		}
-		err = store.RedisClient.Set(ctx, redisCountKey, count+1, timeout).Err()
+		err = store.RedisClient.Set(ctx, redisCountKey, count, timeout).Err()
 		if err != nil {
 			logrus.WithContext(ctx).Errorf("添加用户(%d)判断登录次数错误：%v", usr.ID, err)
 			err = errors.ErrBadRequest

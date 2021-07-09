@@ -68,6 +68,8 @@ var (
 	ErrVerifyIntrospectionTokenFuncNil = errors.New("OAuth2 Server VerifyIntrospectionToken Is Nil")
 	// ErrTokenRevocationFuncNil ...
 	ErrTokenRevocationFuncNil = errors.New("OAuth2 Server TokenRevocation Is Nil")
+	// ErrVerifyGrantTypeFuncNil ...
+	ErrVerifyGrantTypeFuncNil = errors.New("OAuth2 Server VerifyGrantType Is Nil")
 	// ErrInvalidAccessToken 无效的访问令牌
 	ErrInvalidAccessToken = errors.New("invalid_access_token")
 	// ErrInvalidRedirectURI 无效的RedirectURI

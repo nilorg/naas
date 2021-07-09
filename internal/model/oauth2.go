@@ -6,9 +6,10 @@ import (
 
 // OAuth2Client ...
 type OAuth2Client struct {
-	ClientID     ID     `json:"client_id" gorm:"primary_key;column:client_id"`
-	ClientSecret string `json:"client_secret" gorm:"column:client_secret"`
-	RedirectURI  string `json:"redirect_uri" gorm:"column:redirect_uri"`
+	ClientID             ID     `json:"client_id" gorm:"primary_key;column:client_id"`
+	ClientSecret         string `json:"client_secret" gorm:"column:client_secret"`
+	RedirectURI          string `json:"redirect_uri" gorm:"column:redirect_uri"`
+	AuthorizedGrantTypes string `json:"authorized_grant_types" gorm:"column:authorized_grant_types"` // 授权类型
 }
 
 // TableName ...

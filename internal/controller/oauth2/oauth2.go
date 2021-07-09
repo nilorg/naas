@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	mapset "github.com/deckarep/golang-set"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -39,6 +40,11 @@ var (
 
 // CustomPhone 自定义手机号端点登录
 func CustomPhone(client *oauth2.ClientBasic, req *http.Request) (openID string, err error) {
+	countryCode := strings.TrimSpace(req.FormValue("country_code"))
+	if countryCode == "" {
+		err = oauth2.ErrInvalidRequest
+		return
+	}
 	phone := strings.TrimSpace(req.FormValue("phone"))
 	if phone == "" {
 		err = oauth2.ErrInvalidRequest
@@ -46,7 +52,7 @@ func CustomPhone(client *oauth2.ClientBasic, req *http.Request) (openID string, 
 	}
 	parentCtx := contexts.WithContext(req.Context())
 	var user *model.User
-	user, err = service.User.GetUserByThirdPhone(parentCtx, phone)
+	user, err = service.User.GetUserByThirdPhone(parentCtx, countryCode, phone)
 	if err != nil {
 		err = oauth2.ErrAccessDenied
 	} else {
@@ -165,6 +171,27 @@ func Init() {
 		}
 		if !slice.IsSubset(scope, model.ConvertCodeSliceToStringSlice(scopes)) {
 			err = oauth2.ErrInvalidScope
+		}
+		return
+	}
+	oauth2Server.VerifyGrantType = func(clientID, grantType string) (err error) {
+		var client *model.OAuth2Client
+		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), model.ConvertStringToID(clientID))
+		if err != nil {
+			err = oauth2.ErrUnauthorizedClient
+			return
+		}
+		grantTypes := sdkStrings.Split(client.AuthorizedGrantTypes, ",")
+		if len(grantTypes) == 0 {
+			err = oauth2.ErrInvalidGrant
+			return
+		}
+		grantTypeSet := mapset.NewSet()
+		for i := 0; i < len(grantTypes); i++ {
+			grantTypeSet.Add(grantTypes[i])
+		}
+		if !grantTypeSet.Contains(grantType) {
+			err = oauth2.ErrInvalidGrant
 		}
 		return
 	}

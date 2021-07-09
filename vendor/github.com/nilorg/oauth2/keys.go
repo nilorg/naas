@@ -41,4 +41,6 @@ const (
 	UrnIetfParamsOAuthGrantTypeDeviceCodeKey = "urn:ietf:params:oauth:grant-type:device_code"
 	// TokenTypeHintKey ...
 	TokenTypeHintKey = "token_type_hint"
+	// ImplicitKey ...
+	ImplicitKey = "implicit"
 )

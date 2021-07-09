@@ -55,6 +55,9 @@ type TokenRevocationFunc func(token, clientID string, tokenTypeHint ...string)
 // CustomGrantTypeAuthenticationFunc 自定义GrantType身份验证委托
 type CustomGrantTypeAuthenticationFunc func(client *ClientBasic, req *http.Request) (openID string, err error)
 
+// VerifyGrantTypeFunc 验证授权类型委托
+type VerifyGrantTypeFunc func(clientID, grantType string) (err error)
+
 // NewDefaultGenerateAccessToken 创建默认生成AccessToken方法
 func NewDefaultGenerateAccessToken(jwtVerifyKey []byte) GenerateAccessTokenFunc {
 	return func(issuer, clientID, scope, openID string, codeVlue *CodeValue) (token *TokenResponse, err error) {

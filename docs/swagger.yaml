@@ -150,6 +150,10 @@ definitions:
     type: object
   service.OAuth2ClientEditModel:
     properties:
+      authorized_grant_types:
+        items:
+          type: string
+        type: array
       description:
         type: string
       name:

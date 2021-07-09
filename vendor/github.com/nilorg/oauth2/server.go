@@ -12,6 +12,7 @@ type Server struct {
 	VerifyClient                VerifyClientFunc
 	VerifyClientID              VerifyClientIDFunc
 	VerifyScope                 VerifyScopeFunc
+	VerifyGrantType             VerifyGrantTypeFunc
 	VerifyPassword              VerifyPasswordFunc
 	VerifyRedirectURI           VerifyRedirectURIFunc
 	GenerateCode                GenerateCodeFunc
@@ -61,6 +62,9 @@ func (srv *Server) Init(opts ...ServerOption) {
 	if srv.VerifyScope == nil {
 		panic(ErrVerifyScopeFuncNil)
 	}
+	if srv.VerifyGrantType == nil {
+		panic(ErrVerifyGrantTypeFuncNil)
+	}
 	if srv.GenerateAccessToken == nil {
 		panic(ErrGenerateAccessTokenFuncNil)
 	}
@@ -109,6 +113,18 @@ func (srv *Server) HandleAuthorize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if responseType == CodeKey {
+		if err = srv.VerifyGrantType(clientID, AuthorizationCodeKey); err != nil {
+			RedirectError(w, r, redirectURI, err)
+			return
+		}
+	} else if responseType == TokenKey {
+		if err = srv.VerifyGrantType(clientID, ImplicitKey); err != nil {
+			RedirectError(w, r, redirectURI, err)
+			return
+		}
+	}
+
 	err = srv.VerifyRedirectURI(clientID, redirectURI.String())
 	if err != nil {
 		RedirectError(w, r, redirectURI, err)
@@ -153,9 +169,21 @@ func (srv *Server) HandleAuthorize(w http.ResponseWriter, r *http.Request) {
 func (srv *Server) HandleDeviceAuthorization(w http.ResponseWriter, r *http.Request) {
 	// 判断参数
 	clientID := r.FormValue(ClientIDKey)
-	scope := r.FormValue(ScopeKey)
 	if clientID == "" {
 		WriterError(w, ErrInvalidRequest)
+		return
+	}
+	if err := srv.VerifyClientID(clientID); err != nil {
+		WriterError(w, err)
+		return
+	}
+	if err := srv.VerifyGrantType(clientID, DeviceCodeKey); err != nil {
+		WriterError(w, err)
+		return
+	}
+	scope := r.FormValue(ScopeKey)
+	if err := srv.VerifyScope(StringSplit(scope, " "), clientID); err != nil {
+		WriterError(w, err)
 		return
 	}
 	resp, err := srv.authorizeDeviceCode(clientID, scope)
@@ -265,6 +293,16 @@ func (srv *Server) HandleToken(w http.ResponseWriter, r *http.Request) {
 			WriterError(w, err)
 			return
 		}
+	}
+
+	vgrantType := grantType
+	if vgrantType == UrnIetfParamsOAuthGrantTypeDeviceCodeKey {
+		vgrantType = DeviceCodeKey
+	}
+	err = srv.VerifyGrantType(clientID, vgrantType)
+	if err != nil {
+		WriterError(w, err)
+		return
 	}
 
 	scope := r.PostFormValue(ScopeKey)
