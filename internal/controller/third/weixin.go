@@ -216,7 +216,7 @@ func (*weixin) initForQrconnect(ctx *gin.Context) {
 	}
 	session := sessions.Default(ctx)
 	stb := session.Get(key.SessionThird).(*model.SessionThirdBind)
-	if stb.Type != model.UserThirdTypeWxOpenIDForKfpt {
+	if stb.Type != model.UserThirdTypeWxUnionID {
 		ctx.String(http.StatusBadRequest, "微信初始化不符合")
 		return
 	}
@@ -225,7 +225,7 @@ func (*weixin) initForQrconnect(ctx *gin.Context) {
 		return
 	}
 	parentCtx := contexts.WithGinContext(ctx)
-	su, err := service.User.InitFromWeixinKfptOpenID(parentCtx, stb.ThirdID)
+	su, err := service.User.InitFromWeixinUnionID(parentCtx, stb.ThirdID)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, "微信初始化错误")
 		return
@@ -248,7 +248,7 @@ func (*weixin) initForScanQrcode(ctx *gin.Context) {
 	}
 	session := sessions.Default(ctx)
 	stb := session.Get(key.SessionThird).(*model.SessionThirdBind)
-	if stb.Type != model.UserThirdTypeWxOpenIDForFwh {
+	if stb.Type != model.UserThirdTypeWxUnionID {
 		ctx.String(http.StatusBadRequest, "微信初始化不符合")
 		return
 	}
@@ -257,7 +257,7 @@ func (*weixin) initForScanQrcode(ctx *gin.Context) {
 		return
 	}
 	parentCtx := contexts.WithGinContext(ctx)
-	su, err := service.User.InitFromWeixinFwhOpenID(parentCtx, stb.ThirdID)
+	su, err := service.User.InitFromWeixinUnionID(parentCtx, stb.ThirdID)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, "微信初始化错误")
 		return
