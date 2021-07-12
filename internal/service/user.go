@@ -206,6 +206,17 @@ func (u *user) GetUserByThirdPhone(ctx context.Context, countryCode, phone strin
 	return dao.User.Select(ctx, userThird.UserID)
 }
 
+// GetUserByThirdWxUnionID 根据第三方绑定的微信唯一ID
+func (u *user) GetUserByThirdWxUnionID(ctx context.Context, wxUnionID string) (usr *model.User, err error) {
+	var userThird *model.UserThird
+	userThird, err = dao.UserThird.SelectByThirdIDAndThirdType(ctx, wxUnionID, model.UserThirdTypeWxUnionID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	return dao.User.Select(ctx, userThird.UserID)
+}
+
 // GetOneByID 根据ID获取用户
 func (u *user) GetOneByID(ctx context.Context, id model.ID) (usr *model.User, err error) {
 	return dao.User.Select(ctx, id)

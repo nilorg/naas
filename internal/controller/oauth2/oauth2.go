@@ -61,6 +61,24 @@ func CustomPhone(client *oauth2.ClientBasic, req *http.Request) (openID string, 
 	return
 }
 
+// CustomWxUnionID 自定义微信UnionID登录
+func CustomWxUnionID(client *oauth2.ClientBasic, req *http.Request) (openID string, err error) {
+	wxUnionID := strings.TrimSpace(req.FormValue("wx_union_id"))
+	if wxUnionID == "" {
+		err = oauth2.ErrInvalidRequest
+		return
+	}
+	parentCtx := contexts.WithContext(req.Context())
+	var user *model.User
+	user, err = service.User.GetUserByThirdWxUnionID(parentCtx, wxUnionID)
+	if err != nil {
+		err = oauth2.ErrAccessDenied
+	} else {
+		openID = model.ConvertIDToString(user.ID)
+	}
+	return
+}
+
 // Init 初始化
 func Init() {
 	oauth2Server = oauth2.NewServer(
@@ -71,7 +89,8 @@ func Init() {
 		oauth2.ServerTokenRevocationEnabled(viper.GetBool("server.oauth2.revocation_endpoint_enabled")),
 		oauth2.ServerCustomGrantTypeEnabled(viper.GetBool("server.oauth2.custom_grant_type_enabled")),
 		oauth2.ServerCustomGrantTypeAuthentication(map[string]oauth2.CustomGrantTypeAuthenticationFunc{
-			"custom_phone": CustomPhone,
+			"custom_phone":     CustomPhone,
+			"custom_wxunionid": CustomWxUnionID,
 		}),
 	)
 	// TODO: 这个方法需要优化
