@@ -33,7 +33,7 @@ func (*user) CreateUserFromWeixin(ctx *gin.Context) {
 		api.Writer(ctx, err)
 		return
 	}
-	err = service.User.CreateFromWeixin(contexts.WithGinContext(ctx), m.WxUnionID)
+	err = service.User.CreateFromWeixin(contexts.WithGinContext(ctx), m.WxUnionID, nil)
 	if err != nil {
 		api.Writer(ctx, err)
 		return

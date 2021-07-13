@@ -225,7 +225,7 @@ func (*weixin) initForQrconnect(ctx *gin.Context) {
 		return
 	}
 	parentCtx := contexts.WithGinContext(ctx)
-	su, err := service.User.InitFromWeixinUnionID(parentCtx, stb.ThirdID)
+	su, err := service.User.InitFromWeixinUnionID(parentCtx, stb.ThirdID, stb.Extra)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, "微信初始化错误")
 		return
@@ -257,7 +257,7 @@ func (*weixin) initForScanQrcode(ctx *gin.Context) {
 		return
 	}
 	parentCtx := contexts.WithGinContext(ctx)
-	su, err := service.User.InitFromWeixinUnionID(parentCtx, stb.ThirdID)
+	su, err := service.User.InitFromWeixinUnionID(parentCtx, stb.ThirdID, stb.Extra)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, "微信初始化错误")
 		return

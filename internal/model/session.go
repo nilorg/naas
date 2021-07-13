@@ -20,4 +20,5 @@ type SessionAccount struct {
 type SessionThirdBind struct {
 	ThirdID string
 	Type    UserThirdType
+	Extra   interface{}
 }

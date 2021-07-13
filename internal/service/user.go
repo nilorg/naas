@@ -63,7 +63,7 @@ const (
 	createUserTypeWxUnionID = "wxunionid"
 )
 
-func (u *user) create(ctx context.Context, username, password, openID, typ string) (err error) {
+func (u *user) create(ctx context.Context, username, password, openID, typ string, extra interface{}) (err error) {
 	tran := store.DB.Begin()
 	ctx = contexts.NewGormTranContext(ctx, tran)
 	var exist bool
@@ -86,16 +86,29 @@ func (u *user) create(ctx context.Context, username, password, openID, typ strin
 		tran.Rollback()
 		return
 	}
-	if typ != createUserTypePassword {
-		var userThirdType model.UserThirdType
-		if typ == createUserTypeWxUnionID {
-			userThirdType = model.UserThirdTypeWxUnionID
-		} else {
-			err = fmt.Errorf("创建类型错误")
+	userInfo := &model.UserInfo{
+		UserID:   user.ID,
+		Nickname: fmt.Sprintf("用户%d", user.ID),
+		Gender:   -1,
+	}
+	if typ == createUserTypePassword {
+		userInfo.Picture, err = createPicture("user", convert.ToString(user.ID))
+		if err != nil {
 			tran.Rollback()
 			return
 		}
-		exist, err = dao.UserThird.ExistByThirdIDAndThirdType(ctx, openID, userThirdType)
+	} else if typ == createUserTypeWxUnionID {
+		if extra, ok := extra.(*oauth.UserInfoReply); ok {
+			userInfo.Nickname = extra.NickName
+			userInfo.Picture = extra.HeadimgURL
+			switch extra.Sex {
+			case "1":
+				userInfo.Gender = 1
+			case "2":
+				userInfo.Gender = 0
+			}
+		}
+		exist, err = dao.UserThird.ExistByThirdIDAndThirdType(ctx, openID, model.UserThirdTypeWxUnionID)
 		if err != nil {
 			tran.Rollback()
 			return
@@ -107,7 +120,7 @@ func (u *user) create(ctx context.Context, username, password, openID, typ strin
 		}
 		userThird := &model.UserThird{
 			UserID:    user.ID,
-			ThirdType: userThirdType,
+			ThirdType: model.UserThirdTypeWxUnionID,
 			ThirdID:   openID,
 		}
 		err = dao.UserThird.Insert(ctx, userThird)
@@ -115,13 +128,8 @@ func (u *user) create(ctx context.Context, username, password, openID, typ strin
 			tran.Rollback()
 			return
 		}
-	}
-	userInfo := &model.UserInfo{
-		UserID:   user.ID,
-		Nickname: fmt.Sprintf("用户%d", user.ID),
-	}
-	userInfo.Picture, err = createPicture("user", convert.ToString(user.ID))
-	if err != nil {
+	} else {
+		err = fmt.Errorf("创建类型错误")
 		tran.Rollback()
 		return
 	}
@@ -136,17 +144,17 @@ func (u *user) create(ctx context.Context, username, password, openID, typ strin
 
 // Create 创建用户
 func (u *user) Create(ctx context.Context, username, password string) (err error) {
-	return u.create(ctx, username, password, "", createUserTypePassword)
+	return u.create(ctx, username, password, "", createUserTypePassword, nil)
 }
 
 // CreateFromWeixin 从微信角度创建用户
-func (u *user) CreateFromWeixin(ctx context.Context, wxUnionID string) (err error) {
-	return u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID)
+func (u *user) CreateFromWeixin(ctx context.Context, wxUnionID string, extra interface{}) (err error) {
+	return u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID, extra)
 }
 
 // InitFromWeixinUnionID 使用微信OpenID初始化账户
-func (u *user) InitFromWeixinUnionID(ctx context.Context, wxUnionID string) (su *model.SessionAccount, err error) {
-	err = u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID)
+func (u *user) InitFromWeixinUnionID(ctx context.Context, wxUnionID string, extra interface{}) (su *model.SessionAccount, err error) {
+	err = u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID, extra)
 	if err != nil {
 		return
 	}
@@ -346,6 +354,9 @@ func (u *user) LoginForWeixinKfptCode(ctx context.Context, code string) (su *mod
 		return
 	}
 	su, st, err = u.loginForWxUnionID(ctx, wxUserInfo.UnionID)
+	if err != nil && errors.Is(err, errors.ErrThirdUserNotFound) && st != nil {
+		st.Extra = wxUserInfo
+	}
 	return
 }
 
@@ -369,6 +380,9 @@ func (u *user) LoginForWeixinFwhCode(ctx context.Context, code string) (su *mode
 		return
 	}
 	su, st, err = u.loginForWxUnionID(ctx, wxUserInfo.UnionID)
+	if err != nil && errors.Is(err, errors.ErrThirdUserNotFound) && st != nil {
+		st.Extra = wxUserInfo
+	}
 	return
 }
 
