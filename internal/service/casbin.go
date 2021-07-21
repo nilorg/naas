@@ -19,6 +19,7 @@ func (cs *casbinService) InitLoadAllPolicy() {
 	ctx := contexts.WithContext(context.Background())
 	// cs.initRoleForUser(ctx)
 	cs.initRoleResourceRoute(ctx)
+	cs.initScopeResourceRoute(ctx)
 }
 
 func (*casbinService) initRoleResourceRoute(ctx context.Context) {
@@ -40,7 +41,40 @@ func (*casbinService) initRoleResourceRoute(ctx context.Context) {
 			logrus.Errorf("dao.ResourceRoute.Select: %s", err)
 			return
 		}
-		sub, dom, obj, act := formatRoutePolicy(relation.RoleCode, resourceRoute)
+		sub, dom, obj, act := formatRoutePolicyForRole(relation.RoleCode, resourceRoute)
+		flag, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
+		if err != nil {
+			logrus.Errorf("casbin.Enforcer.AddPolicy: %s", err)
+			continue
+		}
+		logrus.Infof("[ResourceRoute]casbin.Enforcer.AddPolicy-Flag: %v", flag)
+	}
+	err = casbin.Enforcer.SavePolicy()
+	if err != nil {
+		logrus.Errorf("casbin.Enforcer.SavePolicy: %s", err)
+	}
+}
+
+func (*casbinService) initScopeResourceRoute(ctx context.Context) {
+	var (
+		err       error
+		relations []*model.ScopeResourceRelation
+		flag      bool
+	)
+	// 获取所有范围对应的资源路由
+	relations, err = dao.ScopeResourceRelation.SelectAll(ctx, model.ScopeResourceRelationTypeRoute)
+	if err != nil {
+		logrus.Errorf("dao.ScopeResourceRelation.SelectAll: %s", err)
+		return
+	}
+	for _, relation := range relations {
+		var resourceRoute *model.ResourceRoute
+		resourceRoute, err = dao.ResourceRoute.Select(ctx, relation.RelationID)
+		if err != nil {
+			logrus.Errorf("dao.ResourceRoute.Select: %s", err)
+			return
+		}
+		sub, dom, obj, act := formatRoutePolicyForScope(relation.ScopeCode, resourceRoute)
 		flag, err = casbin.Enforcer.AddPolicy(sub, dom, obj, act)
 		if err != nil {
 			logrus.Errorf("casbin.Enforcer.AddPolicy: %s", err)
@@ -82,8 +116,16 @@ func (*casbinService) initRoleResourceRoute(ctx context.Context) {
 // 	}
 // }
 
-func formatRoutePolicy(roleCode model.Code, resourceRoute *model.ResourceRoute) (sub, dom, obj, act string) {
+func formatRoutePolicyForRole(roleCode model.Code, resourceRoute *model.ResourceRoute) (sub, dom, obj, act string) {
 	sub = fmt.Sprintf("role:%s", roleCode)                                 // 希望访问资源的角色
+	dom = fmt.Sprintf("resource:%d:route", resourceRoute.ResourceServerID) // 域/域租户,这里以资源为单位
+	obj = resourceRoute.Path                                               // 要访问的资源
+	act = resourceRoute.Method                                             // 用户对资源执行的操作
+	return
+}
+
+func formatRoutePolicyForScope(scopeCode model.Code, resourceRoute *model.ResourceRoute) (sub, dom, obj, act string) {
+	sub = fmt.Sprintf("scope:%s", scopeCode)                               // 希望访问资源的范围
 	dom = fmt.Sprintf("resource:%d:route", resourceRoute.ResourceServerID) // 域/域租户,这里以资源为单位
 	obj = resourceRoute.Path                                               // 要访问的资源
 	act = resourceRoute.Method                                             // 用户对资源执行的操作
@@ -97,12 +139,21 @@ func formatRoleForUserInDomain(userID, organizationID model.ID, roleCode model.C
 	return
 }
 
-func formatMenuPolicy(roleCode model.Code, resourceMenu *model.ResourceMenu) (sub, dom, obj, act string) {
+func formatMenuPolicyForRole(roleCode model.Code, resourceMenu *model.ResourceMenu) (sub, dom, obj, act string) {
 	// Enforcer.AddPolicy("role:reader", "domain1", "data1", "read")
 	sub = fmt.Sprintf("role:%s", roleCode)                               // 希望访问资源的角色
 	dom = fmt.Sprintf("resource:%d:menu", resourceMenu.ResourceServerID) // 域/域租户,这里以资源为单位
 	obj = fmt.Sprintf("menu:%v", resourceMenu.ID)                        // 要访问的资源
 	act = "show"                                                         // 角色对资源执行的操作
+	return
+}
+
+func formatActionPolicyForRole(roleCode model.Code, resourceAction *model.ResourceAction) (sub, dom, obj, act string) {
+	// Enforcer.AddPolicy("role:reader", "domain1", "data1", "read")
+	sub = fmt.Sprintf("role:%s", roleCode)                                   // 希望访问资源的角色
+	dom = fmt.Sprintf("resource:%d:action", resourceAction.ResourceServerID) // 域/域租户,这里以资源为单位
+	obj = fmt.Sprintf("object:%v", resourceAction.Group)                     // 要访问的资源
+	act = model.ConvertCodeToString(resourceAction.Code)                     // 角色对资源执行的操作
 	return
 }
 

@@ -270,7 +270,7 @@ func (r *role) AddRoleResourceRelation(
 				logrus.WithContext(ctx).Errorln(err)
 				return
 			}
-			sub, dom, obj, act := formatRoutePolicy(roleCode, resourceRoute)
+			sub, dom, obj, act := formatRoutePolicyForRole(roleCode, resourceRoute)
 			_, casbinErr := casbin.Enforcer.DeletePermission(sub, dom, obj, act)
 			if casbinErr != nil {
 				logrus.Errorf("casbin.Enforcer.DeletePermission: %s", casbinErr)
@@ -298,7 +298,7 @@ func (r *role) AddRoleResourceRelation(
 				err = errors.New("路由的资源服务器ID不匹配")
 				return
 			}
-			sub, dom, obj, act := formatRoutePolicy(roleCode, resourceRoute)
+			sub, dom, obj, act := formatRoutePolicyForRole(roleCode, resourceRoute)
 			_, casbinErr := casbin.Enforcer.AddPolicy(sub, dom, obj, act)
 			if casbinErr != nil {
 				logrus.Errorf("casbin.Enforcer.AddPolicy: %s", casbinErr)

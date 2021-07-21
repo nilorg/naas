@@ -155,9 +155,9 @@ func RunHTTP() {
 		}
 	}
 	if viper.GetBool("server.open.enabled") {
-		oidcGroup := r.Group("/open")
+		oidcGroup := r.Group("/open", middleware.JWTAuthRequired(global.JwtPublicKey), middleware.CasbinAuthRequiredForOAuth2Client(casbin.Enforcer))
 		{
-			oidcGroup.POST("/users/wx", middleware.OAuth2AuthScopeRequired("wx_create_user"), open.User.CreateUserFromWeixin)
+			oidcGroup.POST("/users/wx", open.User.CreateUserFromWeixin)
 		}
 	}
 	if viper.GetBool("server.third.enabled") {
@@ -181,7 +181,7 @@ func RunHTTP() {
 		}
 	}
 	if viper.GetBool("server.admin.enabled") {
-		apiGroup := r.Group("api/v1", middleware.JWTAuthRequired(global.JwtPublicKey, viper.GetString("server.admin.oauth2.client_id")), middleware.CasbinAuthRequired(casbin.Enforcer))
+		apiGroup := r.Group("api/v1", middleware.JWTAuthRequiredForAPI(global.JwtPublicKey, viper.GetString("server.admin.oauth2.client_id")), middleware.CasbinAuthRequired(casbin.Enforcer))
 		{
 			apiGroup.GET("/users", api.User.ListByPaged)
 			apiGroup.GET("/users/:user_id", api.User.GetOne)

@@ -123,6 +123,7 @@ func initMySQL() {
 		&model.OAuth2Client{},
 		&model.OAuth2ClientScope{},
 		&model.OAuth2ClientInfo{},
+		&model.ScopeResourceRelation{},
 		&model.Organization{},
 		&model.Role{},
 		&model.RoleResourceRelation{},

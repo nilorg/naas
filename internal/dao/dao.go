@@ -6,22 +6,23 @@ import (
 )
 
 var (
-	OAuth2Client         OAuth2Clienter
-	OAuth2ClientInfo     OAuth2ClientInfoer
-	OAuth2ClientScope    OAuth2ClientScoper
-	OAuth2Scope          OAuth2Scoper
-	Resource             Resourcer
-	ResourceRoute        ResourceRouter
-	ResourceMenu         ResourceMenuer
-	User                 Userer
-	UserInfo             UserInfoer
-	UserThird            UserThirder
-	Organization         Organizationer
-	Role                 Roleer
-	UserRole             UserRoleer
-	UserOrganization     UserOrganizationer
-	RoleResourceRelation RoleResourceRelationer
-	ResourceAction       ResourceActioner
+	OAuth2Client          OAuth2Clienter
+	OAuth2ClientInfo      OAuth2ClientInfoer
+	OAuth2ClientScope     OAuth2ClientScoper
+	OAuth2Scope           OAuth2Scoper
+	Resource              Resourcer
+	ResourceRoute         ResourceRouter
+	ResourceMenu          ResourceMenuer
+	User                  Userer
+	UserInfo              UserInfoer
+	UserThird             UserThirder
+	Organization          Organizationer
+	Role                  Roleer
+	UserRole              UserRoleer
+	UserOrganization      UserOrganizationer
+	RoleResourceRelation  RoleResourceRelationer
+	ScopeResourceRelation ScopeResourceRelationer
+	ResourceAction        ResourceActioner
 )
 
 // Init 初始化...
@@ -41,5 +42,6 @@ func Init() {
 	UserRole = &userRole{cache: cache.NewRedisCache(store.RedisClient, "naas:user_role:")}
 	UserOrganization = &userOrganization{cache: cache.NewRedisCache(store.RedisClient, "naas:user_organization:")}
 	RoleResourceRelation = &roleResourceRelation{}
+	ScopeResourceRelation = &scopeResourceRelation{}
 	ResourceAction = &resourceAction{}
 }

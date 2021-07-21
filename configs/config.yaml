@@ -139,10 +139,11 @@ storage:
   public_path: http://localhost:8080/storage
   max_memory: 20 # 20MB
 
-naas:
-  resource:
+resource:
+  naas:
     id: 1
-    secret: ""
+  open:
+    id: 3
 
 geetest:
   enabled: false
