@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"path/filepath"
 
@@ -91,13 +90,10 @@ func (ds *MinioStorage) Upload(ctx context.Context, read io.Reader, filename str
 	if contextTypeExist {
 		options.ContentType = contextType
 	} else {
-		suffix := filepath.Ext(filename)
-		suffixContextType, suffixContextTypeExist := mime.Lookup(suffix)
-		if !suffixContextTypeExist {
-			err = fmt.Errorf("%s unrecognized suffix", suffix)
+		options.ContentType, err = mime.DetectContentType(filename)
+		if err != nil {
 			return
 		}
-		options.ContentType = suffixContextType
 	}
 	md, mdExist := storage.FromIncomingContext(ctx)
 	if mdExist {

@@ -174,8 +174,12 @@ func (c *Client) TokenResourceOwnerPasswordCredentials(username, password string
 }
 
 // TokenClientCredentials ...
-func (c *Client) TokenClientCredentials() (model *TokenResponse, err error) {
-	return c.token(ClientCredentialsKey, nil)
+func (c *Client) TokenClientCredentials(scope ...string) (model *TokenResponse, err error) {
+	values := url.Values{}
+	if len(scope) > 0 {
+		values.Set(ScopeKey, scope[0])
+	}
+	return c.token(ClientCredentialsKey, values)
 }
 
 // RefreshToken ...

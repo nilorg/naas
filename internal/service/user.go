@@ -148,14 +148,14 @@ func (u *user) Create(ctx context.Context, username, password string) (err error
 }
 
 // CreateFromWeixin 从微信角度创建用户
-func (u *user) CreateFromWeixin(ctx context.Context, wxUnionID string, extra interface{}) (err error) {
-	return u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID, extra)
-}
+// func (u *user) CreateFromWeixin(ctx context.Context, wxUnionID string, extra interface{}) (err error) {
+// 	return u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID, extra)
+// }
 
 // InitFromWeixinUnionID 使用微信OpenID初始化账户
 func (u *user) InitFromWeixinUnionID(ctx context.Context, wxUnionID string, extra interface{}) (su *model.SessionAccount, err error) {
 	err = u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID, extra)
-	if err != nil {
+	if err != nil && errors.Is(err, errors.ErrUsernameExist) && !errors.Is(err, errors.ErrThirdExistUser) {
 		return
 	}
 	su, _, err = u.loginForWxUnionID(ctx, wxUnionID)

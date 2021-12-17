@@ -11,10 +11,10 @@ type ThirdBindAction string
 
 // SessionAccount ...
 type SessionAccount struct {
-	UserID   ID
-	UserName string
-	Nickname string
-	Picture  string
+	UserID   ID     `json:"user_id"`
+	UserName string `json:"user_name"`
+	Nickname string `json:"nick_name"`
+	Picture  string `json:"picture"`
 }
 
 type SessionThirdBind struct {
