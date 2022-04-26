@@ -13,7 +13,7 @@ require (
 	github.com/dapr/go-sdk v1.1.0
 	github.com/deckarep/golang-set v1.7.1
 	github.com/gin-contrib/sessions v0.0.3
-	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-gonic/gin v1.7.0
 	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/go-redis/redis/v8 v8.3.4
 	github.com/golang/protobuf v1.4.3
