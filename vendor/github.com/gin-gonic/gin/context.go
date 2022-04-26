@@ -741,8 +741,6 @@ func (c *Context) ClientIP() string {
 			return addr
 		}
 	}
-	return remoteIP.String()
-}
 
 	// Legacy "AppEngine" flag
 	if c.engine.AppEngine {
@@ -756,13 +754,6 @@ func (c *Context) ClientIP() string {
 	if remoteIP == nil {
 		return ""
 	}
-	items := strings.Split(header, ",")
-	for i, ipStr := range items {
-		ipStr = strings.TrimSpace(ipStr)
-		ip := net.ParseIP(ipStr)
-		if ip == nil {
-			return "", false
-		}
 
 	if trusted && c.engine.ForwardedByClientIP && c.engine.RemoteIPHeaders != nil {
 		for _, headerName := range c.engine.RemoteIPHeaders {
