@@ -10,6 +10,8 @@ var (
 	// Each call to New returns a distinct error value even if the text is identical.
 	// 使用系统标准接口
 	New = errors.New
+	// ErrUserNotFound 后端服务出错
+	ErrBadRequest = errors.New("bad_request")
 	// ErrUserNotFound 用户不存在
 	ErrUserNotFound = errors.New("user_notfound")
 	// ErrUsernameOrPassword 用户名或密码错误
@@ -18,6 +20,8 @@ var (
 	ErrUsernameExist = errors.New("username_exist")
 	// ErrWxUnionIDExist 微信unionid存在
 	ErrWxUnionIDExist = errors.New("wx_unionid_exist")
+	// ErrWxOpenIDExist 微信openid存在
+	ErrWxOpenIDExist = errors.New("wx_openid_exist")
 	// ErrOrganizationCodeExist 组织code存在
 	ErrOrganizationCodeExist = errors.New("org_code_exist")
 	// ErrOrganizationParentNotExist 上级组织不存在
@@ -48,4 +52,10 @@ var (
 	ErrRoleUpdate = errors.New("role_update")
 	// ErrOAuth2CleintNotFound 客户端不存在
 	ErrOAuth2CleintNotFound = errors.New("oauth2_client_notfound")
+	// ErrUserExistThird 用户第三方存在
+	ErrUserExistThird = errors.New("user_exist_third")
+	// ErrThirdExistUser 第三方用户存在
+	ErrThirdExistUser = errors.New("third_exist_user")
+	// ErrThirdUserNotFound 第三方用户不存在
+	ErrThirdUserNotFound = errors.New("user_third_not_found")
 )

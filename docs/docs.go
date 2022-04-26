@@ -2274,6 +2274,42 @@ var doc = `{
                 }
             }
         },
+        "/third/wx/callback": {
+            "get": {
+                "description": "微信回调",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "微信回调"
+            }
+        },
+        "/third/wx/init": {
+            "get": {
+                "description": "微信初始化",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "微信初始化"
+            }
+        },
+        "/third/wx/qrconnect": {
+            "get": {
+                "description": "微信扫码登录重定向",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "微信扫码登录重定向"
+            }
+        },
+        "/third/wx/scanqrcode": {
+            "get": {
+                "description": "扫码登录",
+                "tags": [
+                    "Third（第三方）"
+                ],
+                "summary": "扫码登录"
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -2663,7 +2699,6 @@ var doc = `{
                     "type": "object"
                 },
                 "error": {
-                    "type": "object",
                     "$ref": "#/definitions/api.ResultError"
                 },
                 "status": {
@@ -2847,7 +2882,6 @@ var doc = `{
                     "type": "object"
                 },
                 "pagination": {
-                    "type": "object",
                     "$ref": "#/definitions/model.Pagination"
                 }
             }
@@ -2887,6 +2921,12 @@ var doc = `{
         "service.OAuth2ClientEditModel": {
             "type": "object",
             "properties": {
+                "authorized_grant_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },
@@ -3077,7 +3117,10 @@ var doc = `{
                     "type": "integer"
                 },
                 "roles": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

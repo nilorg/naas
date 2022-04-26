@@ -20,10 +20,14 @@ import (
 func LoginPage(ctx *gin.Context) {
 	errMsg := GetErrorMessage(ctx)
 	geetestEnabled := viper.GetBool("geetest.enabled")
+	thirdEnable := viper.GetBool("server.third.enabled")
+	thirdWeixinEnabled := viper.GetBool("server.third.weixin")
+	thirdQrcodeEnabled := viper.GetBool("server.third.qrcode")
 	var (
 		err        error
 		clientInfo *model.OAuth2ClientInfo
 	)
+	loginRedirectURI := ctx.Query("login_redirect_uri")
 	clientID := strings.TrimSpace(ctx.Query("client_id"))
 	if clientID == "" {
 		ctx.String(http.StatusBadRequest, "oauth2 client_id is empty")
@@ -32,22 +36,37 @@ func LoginPage(ctx *gin.Context) {
 	clientInfo, err = service.OAuth2.GetClientInfo(contexts.WithGinContext(ctx), model.ConvertStringToID(clientID))
 	if errMsg != "" {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error":           errMsg,
-			"client_info":     clientInfo,
-			"geetest_enabled": geetestEnabled,
+			"error":                errMsg,
+			"client_info":          clientInfo,
+			"client_id":            clientID,
+			"login_redirect_uri":   loginRedirectURI,
+			"geetest_enabled":      geetestEnabled,
+			"third_enabled":        thirdEnable,
+			"third_weixin_enabled": thirdWeixinEnabled,
+			"third_qrcode_enabled": thirdQrcodeEnabled,
 		})
 		return
 	} else if err != nil {
 		ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-			"error":           err.Error(),
-			"geetest_enabled": geetestEnabled,
+			"error":                err.Error(),
+			"client_id":            clientID,
+			"login_redirect_uri":   loginRedirectURI,
+			"geetest_enabled":      geetestEnabled,
+			"third_enabled":        thirdEnable,
+			"third_weixin_enabled": thirdWeixinEnabled,
+			"third_qrcode_enabled": thirdQrcodeEnabled,
 		})
 		return
 	}
 
 	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"client_info":     clientInfo,
-		"geetest_enabled": geetestEnabled,
+		"client_info":          clientInfo,
+		"client_id":            clientID,
+		"login_redirect_uri":   loginRedirectURI,
+		"geetest_enabled":      geetestEnabled,
+		"third_enabled":        thirdEnable,
+		"third_weixin_enabled": thirdWeixinEnabled,
+		"third_qrcode_enabled": thirdQrcodeEnabled,
 	})
 }
 
@@ -55,20 +74,10 @@ func LoginPage(ctx *gin.Context) {
 func Login(ctx *gin.Context) {
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
-
-	suser, err := service.User.Login(contexts.WithGinContext(ctx), username, password)
-	if err != nil {
-		err = SetErrorMessage(ctx, err.Error())
-		if err != nil {
-			logrus.Errorln(err)
-		}
-		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
-		return
-	}
-
+	var err error
 	session := sessions.Default(ctx)
-	session.Set(key.SessionAccount, suser)
 
+	// 极验验证
 	if viper.GetBool("geetest.enabled") {
 		challenge := ctx.PostForm(gt3.GeetestChallenge)
 		seccode := ctx.PostForm(gt3.GeetestSeccode)
@@ -107,7 +116,17 @@ func Login(ctx *gin.Context) {
 			return
 		}
 	}
-
+	// 登录验证
+	suser, err := service.User.Login(contexts.WithGinContext(ctx), username, password)
+	if err != nil {
+		err = SetErrorMessage(ctx, err.Error())
+		if err != nil {
+			logrus.Errorln(err)
+		}
+		ctx.Redirect(http.StatusFound, ctx.Request.RequestURI)
+		return
+	}
+	session.Set(key.SessionAccount, suser)
 	err = session.Save()
 	if err != nil {
 		logrus.Errorf("Login-Success-session.Save: %s", err)

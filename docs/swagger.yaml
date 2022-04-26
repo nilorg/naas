@@ -6,7 +6,6 @@ definitions:
         type: object
       error:
         $ref: '#/definitions/api.ResultError'
-        type: object
       status:
         type: string
     type: object
@@ -127,7 +126,6 @@ definitions:
         type: object
       pagination:
         $ref: '#/definitions/model.Pagination'
-        type: object
     type: object
   open.createUserFromWeixinModel:
     properties:
@@ -152,6 +150,10 @@ definitions:
     type: object
   service.OAuth2ClientEditModel:
     properties:
+      authorized_grant_types:
+        items:
+          type: string
+        type: array
       description:
         type: string
       name:
@@ -276,7 +278,9 @@ definitions:
       organization_id:
         type: integer
       roles:
-        type: string
+        items:
+          type: string
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -1662,6 +1666,30 @@ paths:
       summary: 获取一个角色
       tags:
       - Role（角色）
+  /third/wx/callback:
+    get:
+      description: 微信回调
+      summary: 微信回调
+      tags:
+      - Third（第三方）
+  /third/wx/init:
+    get:
+      description: 微信初始化
+      summary: 微信初始化
+      tags:
+      - Third（第三方）
+  /third/wx/qrconnect:
+    get:
+      description: 微信扫码登录重定向
+      summary: 微信扫码登录重定向
+      tags:
+      - Third（第三方）
+  /third/wx/scanqrcode:
+    get:
+      description: 扫码登录
+      summary: 扫码登录
+      tags:
+      - Third（第三方）
   /users:
     get:
       consumes:

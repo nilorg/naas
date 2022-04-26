@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -87,13 +86,12 @@ func (ds *AliyunOssStorage) Upload(ctx context.Context, read io.Reader, filename
 	if contentTypeExist {
 		options = append(options, oss.ContentType(contentType))
 	} else {
-		suffix := filepath.Ext(filename)
-		suffixContentType, suffixContentTypeExist := mime.Lookup(suffix)
-		if !suffixContentTypeExist {
-			err = fmt.Errorf("%s unrecognized suffix", suffix)
+		var detectContentType string
+		detectContentType, err = mime.DetectContentType(filename)
+		if err != nil {
 			return
 		}
-		options = append(options, oss.ContentType(suffixContentType))
+		options = append(options, oss.ContentType(detectContentType))
 	}
 	md, mdExist := storage.FromIncomingContext(ctx)
 	if mdExist {

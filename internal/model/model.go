@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/nilorg/naas/internal/pkg/diff"
@@ -52,7 +53,12 @@ func ConvertStringToID(id string) ID {
 }
 
 // ConvertIDToString ID 转 string
-func ConvertIDToString(id ID) uint64 {
+func ConvertIDToString(id ID) string {
+	return strconv.FormatUint(uint64(id), 10)
+}
+
+// ConvertIDToString ID 转 uint64
+func ConvertIDToUint64(id ID) uint64 {
 	return uint64(id)
 }
 

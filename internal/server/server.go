@@ -4,15 +4,11 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"flag"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 
-	daprd "github.com/dapr/go-sdk/service/grpc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -25,6 +21,7 @@ import (
 	"github.com/nilorg/naas/internal/controller/oidc"
 	"github.com/nilorg/naas/internal/controller/open"
 	"github.com/nilorg/naas/internal/controller/service"
+	"github.com/nilorg/naas/internal/controller/third"
 	"github.com/nilorg/naas/internal/controller/wellknown"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/casbin"
@@ -104,8 +101,9 @@ func RunHTTP() {
 
 	r.Static("/static", "./web/static")
 	storageType := viper.GetString("storage.type")
+	defaultBasePath := viper.GetString(fmt.Sprintf("storage.%s.base_path", storageType))
 	if storageType != "" {
-		r.Static("/storage", viper.GetString(fmt.Sprintf("storage.%s.base_path", storageType)))
+		r.Static("/storage", defaultBasePath)
 	}
 	r.LoadHTMLGlob("./web/templates/oauth2/*")
 	if viper.GetBool("server.admin.enabled") {
@@ -157,13 +155,33 @@ func RunHTTP() {
 		}
 	}
 	if viper.GetBool("server.open.enabled") {
-		oidcGroup := r.Group("/open")
+		oidcGroup := r.Group("/open", middleware.JWTAuthRequired(global.JwtPublicKey), middleware.CasbinAuthRequiredForOAuth2Client(casbin.Enforcer))
 		{
-			oidcGroup.POST("/users/wx", middleware.OAuth2AuthScopeRequired("wx_create_user"), open.User.CreateUserFromWeixin)
+			oidcGroup.POST("/users/wx", open.User.CreateUserFromWeixin)
+		}
+	}
+	if viper.GetBool("server.third.enabled") {
+		thirdGroup := r.Group("/third")
+		{
+			thirdGroup.GET("/login", middleware.ThirdAuthRequired, third.LoginPage)
+			thirdGroup.POST("/login", middleware.ThirdAuthRequired, third.Login)
+			thirdGroup.GET("/bind", middleware.ThirdAuthRequired, third.BindPage)
+			if viper.GetBool("server.third.weixin") {
+				thirdGroup.GET("/wx/qrconnect", third.Weixin.QrConnect)
+				thirdGroup.GET("/wx/scanqrcode", third.Weixin.ScanQrCode)
+				thirdGroup.GET("/wx/callback", third.Weixin.CallBack)
+				// thirdGroup.GET("/wx/bind", third.Weixin.Bind)
+				thirdGroup.GET("/wx/init", middleware.ThirdAuthRequired, third.Weixin.Init)
+			}
+			if viper.GetBool("server.third.qrcode") {
+				thirdGroup.GET("/qrcode/generate", third.QrCode.GenerateLoginQrCode)
+				thirdGroup.GET("/qrcode/validation", third.QrCode.CycleValidationLoginQrCode)
+				thirdGroup.GET("/qrcode/confirmation", middleware.WxQrcodeAuthRequired, third.QrCode.ConfirmationLoginQrCode)
+			}
 		}
 	}
 	if viper.GetBool("server.admin.enabled") {
-		apiGroup := r.Group("api/v1", middleware.JWTAuthRequired(global.JwtPublicKey, viper.GetString("server.admin.oauth2.client_id")), middleware.CasbinAuthRequired(casbin.Enforcer))
+		apiGroup := r.Group("api/v1", middleware.JWTAuthRequiredForAPI(global.JwtPublicKey, viper.GetString("server.admin.oauth2.client_id")), middleware.CasbinAuthRequired(casbin.Enforcer))
 		{
 			apiGroup.GET("/users", api.User.ListByPaged)
 			apiGroup.GET("/users/:user_id", api.User.GetOne)
@@ -345,34 +363,4 @@ func RunGRpcGateway() {
 			logrus.Fatalf("%s gateway server listen: %v\n", serverName, srvErr)
 		}
 	}()
-}
-
-// RunDapr 运行Dapr
-func RunDapr() {
-	addr := getEnvVar("DAPR_ADDRESS", ":5001")
-	// create serving server
-	daprdService, err := daprd.NewService(addr)
-	if err != nil {
-		log.Fatalf("dapr new service error: %v", err)
-	}
-	if err := service.RegisterDapr(daprdService); err != nil {
-		log.Fatalf("dapr register method error: %v", err)
-	}
-	serverName := viper.GetString("server.name")
-	logrus.Infof("%s dapr server listen: %s", serverName, addr)
-	go func() {
-		// start the server to handle incoming events
-		if err := daprdService.Start(); err != nil {
-			log.Fatalf("server error: %v", err)
-		}
-	}()
-}
-
-func getEnvVar(key, fallbackValue string) string {
-	if val, ok := os.LookupEnv(key); ok {
-		return strings.TrimSpace(val)
-	}
-	address := flag.String("address", fallbackValue, "service address")
-	flag.Parse()
-	return *address
 }

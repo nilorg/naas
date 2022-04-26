@@ -16,7 +16,6 @@ import (
 // Userer ...
 type Userer interface {
 	SelectByUsername(ctx context.Context, username string) (mu *model.User, err error)
-	SelectByWxUnionID(ctx context.Context, wxUnionID string) (mu *model.User, err error)
 	Insert(ctx context.Context, mu *model.User) (err error)
 	Delete(ctx context.Context, id model.ID) (err error)
 	DeleteInIDs(ctx context.Context, ids []model.ID) (err error)
@@ -55,20 +54,6 @@ func (*user) SelectByUsername(ctx context.Context, username string) (mu *model.U
 		return
 	}
 	mu = &dbResult
-	return
-}
-
-func (*user) SelectByWxUnionID(ctx context.Context, wxUnionID string) (mu *model.User, err error) {
-	var gdb *gorm.DB
-	gdb, err = contexts.FromGormContext(ctx)
-	if err != nil {
-		return
-	}
-	mu = new(model.User)
-	err = gdb.Where("wx_union_id = ?", wxUnionID).First(&mu).Error
-	if err != nil {
-		mu = nil
-	}
 	return
 }
 

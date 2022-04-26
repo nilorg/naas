@@ -108,3 +108,12 @@ func EnforceRoute(role *model.UserRole, resourceID string, req *http.Request, en
 	act := req.Method                                   // 用户对资源执行的操作
 	return enforcer.Enforce(sub, dom, obj, act)
 }
+
+// EnforceRouteForScopeCode 验证web路由
+func EnforceRouteForScopeCode(scopeCode, resourceID string, req *http.Request, enforcer casbin.IEnforcer) (bool, error) {
+	sub := fmt.Sprintf("scope:%s", scopeCode)           // 希望访问资源的用户
+	dom := fmt.Sprintf("resource:%s:route", resourceID) // 域/域租户,这里以资源为单位
+	obj := req.URL.Path                                 // 要访问的资源
+	act := req.Method                                   // 用户对资源执行的操作
+	return enforcer.Enforce(sub, dom, obj, act)
+}

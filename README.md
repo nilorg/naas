@@ -12,6 +12,7 @@ Authentication authorization server（认证授权服务器）
     * ✅ 设备模式（Device Code）
     * ✅ 内省端点（Token Introspection）
     * ✅ Token销毁端点（Token Revocation）
+    * ✅ 自定义端点
 
 2. ✅ OpenIDConnent
    * ✅ jwks
@@ -45,7 +46,11 @@ Authentication authorization server（认证授权服务器）
 6. ♻️ 其他
      * ❗️手机验证码登录
      * ❗邮箱验证码登录
-     * ❗️第三方登录（微信、钉钉）
+     * ✅ 二维码扫码登录
+       * ✅ 微信扫码登录（使用微信服务号/订阅号）
+       * ❗ 微信扫码登录（使用微信小程序）
+     * ♻️ 第三方登录（微信、钉钉）
+       * ♻️ 微信扫码登录（使用微信开放平台，实现了相关的接口（目前没正式测试通过，原因注册流程太繁琐））
      * ❗️用户日志记录
      * ❗️注册页面
      * ✅ 极验验证
@@ -54,7 +59,7 @@ Authentication authorization server（认证授权服务器）
 # 页面展示（以下展示Nilorg任务调度平台对接使用）
 
 1. 登录页面
-  
+    ![qrcode](./examples/images/qrcode.png)
     ![login](./examples/images/login.png)
 
 2. 授权页面
@@ -141,8 +146,6 @@ spec:
               value: "true"
             - name: HTTP_ENABLE
               value: "true"
-            - name: DAPR_ENABLE # 只有在使用DApr的时候才会用
-              value: "false"
           volumeMounts:
             - name: config-cm # 配置文件
               mountPath: /workspace/configs/

@@ -3,9 +3,11 @@ package oauth2
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
+	mapset "github.com/deckarep/golang-set"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -36,6 +38,47 @@ var (
 	//}
 )
 
+// CustomPhone 自定义手机号端点登录
+func CustomPhone(client *oauth2.ClientBasic, req *http.Request) (openID string, err error) {
+	countryCode := strings.TrimSpace(req.FormValue("country_code"))
+	if countryCode == "" {
+		err = oauth2.ErrInvalidRequest
+		return
+	}
+	phone := strings.TrimSpace(req.FormValue("phone"))
+	if phone == "" {
+		err = oauth2.ErrInvalidRequest
+		return
+	}
+	parentCtx := contexts.WithContext(req.Context())
+	var user *model.User
+	user, err = service.User.GetUserByThirdPhone(parentCtx, countryCode, phone)
+	if err != nil {
+		err = oauth2.ErrAccessDenied
+	} else {
+		openID = model.ConvertIDToString(user.ID)
+	}
+	return
+}
+
+// CustomWxUnionID 自定义微信UnionID登录
+func CustomWxUnionID(client *oauth2.ClientBasic, req *http.Request) (openID string, err error) {
+	wxUnionID := strings.TrimSpace(req.FormValue("wx_union_id"))
+	if wxUnionID == "" {
+		err = oauth2.ErrInvalidRequest
+		return
+	}
+	parentCtx := contexts.WithContext(req.Context())
+	var user *model.User
+	user, err = service.User.GetUserByThirdWxUnionID(parentCtx, wxUnionID)
+	if err != nil {
+		err = oauth2.ErrAccessDenied
+	} else {
+		openID = model.ConvertIDToString(user.ID)
+	}
+	return
+}
+
 // Init 初始化
 func Init() {
 	oauth2Server = oauth2.NewServer(
@@ -44,6 +87,11 @@ func Init() {
 		oauth2.ServerDeviceVerificationURI("/oauth2/device/activate"),
 		oauth2.ServerIntrospectEndpointEnabled(viper.GetBool("server.oauth2.introspection_endpoint_enabled")),
 		oauth2.ServerTokenRevocationEnabled(viper.GetBool("server.oauth2.revocation_endpoint_enabled")),
+		oauth2.ServerCustomGrantTypeEnabled(viper.GetBool("server.oauth2.custom_grant_type_enabled")),
+		oauth2.ServerCustomGrantTypeAuthentication(map[string]oauth2.CustomGrantTypeAuthenticationFunc{
+			"custom_phone":     CustomPhone,
+			"custom_wxunionid": CustomWxUnionID,
+		}),
 	)
 	// TODO: 这个方法需要优化
 	oauth2Server.VerifyClientID = func(clientID string) (err error) {
@@ -80,7 +128,9 @@ func Init() {
 		}
 		if user.Username != username || user.Password != password {
 			err = oauth2.ErrAccessDenied
+			return
 		}
+		openID = model.ConvertIDToString(user.ID)
 		return
 	}
 	oauth2Server.VerifyRedirectURI = func(clientID, redirectURI string) (err error) {
@@ -90,7 +140,7 @@ func Init() {
 			err = oauth2.ErrAccessDenied
 			return
 		}
-		if strings.Index(redirectURI, client.RedirectURI) == -1 {
+		if !strings.Contains(redirectURI, client.RedirectURI) {
 			err = oauth2.ErrInvalidRedirectURI
 		}
 		return
@@ -140,6 +190,27 @@ func Init() {
 		}
 		if !slice.IsSubset(scope, model.ConvertCodeSliceToStringSlice(scopes)) {
 			err = oauth2.ErrInvalidScope
+		}
+		return
+	}
+	oauth2Server.VerifyGrantType = func(clientID, grantType string) (err error) {
+		var client *model.OAuth2Client
+		client, err = service.OAuth2.GetClient(contexts.WithContext(context.Background()), model.ConvertStringToID(clientID))
+		if err != nil {
+			err = oauth2.ErrUnauthorizedClient
+			return
+		}
+		grantTypes := sdkStrings.Split(client.AuthorizedGrantTypes, ",")
+		if len(grantTypes) == 0 {
+			err = oauth2.ErrInvalidGrant
+			return
+		}
+		grantTypeSet := mapset.NewSet()
+		for i := 0; i < len(grantTypes); i++ {
+			grantTypeSet.Add(grantTypes[i])
+		}
+		if !grantTypeSet.Contains(grantType) {
+			err = oauth2.ErrInvalidGrant
 		}
 		return
 	}
@@ -290,7 +361,7 @@ func Init() {
 			return
 		}
 		exp := time.Unix(tokenClaims.ExpiresAt, 0)
-		err = store.RedisClient.HSet(context.Background(), key, token, time.Now().Sub(exp)).Err()
+		err = store.RedisClient.HSet(context.Background(), key, token, time.Since(exp)).Err()
 		if err != nil {
 			logrus.Errorf("store.RedisClient.Set: %s", err)
 			return

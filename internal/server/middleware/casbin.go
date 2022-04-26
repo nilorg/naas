@@ -10,6 +10,7 @@ import (
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/internal/service"
 	"github.com/nilorg/oauth2"
+	sdkStrings "github.com/nilorg/sdk/strings"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -32,7 +33,7 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 		allow := false
 		for _, role := range roles {
 			logrus.Debugf("openid: %d, role code: %s", openID, role.RoleCode)
-			check, checkErr := naasCasbin.EnforceRoute(role, viper.GetString("naas.resource.id"), ctx.Request, enforcer)
+			check, checkErr := naasCasbin.EnforceRoute(role, viper.GetString("resource.naas.id"), ctx.Request, enforcer)
 			if checkErr != nil {
 				logrus.Errorf("casbin enforce web route:", checkErr)
 				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
@@ -66,6 +67,46 @@ func CasbinAuthRequired(enforcer casbin.IEnforcer) gin.HandlerFunc {
 			Nickname: userInfo.Nickname,
 			Picture:  userInfo.Picture,
 		})
+		ctx.Next()
+	}
+}
+
+// CasbinAuthRequiredForOAuth2Client 身份验证
+func CasbinAuthRequiredForOAuth2Client(enforcer casbin.IEnforcer) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		tokenClaims := ctx.MustGet("token").(*oauth2.JwtClaims)
+		clientID := model.ConvertStringToID(tokenClaims.Audience[0])
+
+		scopes := sdkStrings.Split(tokenClaims.Scope, " ")
+		if len(scopes) > 0 {
+			ctx.Set("current_scopes", scopes)
+		} else {
+			ctx.Set("current_scopes", []string{})
+		}
+
+		allow := false
+		for _, scope := range scopes {
+			logrus.Debugf("client id: %d, scope code: %s", clientID, scope)
+			check, checkErr := naasCasbin.EnforceRouteForScopeCode(scope, viper.GetString("resource.open.id"), ctx.Request, enforcer)
+			if checkErr != nil {
+				logrus.Errorf("casbin enforce web route:", checkErr)
+				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+					"error": checkErr.Error(),
+				})
+				return
+			}
+			if check {
+				allow = true
+				break
+			}
+		}
+		if !allow {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "permission denied",
+			})
+			return
+		}
+		ctx.Set("current_client_id", clientID)
 		ctx.Next()
 	}
 }

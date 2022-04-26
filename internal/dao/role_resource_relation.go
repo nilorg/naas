@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/pkg/contexts"
@@ -28,10 +27,6 @@ type RoleResourceRelationer interface {
 }
 
 type roleResourceRelation struct {
-}
-
-func (*roleResourceRelation) formatRoleListKey(roleCode model.Code) string {
-	return fmt.Sprintf("list:role:%s", roleCode)
 }
 
 func (*roleResourceRelation) Insert(ctx context.Context, roleResourceRoute *model.RoleResourceRelation) (err error) {

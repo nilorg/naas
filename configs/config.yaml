@@ -6,6 +6,7 @@ server:
     device_authorization_endpoint_enabled: true
     introspection_endpoint_enabled: true
     revocation_endpoint_enabled: true
+    custom_grant_type_enabled: true
   grpc:
     port: 9000
     gateway:
@@ -15,6 +16,10 @@ server:
     userinfo_endpoint_enabled: true
   open:
     enabled: true
+  third:
+    enabled: true
+    weixin: true
+    qrcode: true
   admin:
     enabled: true
     external: true # 启用外部管理，需要配置外部URL
@@ -99,6 +104,8 @@ session:
 mysql:
   address: "root:test123@tcp(127.0.0.1:3306)/naas?charset=utf8&parseTime=True&loc=Local"
   log: true
+  max_open: 100
+  max_idle: 10
 
 redis:
   address: "localhost:6379"
@@ -132,12 +139,21 @@ storage:
   public_path: http://localhost:8080/storage
   max_memory: 20 # 20MB
 
-naas:
-  resource:
+resource:
+  naas:
     id: 1
-    secret: ""
+  open:
+    id: 3
 
 geetest:
   enabled: false
   id: "c9c4facd1a6feeb80802222cbb74ca8e"
   key: "f7475f921a41f7ba79ae15e41658627c"
+
+weixin:
+  kfpt: # 开放平台
+    app_id: "xx-xx-xx"
+    app_secret: "ss-ss-ss"
+  fwh: # 服务号
+    app_id: "xx-xx-xx"
+    app_secret: "ss-ss-ss"

@@ -252,4 +252,3 @@ role_code = {organization_code}_{custom_role_code}
 
 NAAS_DEV
 NAAS_OPS
-

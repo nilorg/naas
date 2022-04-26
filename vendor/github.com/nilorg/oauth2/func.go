@@ -1,6 +1,7 @@
 package oauth2
 
 import (
+	"net/http"
 	"strings"
 	"time"
 
@@ -51,6 +52,12 @@ type VerifyIntrospectionTokenFunc func(token, clientID string, tokenTypeHint ...
 // https://tools.ietf.org/html/rfc7009#section-2.2
 type TokenRevocationFunc func(token, clientID string, tokenTypeHint ...string)
 
+// CustomGrantTypeAuthenticationFunc 自定义GrantType身份验证委托
+type CustomGrantTypeAuthenticationFunc func(client *ClientBasic, req *http.Request) (openID string, err error)
+
+// VerifyGrantTypeFunc 验证授权类型委托
+type VerifyGrantTypeFunc func(clientID, grantType string) (err error)
+
 // NewDefaultGenerateAccessToken 创建默认生成AccessToken方法
 func NewDefaultGenerateAccessToken(jwtVerifyKey []byte) GenerateAccessTokenFunc {
 	return func(issuer, clientID, scope, openID string, codeVlue *CodeValue) (token *TokenResponse, err error) {
@@ -90,7 +97,7 @@ func NewDefaultGenerateAccessToken(jwtVerifyKey []byte) GenerateAccessTokenFunc 
 // NewDefaultRefreshAccessToken 创建默认刷新AccessToken方法
 func NewDefaultRefreshAccessToken(jwtVerifyKey []byte) RefreshAccessTokenFunc {
 	return func(clientID, refreshToken string) (token *TokenResponse, err error) {
-		refreshTokenClaims := &JwtClaims{}
+		var refreshTokenClaims *JwtClaims
 		refreshTokenClaims, err = ParseHS256JwtClaimsToken(refreshToken, jwtVerifyKey)
 		if err != nil {
 			return

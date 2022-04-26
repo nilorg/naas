@@ -42,7 +42,6 @@ func WriterJSON(w http.ResponseWriter, value interface{}) {
 	if err != nil {
 		panic(err)
 	}
-	return
 }
 
 // WriterError 写入Error

@@ -95,7 +95,6 @@ func AuthorizePage(ctx *gin.Context) {
 		"current_user": cu,
 		"log_back_in":  logBackInURI.String(),
 	})
-	return
 }
 
 func formScopeValue(r *http.Request) string {

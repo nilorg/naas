@@ -110,6 +110,10 @@ func (c *Client) DeviceAuthorization(w http.ResponseWriter, scope string) (err e
 	return
 }
 
+func (c *Client) Token(grantType string, values url.Values) (token *TokenResponse, err error) {
+	return c.token(grantType, values)
+}
+
 func (c *Client) token(grantType string, values url.Values) (token *TokenResponse, err error) {
 	var uri *url.URL
 	uri, err = url.Parse(c.ServerBaseURL + c.TokenEndpoint)
@@ -146,7 +150,7 @@ func (c *Client) token(grantType string, values url.Values) (token *TokenRespons
 	if err != nil {
 		return
 	}
-	if resp.StatusCode != http.StatusOK || strings.Index(string(body), ErrorKey) > -1 {
+	if resp.StatusCode != http.StatusOK || strings.Contains(string(body), ErrorKey) {
 		errModel := ErrorResponse{}
 		err = json.Unmarshal(body, &errModel)
 		if err != nil {
@@ -170,8 +174,12 @@ func (c *Client) TokenResourceOwnerPasswordCredentials(username, password string
 }
 
 // TokenClientCredentials ...
-func (c *Client) TokenClientCredentials() (model *TokenResponse, err error) {
-	return c.token(ClientCredentialsKey, nil)
+func (c *Client) TokenClientCredentials(scope ...string) (model *TokenResponse, err error) {
+	values := url.Values{}
+	if len(scope) > 0 {
+		values.Set(ScopeKey, scope[0])
+	}
+	return c.token(ClientCredentialsKey, values)
 }
 
 // RefreshToken ...
@@ -248,7 +256,7 @@ func (c *Client) do(path string, values url.Values, v interface{}) (err error) {
 	if err != nil {
 		return
 	}
-	if resp.StatusCode != http.StatusOK || strings.Index(string(body), ErrorKey) > -1 {
+	if resp.StatusCode != http.StatusOK || strings.Contains(string(body), ErrorKey) {
 		errModel := ErrorResponse{}
 		err = json.Unmarshal(body, &errModel)
 		if err != nil {

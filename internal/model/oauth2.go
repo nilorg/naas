@@ -6,9 +6,10 @@ import (
 
 // OAuth2Client ...
 type OAuth2Client struct {
-	ClientID     ID     `json:"client_id" gorm:"primary_key;column:client_id"`
-	ClientSecret string `json:"client_secret" gorm:"column:client_secret"`
-	RedirectURI  string `json:"redirect_uri" gorm:"column:redirect_uri"`
+	ClientID             ID     `json:"client_id" gorm:"primary_key;column:client_id"`
+	ClientSecret         string `json:"client_secret" gorm:"column:client_secret"`
+	RedirectURI          string `json:"redirect_uri" gorm:"column:redirect_uri"`
+	AuthorizedGrantTypes string `json:"authorized_grant_types" gorm:"column:authorized_grant_types"` // 授权类型
 }
 
 // TableName ...
@@ -63,4 +64,21 @@ type OAuth2ClientScope struct {
 // TableName 表明
 func (*OAuth2ClientScope) TableName() string {
 	return "oauth2_client_scope"
+}
+
+// ScopeResourceRelationType 范围资源关系类型
+type ScopeResourceRelationType int
+
+var (
+	// ScopeResourceRelationTypeRoute 路由
+	ScopeResourceRelationTypeRoute ScopeResourceRelationType = 1
+)
+
+// ScopeResourceRelation 范围资源关系表
+type ScopeResourceRelation struct {
+	Model
+	ScopeCode        Code                     `json:"scope_code" gorm:"column:scope_code"`
+	RelationType     RoleResourceRelationType `json:"relation_type" gorm:"column:relation_type"`
+	RelationID       ID                       `json:"relation_id" gorm:"column:relation_id"`
+	ResourceServerID ID                       `json:"resource_server_id" gorm:"column:resource_server_id"`
 }

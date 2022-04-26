@@ -50,7 +50,6 @@ func main() {
 	grpcEnable := os.Getenv("GRPC_ENABLE")
 	grpcGatewayEnable := os.Getenv("GRPC_GATEWAY_ENABLE")
 	httpEnable := os.Getenv("HTTP_ENABLE")
-	daprEnable := os.Getenv("DAPR_ENABLE")
 	if strings.EqualFold(grpcEnable, "true") {
 		server.RunGRpc()
 	}
@@ -59,9 +58,6 @@ func main() {
 	}
 	if strings.EqualFold(httpEnable, "true") {
 		server.RunHTTP()
-	}
-	if strings.EqualFold(daprEnable, "true") {
-		server.RunDapr()
 	}
 	<-ctx.Done()
 }

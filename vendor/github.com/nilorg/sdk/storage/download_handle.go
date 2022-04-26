@@ -50,8 +50,13 @@ func DownloadHandle(ctx context.Context, resp http.ResponseWriter, ds DownloadSt
 					wr = true
 				}
 			}
-			if mimeType, exist := mime.Lookup(info.Filename()); !wr && exist {
-				resp.Header().Set("Content-Type", mimeType)
+			if !wr {
+				var contentType string
+				contentType, err = mime.DetectContentType(info.Filename())
+				if err != nil {
+					return
+				}
+				resp.Header().Set("Content-Type", contentType)
 			}
 			dispositionType := ds.DispositionType()
 			if dispositionType == "" || (dispositionType != "inline" && dispositionType != "attachment") {

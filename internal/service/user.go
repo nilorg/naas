@@ -6,14 +6,18 @@ import (
 	"image"
 	"net/url"
 	"path"
+	"time"
 
 	"image/png"
 
 	"context"
 
+	"github.com/go-redis/redis/v8"
+	"github.com/nilorg/go-wechat/oauth"
 	"github.com/nilorg/naas/internal/dao"
 	"github.com/nilorg/naas/internal/model"
 	"github.com/nilorg/naas/internal/module/store"
+	"github.com/nilorg/naas/internal/module/weixin"
 	"github.com/nilorg/naas/internal/pkg/contexts"
 	"github.com/nilorg/naas/pkg/errors"
 	"github.com/nilorg/sdk/convert"
@@ -55,11 +59,11 @@ func createPicture(typ, id string) (bs string, err error) {
 }
 
 const (
-	createUserTypePassword = "password"
-	createUserTypeWx       = "wx"
+	createUserTypePassword  = "password"
+	createUserTypeWxUnionID = "wxunionid"
 )
 
-func (u *user) create(ctx context.Context, username, password, wxUnionID, typ string) (err error) {
+func (u *user) create(ctx context.Context, username, password, openID, typ string, extra interface{}) (err error) {
 	tran := store.DB.Begin()
 	ctx = contexts.NewGormTranContext(ctx, tran)
 	var exist bool
@@ -77,19 +81,6 @@ func (u *user) create(ctx context.Context, username, password, wxUnionID, typ st
 		Username: username,
 		Password: password, // TODO: 后期需要使用加密，或者前台加密
 	}
-	if typ == createUserTypeWx {
-		exist, err = dao.User.ExistByWxUnionID(ctx, wxUnionID)
-		if err != nil {
-			tran.Rollback()
-			return
-		}
-		if exist {
-			tran.Rollback()
-			err = errors.ErrWxUnionIDExist
-			return
-		}
-		user.WxUnionID = wxUnionID
-	}
 	err = dao.User.Insert(ctx, user)
 	if err != nil {
 		tran.Rollback()
@@ -98,9 +89,47 @@ func (u *user) create(ctx context.Context, username, password, wxUnionID, typ st
 	userInfo := &model.UserInfo{
 		UserID:   user.ID,
 		Nickname: fmt.Sprintf("用户%d", user.ID),
+		Gender:   -1,
 	}
-	userInfo.Picture, err = createPicture("user", convert.ToString(user.ID))
-	if err != nil {
+	if typ == createUserTypePassword {
+		userInfo.Picture, err = createPicture("user", convert.ToString(user.ID))
+		if err != nil {
+			tran.Rollback()
+			return
+		}
+	} else if typ == createUserTypeWxUnionID {
+		if extra, ok := extra.(*oauth.UserInfoReply); ok {
+			userInfo.Nickname = extra.NickName
+			userInfo.Picture = extra.HeadimgURL
+			switch extra.Sex {
+			case "1":
+				userInfo.Gender = 1
+			case "2":
+				userInfo.Gender = 0
+			}
+		}
+		exist, err = dao.UserThird.ExistByThirdIDAndThirdType(ctx, openID, model.UserThirdTypeWxUnionID)
+		if err != nil {
+			tran.Rollback()
+			return
+		}
+		if exist {
+			tran.Rollback()
+			err = errors.ErrThirdExistUser
+			return
+		}
+		userThird := &model.UserThird{
+			UserID:    user.ID,
+			ThirdType: model.UserThirdTypeWxUnionID,
+			ThirdID:   openID,
+		}
+		err = dao.UserThird.Insert(ctx, userThird)
+		if err != nil {
+			tran.Rollback()
+			return
+		}
+	} else {
+		err = fmt.Errorf("创建类型错误")
 		tran.Rollback()
 		return
 	}
@@ -115,12 +144,22 @@ func (u *user) create(ctx context.Context, username, password, wxUnionID, typ st
 
 // Create 创建用户
 func (u *user) Create(ctx context.Context, username, password string) (err error) {
-	return u.create(ctx, username, password, "", createUserTypePassword)
+	return u.create(ctx, username, password, "", createUserTypePassword, nil)
 }
 
 // CreateFromWeixin 从微信角度创建用户
-func (u *user) CreateFromWeixin(ctx context.Context, wxUnionID string) (err error) {
-	return u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWx)
+// func (u *user) CreateFromWeixin(ctx context.Context, wxUnionID string, extra interface{}) (err error) {
+// 	return u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID, extra)
+// }
+
+// InitFromWeixinUnionID 使用微信OpenID初始化账户
+func (u *user) InitFromWeixinUnionID(ctx context.Context, wxUnionID string, extra interface{}) (su *model.SessionAccount, err error) {
+	err = u.create(ctx, wxUnionID, wxUnionID, wxUnionID, createUserTypeWxUnionID, extra)
+	if err != nil && errors.Is(err, errors.ErrUsernameExist) && !errors.Is(err, errors.ErrThirdExistUser) {
+		return
+	}
+	su, _, err = u.loginForWxUnionID(ctx, wxUnionID)
+	return
 }
 
 // UserUpdateModel ...
@@ -164,6 +203,28 @@ func (u *user) GetUserByUsername(ctx context.Context, username string) (usr *mod
 	return dao.User.SelectByUsername(ctx, username)
 }
 
+// GetUserByThirdPhone 根据第三方绑定的手机号后去用户
+func (u *user) GetUserByThirdPhone(ctx context.Context, countryCode, phone string) (usr *model.User, err error) {
+	var userThird *model.UserThird
+	userThird, err = dao.UserThird.SelectByThirdIDAndThirdType(ctx, fmt.Sprintf("+%s-%s", countryCode, phone), model.UserThirdTypePhone)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	return dao.User.Select(ctx, userThird.UserID)
+}
+
+// GetUserByThirdWxUnionID 根据第三方绑定的微信唯一ID
+func (u *user) GetUserByThirdWxUnionID(ctx context.Context, wxUnionID string) (usr *model.User, err error) {
+	var userThird *model.UserThird
+	userThird, err = dao.UserThird.SelectByThirdIDAndThirdType(ctx, wxUnionID, model.UserThirdTypeWxUnionID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	return dao.User.Select(ctx, userThird.UserID)
+}
+
 // GetOneByID 根据ID获取用户
 func (u *user) GetOneByID(ctx context.Context, id model.ID) (usr *model.User, err error) {
 	return dao.User.Select(ctx, id)
@@ -190,6 +251,17 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 	usr, err = u.GetUserByUsername(ctx, username)
 	if err != nil {
 		logrus.Errorln(err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = errors.ErrUsernameOrPassword
+		}
+		return
+	}
+	redisCountKey := fmt.Sprintf("user:login:%d:errcount", usr.ID)
+	redisLockKey := fmt.Sprintf("user:login:%d:lock", usr.ID)
+	const lock = "lock"
+	lockValue := store.RedisClient.Get(ctx, redisLockKey).Val()
+	if lockValue == lock {
+		err = fmt.Errorf("密码输入次数过多，账户已被锁定24小时")
 		return
 	}
 	if usr.Username == username && usr.Password == password {
@@ -203,8 +275,151 @@ func (u *user) Login(ctx context.Context, username, password string) (su *model.
 			su.Nickname = userInfo.Nickname
 			su.Picture = userInfo.Picture
 		}
+		err = store.RedisClient.Del(ctx, redisCountKey, redisLockKey).Err()
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("用户(%d)登录成功后删除相关的锁：%v", usr.ID, err)
+			err = errors.ErrBadRequest
+			return
+		}
 	} else {
+		var count int
+		count, err = store.RedisClient.Get(ctx, redisCountKey).Int()
+		if err != nil {
+			if err != redis.Nil {
+				logrus.WithContext(ctx).Errorf("判断登录次数错误：%v", err)
+				err = errors.ErrBadRequest
+				return
+			}
+			err = nil
+		}
+		count++
+		timeout := 24 * time.Hour
+		if count > 4 {
+			err = store.RedisClient.Set(ctx, redisLockKey, lock, timeout).Err()
+			if err != nil {
+				logrus.WithContext(ctx).Errorf("用户(%d)密码错误登录次数过多加锁：%v", usr.ID, err)
+				err = errors.ErrBadRequest
+				return
+			}
+		}
+		err = store.RedisClient.Set(ctx, redisCountKey, count, timeout).Err()
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("添加用户(%d)判断登录次数错误：%v", usr.ID, err)
+			err = errors.ErrBadRequest
+			return
+		}
 		err = errors.ErrUsernameOrPassword
+	}
+	return
+}
+
+// loginForUserID 登录 ...
+func (u *user) loginForUserID(ctx context.Context, userID model.ID) (su *model.SessionAccount, err error) {
+	var usr *model.User
+	usr, err = u.GetOneByID(ctx, userID)
+	if err != nil {
+		logrus.Errorln(err)
+		return
+	}
+	su = &model.SessionAccount{
+		UserID:   usr.ID,
+		UserName: usr.Username,
+	}
+	var userInfo *model.UserInfo
+	userInfo, err = u.GetInfoOneByUserID(ctx, usr.ID)
+	if err == nil {
+		su.Nickname = userInfo.Nickname
+		su.Picture = userInfo.Picture
+	}
+	return
+}
+
+// LoginForWeixinKfptCode 根据微信Code进行登录
+func (u *user) LoginForWeixinKfptCode(ctx context.Context, code string) (su *model.SessionAccount, st *model.SessionThirdBind, err error) {
+	xoauth := oauth.NewOAuth(weixin.KfptWechatClientConfig)
+	var reply *oauth.AccessTokenReply
+	reply, err = xoauth.GetAccessToken(code)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("xoauth.GetAccessToken:%s", err)
+		return
+	}
+	var wxUserInfo *oauth.UserInfoReply
+	wxUserInfo, err = xoauth.GetUserInfo(reply.AccessToken, reply.OpenID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("oauth.GetUserInfo:%s", err)
+		return
+	}
+	if wxUserInfo.UnionID == "" {
+		err = errors.New("未获取到微信UnionID")
+		return
+	}
+	su, st, err = u.loginForWxUnionID(ctx, wxUserInfo.UnionID)
+	if err != nil && errors.Is(err, errors.ErrThirdUserNotFound) && st != nil {
+		st.Extra = wxUserInfo
+	}
+	return
+}
+
+// LoginForWeixinFwhCode 根据微信服务号Code进行登录
+func (u *user) LoginForWeixinFwhCode(ctx context.Context, code string) (su *model.SessionAccount, st *model.SessionThirdBind, err error) {
+	xoauth := oauth.NewOAuth(weixin.FwhWechatClientConfig)
+	var reply *oauth.AccessTokenReply
+	reply, err = xoauth.GetAccessToken(code)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("xoauth.GetAccessToken:%s", err)
+		return
+	}
+	var wxUserInfo *oauth.UserInfoReply
+	wxUserInfo, err = xoauth.GetUserInfo(reply.AccessToken, reply.OpenID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorf("oauth.GetUserInfo:%s", err)
+		return
+	}
+	if wxUserInfo.UnionID == "" {
+		err = errors.New("未获取到微信UnionID")
+		return
+	}
+	su, st, err = u.loginForWxUnionID(ctx, wxUserInfo.UnionID)
+	if err != nil && errors.Is(err, errors.ErrThirdUserNotFound) && st != nil {
+		st.Extra = wxUserInfo
+	}
+	return
+}
+
+// loginForWxUnionID 根据微信UnionID进行登录
+func (u *user) loginForWxUnionID(ctx context.Context, wxUnionID string) (su *model.SessionAccount, st *model.SessionThirdBind, err error) {
+	var exist bool
+	exist, err = dao.UserThird.ExistByThirdIDAndThirdType(ctx, wxUnionID, model.UserThirdTypeWxUnionID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
+		return
+	}
+	if exist {
+		var userThird *model.UserThird
+		userThird, err = dao.UserThird.SelectByThirdIDAndThirdType(ctx, wxUnionID, model.UserThirdTypeWxUnionID)
+		if err != nil {
+			logrus.WithContext(ctx).Errorln(err)
+			return
+		}
+		su, err = u.loginForUserID(ctx, userThird.UserID)
+		if err != nil {
+			logrus.WithContext(ctx).Errorln(err)
+		}
+	} else {
+		st = &model.SessionThirdBind{
+			ThirdID: wxUnionID,
+			Type:    model.UserThirdTypeWxUnionID,
+		}
+		err = errors.ErrThirdUserNotFound
+	}
+	return
+}
+
+// LoginForUserID 根据用户ID登录
+func (u *user) LoginForUserID(ctx context.Context, userID model.ID) (su *model.SessionAccount, err error) {
+	su, err = u.loginForUserID(ctx, userID)
+	if err != nil {
+		logrus.WithContext(ctx).Errorln(err)
 	}
 	return
 }
@@ -356,5 +571,47 @@ func (u *user) UpdateOrganization(ctx context.Context, userID model.ID, update *
 		}
 	}
 	err = tran.Commit().Error
+	return
+}
+
+// BindThird 绑定第三方
+func (u *user) BindThird(ctx context.Context, userID model.ID, thirdID string, thirdType model.UserThirdType) (err error) {
+	var exist bool
+	exist, err = dao.User.ExistByID(ctx, userID)
+	if err != nil {
+		return
+	}
+	if !exist {
+		err = errors.ErrUserNotFound
+		return
+	}
+	if !model.UserThirdTypeVerify(thirdType) {
+		err = fmt.Errorf("绑定第三方类型错误：%v", thirdType)
+		return
+	}
+	// 判断用户有没有绑定第三方
+	exist, err = dao.UserThird.ExistByUserIDAndThirdType(ctx, userID, thirdType)
+	if err != nil {
+		return
+	}
+	if exist {
+		err = errors.ErrUserExistThird
+		return
+	}
+	// 判断第三方有没有绑定用户
+	exist, err = dao.UserThird.ExistByThirdIDAndThirdType(ctx, thirdID, thirdType)
+	if err != nil {
+		return
+	}
+	if exist {
+		err = errors.ErrThirdExistUser
+		return
+	}
+	userThird := &model.UserThird{
+		UserID:    userID,
+		ThirdID:   thirdID,
+		ThirdType: thirdType,
+	}
+	err = dao.UserThird.Insert(ctx, userThird)
 	return
 }

@@ -28,7 +28,7 @@ func (*ResourceServer) ListActionByRoles(ctx context.Context, req *proto.ListAct
 	resp = new(proto.ListActionByRolesResponse)
 	for _, action := range list {
 		resp.Actions = append(resp.Actions, &proto.ResourceAction{
-			Id:          model.ConvertIDToString(action.ID),
+			Id:          model.ConvertIDToUint64(action.ID),
 			Name:        action.Name,
 			Group:       action.Group,
 			Description: action.Description,
@@ -52,13 +52,13 @@ func (*ResourceServer) ListMenuByRoles(ctx context.Context, req *proto.ListMenuB
 	resp = new(proto.ListMenuByRolesResponse)
 	for _, menu := range list {
 		resp.Menus = append(resp.Menus, &proto.ResourceMenu{
-			Id:           model.ConvertIDToString(menu.ID),
+			Id:           model.ConvertIDToUint64(menu.ID),
 			Name:         menu.Name,
 			Icon:         menu.Icon,
 			Level:        int32(menu.Level),
 			SerialNumber: int32(menu.SerialNumber),
 			Leaf:         menu.Leaf,
-			ParentId:     model.ConvertIDToString(menu.ParentID),
+			ParentId:     model.ConvertIDToUint64(menu.ParentID),
 		})
 	}
 	return

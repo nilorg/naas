@@ -36,11 +36,9 @@ spec:
         version: v1
     spec:
       restartPolicy: Always
-      imagePullSecrets:
-        - name: nilorgregcred
       containers:
         - name: naas-admin-token-server
-          image: nilorg.azurecr.io/naas-token-server:dev
+          image: nilorg/naas-token-server:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
