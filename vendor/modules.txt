@@ -54,7 +54,7 @@ github.com/gin-contrib/sessions
 github.com/gin-contrib/sessions/redis
 # github.com/gin-contrib/sse v0.1.0
 github.com/gin-contrib/sse
-# github.com/gin-gonic/gin v1.6.3
+# github.com/gin-gonic/gin v1.7.0
 github.com/gin-gonic/gin
 github.com/gin-gonic/gin/binding
 github.com/gin-gonic/gin/internal/bytesconv
@@ -73,7 +73,7 @@ github.com/go-playground/locales
 github.com/go-playground/locales/currency
 # github.com/go-playground/universal-translator v0.17.0
 github.com/go-playground/universal-translator
-# github.com/go-playground/validator/v10 v10.2.0
+# github.com/go-playground/validator/v10 v10.4.1
 github.com/go-playground/validator/v10
 # github.com/go-redis/redis/v8 v8.3.4
 github.com/go-redis/redis/v8
@@ -259,6 +259,7 @@ golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/md4
 golang.org/x/crypto/pbkdf2
+golang.org/x/crypto/sha3
 # golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
