@@ -24,7 +24,7 @@ require (
 	github.com/nilorg/pkg v0.0.0-20210729072029-4933c919a980
 	github.com/nilorg/sdk v0.0.0-20210429091026-95b6cdc95c84
 	github.com/o1egl/govatar v0.3.0
-	github.com/sirupsen/logrus v1.7.0
+	github.com/sirupsen/logrus v1.8.3
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/viper v1.7.1
 	github.com/square/go-jose/v3 v3.0.0-20200630053402-0a67ce9b0693
