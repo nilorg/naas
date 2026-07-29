@@ -30,7 +30,7 @@ require (
 	github.com/square/go-jose/v3 v3.0.0-20200630053402-0a67ce9b0693
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/swag v1.6.9
-	golang.org/x/net v0.54.0
+	golang.org/x/net v0.55.0
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
 	google.golang.org/grpc v1.79.3
 	google.golang.org/protobuf v1.36.10
